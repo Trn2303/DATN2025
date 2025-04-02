@@ -7,9 +7,9 @@ const reviewSchema = new mongoose.Schema(
       ref: "Users",
       required: true,
     },
-    order_id: {
+    service_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Orders",
+      ref: "Services",
       required: true,
     },
     rating: { type: Number, min: 1, max: 5, required: true },

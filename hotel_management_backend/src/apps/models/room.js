@@ -2,7 +2,7 @@ const mongoose = require("../../common/init.mongodb")();
 
 const roomSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, text: true, required: true },
     floor: { type: Number, required: true },
     room_type: {
       type: mongoose.Schema.Types.ObjectId,
