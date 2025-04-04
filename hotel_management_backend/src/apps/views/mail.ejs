@@ -1,0 +1,65 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Booking Confirmation</title>
+  </head>
+  <body
+    style="
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #eef4f9;
+      font-size: 16px;
+    "
+  >
+    <div
+      style="
+        max-width: 40rem;
+        margin: 2.5rem auto;
+        padding: 1rem 2.5rem;
+        background-color: #fff;
+        border-radius: 0.5rem;
+      "
+    >
+      <h2 style="color: #2d3748">Thank you for booking with Binh Dan Hotel</h2>
+      <p style="margin-top: 1rem; color: #2d3748">
+        Here are the details of your reservation:
+      </p>
+      <div style="margin-left: 1rem; margin-right: 1rem">
+        <div>
+          <strong
+            >🏢 Hotel Address: 30A Trúc Lạc, Trúc Bạch, Ba Đình, Hà Nội, Việt
+            Nam</strong
+          >
+        </div>
+        <div><strong>🏷️ Room Name: </strong> <%=newBody.roomName%></div>
+        <div><strong>🕒 Check-in Time: </strong><%=newBody.checkInTime%></div>
+        <div><strong>🕔 Check-out Time: </strong><%=newBody.checkOutTime%></div>
+        <div>
+          <strong>✨ Hotel Amenities: </strong>
+          <ul>
+            <% for(let item of newBody.amenities){%>
+            <li><%=item.name%></li>
+            <%} %>
+          </ul>
+        </div>
+        <div><strong>💰 Total Cost: </strong><%=newBody.totalPrice%></div>
+        <div><strong>💳 Deposit Paid: </strong><%=newBody.depositPaid%></div>
+        <div>
+          <strong>💲 Remaining Balance: </strong><%=newBody.remainingBalance%>
+        </div>
+      </div>
+      <p style="margin-top: 1rem; color: #2d3748">
+        If you have any questions, please contact us at 0382025369.
+      </p>
+      <p style="margin-top: 1rem; color: #2d3748">
+        We look forward to your visit.
+      </p>
+      <p style="margin-top: 1rem; color: #2d3748">Sincerely,</p>
+      <p style="margin-top: 0.5rem; color: #2d3748">
+        <strong>Binh Dan Hotel</strong>
+      </p>
+    </div>
+  </body>
+</html>
