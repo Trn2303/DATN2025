@@ -6,14 +6,14 @@ exports.index = async (req, res) => {
   try {
     const query = {};
     const room_type = await RoomTypeModel.find();
-    res.status(200).json({
+    return res.status(200).json({
       status: "success",
       data: {
         docs: room_type,
       },
     });
   } catch (error) {
-    res.status(500).json(error);
+    return res.status(500).json(error);
   }
 };
 exports.show = async (req, res) => {
@@ -27,7 +27,54 @@ exports.show = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json(error);
+    return res.status(500).json(error);
+  }
+};
+exports.store = async (req, res) => {
+  try {
+    const { name, description, base_price } = req.body;
+    const room_type = new RoomTypeModel({
+      name: name,
+      description,
+      base_price,
+    });
+    await room_type.save();
+    return res.status(200).json({
+      status: "success",
+      message: "Create room type successfully",
+    });
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+};
+exports.update = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, base_price } = req.body;
+    const room_type = new RoomTypeModel({
+      name,
+      description,
+      base_price,
+    });
+    await RoomTypeModel.updateOne({ _id: id }, room_type);
+    return res.status(200).json({
+      status: "success",
+      message: "Update room type successfully",
+    });
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+};
+exports.destroy = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await RoomTypeModel.deleteOne({ _id: id });
+    return res.status(200).json({
+      status: "success",
+      message: "Delete room type successfully",
+    });
+  } catch (error) {
+    return res.status(500).json(error);
   }
 };
 exports.getRoomsByType = async (req, res) => {
@@ -52,6 +99,6 @@ exports.getRoomsByType = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json(error);
+    return res.status(500).json(error);
   }
 };

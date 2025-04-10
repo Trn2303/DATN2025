@@ -35,6 +35,21 @@ exports.show = async (req, res) => {
     res.status(500).json(error);
   }
 };
+exports.store = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = req.body;
+    order.customer_id = id;
+    order.totalPrice = order.items.reduce((total, item) => total + item.price * item.quantity, 0);
+    await new OrderModel(order).save();
+    return res.status(200).json({
+      status: "success",
+      message: "Order created successfully",
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
 exports.cancelled = async (req, res) => {
   try {
     const { id } = req.params;
