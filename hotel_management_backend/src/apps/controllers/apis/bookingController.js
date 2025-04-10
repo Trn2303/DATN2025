@@ -20,7 +20,7 @@ exports.booking = async (req, res) => {
     // Ghép tên của amenity vào danh sách
     const amenitiesList = room.amenities.map((item) => {
       const amenity = amenities.find(
-        (a) => a._id.toString() === String(item._id)
+        (a) => a._id.toString() === item._id.toString()
       );
       return {
         name: amenity ? amenity.name : "Unknown",

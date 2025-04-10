@@ -3,4 +3,5 @@ module.exports = {
   prefixApiVersion: process.env.PREFIX_API_VERSION || "/api/v1",
   router: __dirname + "/../src/routers/web",
   baseImangeUrl: process.env.BASE_IMAGE_URL || `${__dirname}/../src/public/uploads/images`,
+  jwtAccessKey: process.env.JWT_ACCESS_KEY || "hotel-access-key",
 }

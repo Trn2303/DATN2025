@@ -1,3 +1,4 @@
+const bookingAmounts = require("../middlewares/bookingMiddleware");
 const mongoose = require("../../common/init.mongodb")();
 
 const bookingSchema = new mongoose.Schema(
@@ -15,8 +16,8 @@ const bookingSchema = new mongoose.Schema(
     checkInDate: { type: Date, required: true },
     checkOutDate: { type: Date, required: true },
     totalPrice: { type: Number, required: true },
-    depositAmount: { 
-      type: Number, 
+    depositAmount: {
+      type: Number,
     },
     remainingBalance: {
       type: Number,
@@ -36,13 +37,7 @@ const bookingSchema = new mongoose.Schema(
 );
 
 // Middleware để tính toán depositAmount và remainingBalance
-bookingSchema.pre('save', function(next) {
-  if (this.isNew) {
-    this.depositAmount = this.totalPrice * 0.5; // 50% của tổng tiền phòng
-    this.remainingBalance = this.totalPrice - this.depositAmount; // Số tiền còn lại
-  }
-  next();
-});
+bookingSchema.pre("save", bookingAmounts);
 
 const BookingModel = mongoose.model("Bookings", bookingSchema, "bookings");
 module.exports = BookingModel;
