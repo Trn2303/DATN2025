@@ -12,29 +12,30 @@ const RoomTypeController = require("../apps/controllers/apis/roomTypeController"
 const ServiceController = require("../apps/controllers/apis/serviceController");
 const StaffController = require("../apps/controllers/apis/staffController");
 const AmenityController = require("../apps/controllers/apis/amenityController");
+const InvoiceController = require("../apps/controllers/apis/invoiceController");
+const StatisticsController = require("../apps/controllers/apis/statisticsController");
+const PaymentController = require("../apps/controllers/apis/paymentController");
 
 // Import middleware
 const AuthMiddleware = require("../apps/middlewares/authMiddleware");
 
 // Router auth
-router.post(`/login`, AuthController.loginCustomer);
-router.post(`/register`, AuthController.registerCustomer);
+router.post(`/login`, AuthController.login);
+router.post(`/register`, AuthController.register);
+router.post(  `/logout`, AuthMiddleware.verifyAuthentication, AuthController.logout);
+router.get(`/auth/refresh-token`, AuthController.refreshToken);
+
+// Router user
+router.get(`/users/:id`, UserController.show);
 router.post(`/users/:id/update`, UserController.update);
-router.get(
-  `/customer/test`,
-  AuthMiddleware.verifyAuthenticationCustomer,
-  (req, res) => {
-    return res.status(200).json("pass auth");
-  }
-);
-// router.post(`/logout`, AuthController.logoutCustomer);
 
 // Router booking
 router.get(`/bookings`, BookingController.index);
 router.get(`/bookings/:id`, BookingController.show);
 router.post(`/bookings`, BookingController.booking);
 router.patch(`/bookings/:id/cancelled`, BookingController.cancelled);
-router.patch(`/bookings/:id/confirm`, BookingController.confirmBooking);
+router.patch(`/bookings/:id/check-in`, BookingController.checkIn);
+router.patch(`/bookings/:id/check-out`, BookingController.checkOut);
 router.get(`/users/:id/bookings`, BookingController.getBookingsByUser);
 
 // Router room
@@ -55,6 +56,8 @@ router.get(`/room-types/:id/rooms`, RoomTypeController.getRoomsByType);
 // Router service
 router.get(`/services`, ServiceController.index);
 router.get(`/services/:id`, ServiceController.show); // service details
+router.post(`/services`, ServiceController.store);
+router.put(`/services/:id/update`, ServiceController.update);
 router.get(`/services/:id/reviews`, ServiceController.reviews); // get reviews by service id
 router.post(`/services/:id/reviews`, ServiceController.storeReviews); // create new review
 
@@ -76,5 +79,18 @@ router.get(`/amenities`, AmenityController.index);
 router.post(`/amenities`, AmenityController.store);
 router.put(`/amenities/:id/update`, AmenityController.update);
 router.delete(`/amenities/:id/delete`, AmenityController.destroy);
+
+// Router invoice
+router.get(`/invoices`, InvoiceController.index);
+router.get(`/invoices/:id`, InvoiceController.show);
+router.post(`/invoices`, InvoiceController.store);
+router.put(`/invoices/:id/update`, InvoiceController.update);
+router.patch(`/invoices/:id/cancelled`, InvoiceController.cancelled);
+
+// Router statistics
+router.get(`/statistics/daily`, StatisticsController.dailyReport);
+
+// Router payment
+router.post(`/payment`, PaymentController.createPaymentUrl);
 
 module.exports = router;

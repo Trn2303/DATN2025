@@ -20,6 +20,31 @@ exports.index = async (req, res) => {
     res.status(500).json(error);
   }
 };
+exports.store = async (req, res) => {
+  try {
+    const service = req.body;
+    await new ServiceModel(service).save();
+    res.status(200).json({
+      status: "success",
+      data: service,
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+exports.update = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const service = req.body;
+    await ServiceModel.updateOne({ _id: id }, { $set: service });
+    return res.status(200).json({
+      status: "success",
+      message: "Update service successfully",
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
 exports.show = async (req, res) => {
   try {
     const { id } = req.params;

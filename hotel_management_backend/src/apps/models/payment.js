@@ -2,12 +2,12 @@ const mongoose = require("../../common/init.mongodb")();
 
 const paymentSchema = new mongoose.Schema(
   {
-    order_id: {
+    invoice_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Orders",
+      ref: "Invoices",
       required: true,
     },
-    customer_id: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Users",
       required: true,

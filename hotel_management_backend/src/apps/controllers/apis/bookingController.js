@@ -5,6 +5,7 @@ const AmenityModel = require("../../models/amenity");
 const transporter = require("../../../libs/transporter");
 const pagination = require("../../../libs/pagination");
 const ejs = require("ejs");
+const RoomTypeModel = require("../../models/room_type");
 exports.index = async (req, res) => {
   try {
     const query = {};
@@ -41,6 +42,7 @@ exports.booking = async (req, res) => {
     await new BookingModel(body).save();
     const user = await UserModel.findById(body.user_id);
     const room = await RoomModel.findById(body.room_id);
+    const room_type = await RoomTypeModel.findById(room.room_type);
 
     // Lấy danh sách amenity
     const AmenityIds = room.amenities.map((item) => item._id);
@@ -54,14 +56,20 @@ exports.booking = async (req, res) => {
         name: amenity ? amenity.name : "Unknown",
       };
     });
-    const depositPaid = body.totalPrice * 0.5;
-    const remainingBalance = body.totalPrice - depositPaid;
+    const checkin = new Date(body.checkInDate);
+    checkin.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00
+    const checkout = new Date(body.checkOutDate);
+    checkout.setHours(0, 0, 0, 0);
+    const totalPrice =
+      room_type.base_price * ((checkout - checkin) / (1000 * 60 * 60 * 24));
+    const depositPaid = totalPrice * 0.5;
+    const remainingBalance = totalPrice - depositPaid;
     const newBody = {
       roomName: room.name,
       checkInTime: new Date(body.checkInDate).toLocaleString(),
       checkOutTime: new Date(body.checkOutDate).toLocaleString(),
       amenities: amenitiesList,
-      totalPrice: body.totalPrice,
+      totalPrice: totalPrice,
       depositPaid,
       remainingBalance,
     };
@@ -101,7 +109,7 @@ exports.show = async (req, res) => {
     return res.status(500).json(error);
   }
 };
-exports.confirmBooking = async (req, res) => {
+exports.checkIn = async (req, res) => {
   try {
     const { id } = req.params;
     await BookingModel.updateOne(
@@ -110,7 +118,22 @@ exports.confirmBooking = async (req, res) => {
     );
     return res.status(200).json({
       status: "success",
-      message: "Booking confirmed successfully",
+      message: "Check-in completed successfully",
+    });
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+};
+exports.checkOut = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await BookingModel.updateOne(
+      { _id: id },
+      { $set: { status: "completed" } }
+    );
+    return res.status(200).json({
+      status: "success",
+      message: "Check-out completed successfully",
     });
   } catch (error) {
     return res.status(500).json(error);

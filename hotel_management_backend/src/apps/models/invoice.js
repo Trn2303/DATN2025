@@ -1,7 +1,7 @@
 const mongoose = require("../../common/init.mongodb")();
 const invoiceSchema = new mongoose.Schema(
   {
-    customer_id: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Users",
       required: true,
@@ -11,9 +11,7 @@ const invoiceSchema = new mongoose.Schema(
       ref: "Bookings",
       required: true,
     },
-    orders_id: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "Orders", required: true },
-    ], // Dịch vụ đã đặt
+    orders_id: [{ type: mongoose.Schema.Types.ObjectId, ref: "Orders" }], // Dịch vụ đã đặt
     totalAmount: { type: Number, required: true },
     paymentMethod: {
       type: String,
@@ -30,7 +28,7 @@ const invoiceSchema = new mongoose.Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "cancelled"],
+      enum: ["pending", "paid", "cancelled"], 
       default: "pending",
     },
   },

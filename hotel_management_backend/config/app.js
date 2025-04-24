@@ -4,4 +4,5 @@ module.exports = {
   router: __dirname + "/../src/routers/web",
   baseImangeUrl: process.env.BASE_IMAGE_URL || `${__dirname}/../src/public/uploads/images`,
   jwtAccessKey: process.env.JWT_ACCESS_KEY || "hotel-access-key",
+  jwtRefreshKey: process.env.JWT_REFRESH_KEY || "hotel-refresh-key",
 }
