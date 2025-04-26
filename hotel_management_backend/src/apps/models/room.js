@@ -4,7 +4,7 @@ const roomSchema = new mongoose.Schema(
   {
     name: { type: String, text: true, required: true },
     floor: { type: Number, required: true },
-    room_type: {
+    roomTypeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "RoomTypes",
       required: true,

@@ -9,7 +9,6 @@ exports.index = async (req, res) => {
     // const skip = (page - 1) * limit;
     if (req.query.status != null) query.status = req.query.status;
     if (req.query.type != null) query.type = req.query.type;
-    if (req.query.name) query.$text = { $search: req.query.name };
     // lấy danh sách phòng
     const rooms = await RoomModel.find(query);
 
@@ -68,9 +67,10 @@ exports.customerIndex = async (req, res) => {
     const rooms = await RoomModel.find(query)
       .skip(skip)
       .limit(limit)
-      .populate("roomType")
-      .populate("amenities", "name");
-
+      .populate([
+        { path: "roomTypeId", select: "name base_price" },
+        { path: "amenities", select: "name" }
+      ]);
     return res.status(200).json({
       status: "success",
       data: {
@@ -78,11 +78,17 @@ exports.customerIndex = async (req, res) => {
           _id: room._id,
           name: room.name,
           floor: room.floor,
-          roomType: room.roomType.name,
-          price: room.roomType.base_price,
+          room_type: room.roomTypeId
+            ? {
+                name: room.roomTypeId.name,
+                base_price: room.roomTypeId.base_price,
+              }
+            : null,
           image: room.image,
           status: room.status,
-          amenities: room.amenities.map((amenity) => amenity.name),
+          amenities: (room.amenities || []).map((amenity) => ({
+            name: amenity.name,
+          })),
           createdAt: room.createdAt,
           updatedAt: room.updatedAt,
         })),
