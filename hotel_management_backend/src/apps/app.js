@@ -9,7 +9,7 @@ const config = require("config");
 app.use(cookieParser());
 app.use(express.json());
 app.use(
-  "/asset/uploads/images",
+  "/assets/uploads",
   express.static(config.get("app.baseImangeUrl"))
 );
 

@@ -16,7 +16,7 @@ const roomSchema = new mongoose.Schema(
       required: true,
     },
     amenities: [{ type: mongoose.Schema.Types.ObjectId, ref: "Amenities" }], // Tiện ích: Wifi, Máy lạnh, TV...
-    // images: [{ type: String }], // Lưu URL ảnh phòng
+    image: { type: String },
   },
   { timestamps: true }
 );

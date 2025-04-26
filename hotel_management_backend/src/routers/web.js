@@ -32,32 +32,33 @@ router.post(`/users/:id/update`, UserController.update);
 // Router booking
 router.get(`/bookings`, BookingController.index);
 router.get(`/bookings/:id`, BookingController.show);
-router.post(`/bookings`, BookingController.booking);
+router.post(`/admin/bookings`, BookingController.booking);
 router.patch(`/bookings/:id/cancelled`, BookingController.cancelled);
-router.patch(`/bookings/:id/check-in`, BookingController.checkIn);
-router.patch(`/bookings/:id/check-out`, BookingController.checkOut);
+router.patch(`/admin/bookings/:id/check-in`, BookingController.checkIn);
+router.patch(`/admin/bookings/:id/check-out`, BookingController.checkOut);
 router.get(`/users/:id/bookings`, BookingController.getBookingsByUser);
 
 // Router room
-router.get(`/rooms`, RoomController.index);
+router.get(`/admin/rooms`, RoomController.index);
+router.get(`/rooms`, RoomController.customerIndex); // get all rooms for customer
 router.get(`/rooms/:id`, RoomController.show);
-router.post(`/rooms`, RoomController.store);
-router.put(`/rooms/:id/update`, RoomController.update);
-router.delete(`/rooms/:id/delete`, RoomController.destroy);
+router.post(`/admin/rooms`, RoomController.store);
+router.put(`/admin/rooms/:id/update`, RoomController.update);
+router.delete(`/admin/rooms/:id/delete`, RoomController.destroy);
 
 // Router room type
 router.get(`/room-types`, RoomTypeController.index);
 router.get(`/room-types/:id`, RoomTypeController.show);
-router.post(`/room-types`, RoomTypeController.store);
-router.put(`/room-types/:id/update`, RoomTypeController.update);
-router.delete(`/room-types/:id/delete`, RoomTypeController.destroy);
+router.post(`/admin/room-types`, RoomTypeController.store);
+router.put(`/admin/room-types/:id/update`, RoomTypeController.update);
+router.delete(`/admin/room-types/:id/delete`, RoomTypeController.destroy);
 router.get(`/room-types/:id/rooms`, RoomTypeController.getRoomsByType);
 
 // Router service
 router.get(`/services`, ServiceController.index);
 router.get(`/services/:id`, ServiceController.show); // service details
-router.post(`/services`, ServiceController.store);
-router.put(`/services/:id/update`, ServiceController.update);
+router.post(`/admin/services`, ServiceController.store);
+router.put(`/admin/services/:id/update`, ServiceController.update);
 router.get(`/services/:id/reviews`, ServiceController.reviews); // get reviews by service id
 router.post(`/services/:id/reviews`, ServiceController.storeReviews); // create new review
 
@@ -68,27 +69,27 @@ router.post(`/users/:id/orders`, OrderController.store);
 router.patch(`/orders/:id/cancelled`, OrderController.cancelled);
 
 // Router staff
-router.get(`/staffs`, StaffController.index);
-router.get(`/staffs/:id`, StaffController.show);
-router.post(`/staffs`, StaffController.store);
-router.put(`/staffs/:id/update`, StaffController.update);
-router.patch(`/staffs/:id/status`, StaffController.deactivate);
+router.get(`/admin/staffs`, StaffController.index);
+router.get(`/admin/staffs/:id`, StaffController.show);
+router.post(`/admin/staffs`, StaffController.store);
+router.put(`/admin/staffs/:id/update`, StaffController.update);
+router.patch(`/admin/staffs/:id/status`, StaffController.deactivate);
 
 // Router amenity
 router.get(`/amenities`, AmenityController.index);
-router.post(`/amenities`, AmenityController.store);
-router.put(`/amenities/:id/update`, AmenityController.update);
-router.delete(`/amenities/:id/delete`, AmenityController.destroy);
+router.post(`/admin/amenities`, AmenityController.store);
+router.put(`/admin/amenities/:id/update`, AmenityController.update);
+router.delete(`/admin/amenities/:id/delete`, AmenityController.destroy);
 
 // Router invoice
 router.get(`/invoices`, InvoiceController.index);
 router.get(`/invoices/:id`, InvoiceController.show);
-router.post(`/invoices`, InvoiceController.store);
-router.put(`/invoices/:id/update`, InvoiceController.update);
+router.post(`/admin/invoices`, InvoiceController.store);
+router.put(`/admin/invoices/:id/update`, InvoiceController.update);
 router.patch(`/invoices/:id/cancelled`, InvoiceController.cancelled);
 
 // Router statistics
-router.get(`/statistics/daily`, StatisticsController.dailyReport);
+router.get(`/admin/statistics/daily`, StatisticsController.dailyReport);
 
 // Router payment
 router.post(`/payment`, PaymentController.createPaymentUrl);
