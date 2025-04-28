@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const { connectionRedis } = require("../common/init.redis");
+const cors = require("cors")
 
 connectionRedis();
 const app = express();
@@ -8,6 +9,10 @@ const config = require("config");
 
 app.use(cookieParser());
 app.use(express.json());
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
 app.use(
   "/assets/uploads",
   express.static(config.get("app.baseImangeUrl"))

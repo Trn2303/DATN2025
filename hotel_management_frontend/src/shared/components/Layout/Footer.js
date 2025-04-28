@@ -11,7 +11,7 @@ const Footer = () => {
                     <strong>Bình Dân Hotel</strong>
                   </h6>
                   <ul>
-                    <li>Địa chỉ</li>
+                    <li>Địa chỉ: 30A Trúc Lạc, Trúc Bạch, Ba Đình, Hà Nội</li>
                   </ul>
                 </div>
               </div>

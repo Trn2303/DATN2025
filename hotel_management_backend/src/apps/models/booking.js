@@ -16,28 +16,14 @@ const bookingSchema = new mongoose.Schema(
     checkInDate: { type: Date, required: true },
     checkOutDate: { type: Date, required: true },
     totalPrice: { type: Number, required: true },
-    depositAmount: {
-      type: Number,
-    },
-    remainingBalance: {
-      type: Number,
-    },
     status: {
       type: String,
       enum: ["pending", "confirmed", "cancelled", "completed"],
       default: "pending",
-    },
-    paymentMethod: {
-      type: String,
-      enum: ["vnpay", "momo"],
-      required: true,
-    },
+    }
   },
   { timestamps: true }
 );
-
-// Middleware để tính toán depositAmount và remainingBalance
-bookingSchema.pre("save", bookingAmounts);
 
 const BookingModel = mongoose.model("Bookings", bookingSchema, "bookings");
 module.exports = BookingModel;

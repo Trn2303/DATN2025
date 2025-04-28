@@ -91,7 +91,7 @@ exports.getRoomsByType = async (req, res) => {
       filters: {
         page,
         limit,
-        room_type: id,
+        roomTypeId: id,
       },
       data: {
         docs: rooms,

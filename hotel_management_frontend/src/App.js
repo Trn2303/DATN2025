@@ -1,12 +1,14 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "./shared/components/Layout/Footer";
 import Header from "./shared/components/Layout/Header";
-import Slider from "./shared/components/Layout/Slider";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import RoomDetails from "./pages/RoomDetails";
-import ServiceDetails from "./pages/ServiceDetails";
+import Services from "./pages/Services";
 import Rooms from "./pages/Rooms";
+import BookingService from "./pages/BookingService";
+import Search from './pages/Search/index';
+import ServiceDetails from "./pages/ServiceDetails";
 
 const App = () => {
   return (
@@ -15,15 +17,16 @@ const App = () => {
         {/* Header Section Begin */}
         <Header />
         {/* Header End */}
-        {/* Slider Begin */}
-        <Slider />
-        {/* Slider End */}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<ServiceDetails />} />
-          <Route path="/rooms" element={<Rooms />} />
-          <Route path="/room-details" element={<RoomDetails />} />
+          <Route path="/About" element={<About />} />
+          <Route path="/Search" element={<Search />} />
+          <Route path="/Services" element={<Services />} />
+          <Route path="/ServiceDetails-:id" element={<ServiceDetails />} />
+          <Route path="/Rooms" element={<Rooms />} />
+          <Route path="/RoomTypes-:id" element={<Rooms />} />
+          <Route path="/RoomDetails-:id" element={<RoomDetails />} />
+          <Route path="/BookingService-:id" element={<BookingService />} />
         </Routes>
         {/* Footer Section Begin */}
         <Footer />

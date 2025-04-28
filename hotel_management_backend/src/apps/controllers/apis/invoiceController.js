@@ -71,7 +71,7 @@ exports.store = async (req, res) => {
       (total, order) => total + order.totalPrice,
       0
     );
-    const totalAmount = booking.remainingBalance + totalService;
+    const totalAmount = booking.totalPrice + totalService;
     const invoice = new InvoiceModel({
       user_id: booking.user_id,
       booking_id: booking._id,

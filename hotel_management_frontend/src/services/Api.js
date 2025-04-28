@@ -1,2 +1,73 @@
 import Http from "./Http";
+
+// Auth
+export const login = (data, config) => Http.post("/login", data, config);
+export const register = (data, config) => Http.post("/register", data, config);
+export const logout = (config) => Http.post("/logout", null, config);
+export const refreshToken = (config) => Http.get("/auth/refresh-token", config);
+
+// User
+export const getUser = (id, config) => Http.get(`/users/${id}`, config);
+export const updateUser = (id, data, config) => Http.post(`/users/${id}/update`, data, config);
+
+// Booking
+export const getBookings = (config) => Http.get("/bookings", config);
+export const getBookingById = (id, config) => Http.get(`/bookings/${id}`, config);
+export const createBooking = (data, config) => Http.post("/admin/bookings", data, config);
+export const cancelBooking = (id, data, config) => Http.patch(`/bookings/${id}/cancelled`, data, config);
+export const checkInBooking = (id, data, config) => Http.patch(`/admin/bookings/${id}/check-in`, data, config);
+export const checkOutBooking = (id, data, config) => Http.patch(`/admin/bookings/${id}/check-out`, data, config);
+export const getBookingsByUser = (id, config) => Http.get(`/users/${id}/bookings`, config);
+
+// Room
+export const getAdminRooms = (config) => Http.get("/admin/rooms", config);
 export const getRooms = (config) => Http.get("/rooms", config);
+export const getRoomById = (id, config) => Http.get(`/rooms/${id}`, config);
+export const createRoom = (data) => Http.post("/admin/rooms", data);
+export const updateRoom = (id, data, config) => Http.put(`/admin/rooms/${id}/update`, data, config);
+export const deleteRoom = (id, config) => Http.delete(`/admin/rooms/${id}/delete`, config);
+
+// Room Type
+export const getRoomTypes = (config) => Http.get("/room-types", config);
+export const getRoomTypeById = (id, config) => Http.get(`/room-types/${id}`, config);
+export const createRoomType = (data) => Http.post("/admin/room-types", data);
+export const updateRoomType = (id, data, config) => Http.put(`/admin/room-types/${id}/update`, data, config);
+export const deleteRoomType = (id, config) => Http.delete(`/admin/room-types/${id}/delete`, config);
+export const getRoomsRoomType = (id, config) => Http.get(`/room-types/${id}/rooms`, config);
+
+// Service
+export const getServices = (config) => Http.get("/services", config);
+export const getServiceById = (id, config) => Http.get(`/services/${id}`, config);
+export const createService = (data, config) => Http.post("/admin/services", data, config);
+export const updateService = (id, data, config) => Http.put(`/admin/services/${id}/update`, data, config);
+export const getReviewsService = (id, config) => Http.get(`/services/${id}/reviews`, config);
+export const createReviewService = (id, data) => Http.post(`/services/${id}/reviews`, data);
+
+// Order
+export const getOrdersByUser = (id, config) => Http.get(`/users/${id}/orders`, config);
+export const getOrderById = (id, config) => Http.get(`/orders/${id}`, config);
+export const createOrder = (id, data) => Http.post(`/users/${id}/orders`, data);
+export const cancelOrder = (id, data, config) => Http.patch(`/orders/${id}/cancelled`, data, config);
+
+// Staff
+export const getStaffs = (config) => Http.get("/admin/staffs", config);
+export const getStaffById = (id, config) => Http.get(`/admin/staffs/${id}`, config);
+export const createStaff = (data) => Http.post("/admin/staffs", data);
+export const updateStaff = (id, data, config) => Http.put(`/admin/staffs/${id}/update`, data, config);
+export const updateStaffStatus = (id, data, config) => Http.patch(`/admin/staffs/${id}/status`, data, config);
+
+// Amenity
+export const getAmenities = (config) => Http.get("/amenities", config);
+export const createAmenity = (data) => Http.post("/admin/amenities", data);
+export const updateAmenity = (id, data, config) => Http.put(`/admin/amenities/${id}/update`, data, config);
+export const deleteAmenity = (id, config) => Http.delete(`/admin/amenities/${id}/delete`, config);
+
+// Invoice
+export const getInvoices = (config) => Http.get("/invoices", config);
+export const getInvoiceById = (id, config) => Http.get(`/invoices/${id}`, config);
+export const createInvoice = (data) => Http.post("/admin/invoices", data);
+export const updateInvoice = (id, data, config) => Http.put(`/admin/invoices/${id}/update`, data, config);
+export const cancelInvoice = (id, data, config) => Http.patch(`/invoices/${id}/cancelled`, data, config);
+
+// Statistics
+export const getDailyStatistics = (config) => Http.get("/admin/statistics/daily", config);

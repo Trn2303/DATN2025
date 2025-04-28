@@ -2,9 +2,8 @@ const mongoose = require("../../common/init.mongodb")();
 
 const reviewSchema = new mongoose.Schema(
   {
-    user_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Users",
+    name: {
+      type: String,
       required: true,
     },
     service_id: {

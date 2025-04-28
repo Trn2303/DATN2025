@@ -60,9 +60,19 @@ exports.customerIndex = async (req, res) => {
     const limit = Number(req.query.limit) || 9;
     const skip = (page - 1) * limit;
 
-    if (req.query.type) query.type = req.query.type;
-    if (req.query.name) query.$text = { $search: req.query.name };
-
+    if (req.query.roomTypeId) query.roomTypeId = req.query.roomTypeId;
+    const { checkIn, checkOut } = req.query;
+    if (checkIn && checkOut) {
+      const bookedRoomIds = await BookingModel.find({
+        $or: [
+          {
+            checkInDate: { $lt: new Date(checkOut) },
+            checkOutDate: { $gt: new Date(checkIn) }
+          }
+        ]
+      }).distinct('room_id');
+      query._id = { $nin: bookedRoomIds };
+    }
     const total = await RoomModel.countDocuments(query);
     const rooms = await RoomModel.find(query)
       .skip(skip)
@@ -80,9 +90,9 @@ exports.customerIndex = async (req, res) => {
           floor: room.floor,
           room_type: room.roomTypeId
             ? {
-                name: room.roomTypeId.name,
-                base_price: room.roomTypeId.base_price,
-              }
+              name: room.roomTypeId.name,
+              base_price: room.roomTypeId.base_price,
+            }
             : null,
           image: room.image,
           status: room.status,
@@ -92,9 +102,7 @@ exports.customerIndex = async (req, res) => {
           createdAt: room.createdAt,
           updatedAt: room.updatedAt,
         })),
-        total,
-        page,
-        totalPages: Math.ceil(total / limit),
+        pages: await pagination(page, RoomModel, query, limit),
       },
     });
   } catch (error) {
@@ -105,10 +113,30 @@ exports.customerIndex = async (req, res) => {
 exports.show = async (req, res) => {
   try {
     const { id } = req.params;
-    const room = await RoomModel.findById(id);
+    const room = await RoomModel.findById(id).populate([
+      { path: "roomTypeId", select: "name base_price description" },
+      { path: "amenities", select: "name" }
+    ]);
     return res.status(200).json({
       status: "success",
-      data: room,
+      data: room.map((room) => ({
+        _id: room._id,
+        name: room.name,
+        floor: room.floor,
+        room_type: room.roomTypeId
+          ? {
+            name: room.roomTypeId.name,
+            base_price: room.roomTypeId.base_price,
+          }
+          : null,
+        image: room.image,
+        status: room.status,
+        amenities: (room.amenities || []).map((amenity) => ({
+          name: amenity.name,
+        })),
+        createdAt: room.createdAt,
+        updatedAt: room.updatedAt,
+      })),
     });
   } catch (error) {
     return res.status(500).json(error);

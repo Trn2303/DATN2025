@@ -1,4 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getRoomTypes } from "../../../services/Api";
 
 const Header = () => {
   const location = useLocation(); // lấy đường dẫn hiện tại
@@ -6,6 +8,13 @@ const Header = () => {
   const isActive = (path) => {
     return location.pathname === path ? "active" : "";
   };
+
+  const [room_types, setRoom_types] = useState([])
+  useEffect(() => {
+    getRoomTypes({})
+      .then(({ data }) => setRoom_types(data.data.docs))
+      .catch((error) => console.log(error))
+  }, []);
 
   return (
     <>
@@ -28,38 +37,34 @@ const Header = () => {
                         <Link to="/">Home</Link>
                       </li>
                       <li className={isActive("/rooms")}>
-                        <Link to="/rooms">Phòng khách sạn</Link>
+                        <Link to="/Rooms">Phòng khách sạn</Link>
                       </li>
                       <li className={isActive("/services")}>
-                        <Link to="/services">Dịch vụ</Link>
+                        <Link to="/Services">Dịch vụ</Link>
                       </li>
                       <li>
                         <Link to="#">Loại phòng</Link>
                         <ul className="dropdown">
-                          <li>
-                            <Link to="#">Single Room</Link>
-                          </li>
-                          <li>
-                            <Link to="#">Double Room</Link>
-                          </li>
-                          <li>
-                            <Link to="#">Family Room</Link>
-                          </li>
-                          <li>
-                            <Link to="#">Twin Room</Link>
-                          </li>
+                          {
+                            room_types.map((room_type, index) =>
+                              <li key={index}>
+                                <Link to={`/RoomTypes-${room_type._id}`}>{room_type.name}</Link>
+                              </li>
+                            )
+                          }
+
                         </ul>
                       </li>
                       <li className={isActive("/search")}>
-                        <Link to="/search">Tìm kiếm</Link>
+                        <Link to="/Search">Tìm kiếm</Link>
                       </li>
                     </ul>
                   </nav>
                   <div className="nav-right auth-buttons">
-                    <Link to="/login">
+                    <Link to="/Login">
                       <button className="btn-login">Đăng nhập</button>
                     </Link>
-                    <Link to="/register">
+                    <Link to="/Register">
                       <button className="btn-register">Đăng ký</button>
                     </Link>
                   </div>

@@ -12,11 +12,20 @@ exports.index = async (req, res) => {
     const page = Number(req.query.page) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
-    const bookings = await BookingModel.find(query).skip(skip).limit(limit);
+    const bookings = await BookingModel.find(query).skip(skip).limit(limit).populate({
+      path: "room_id",
+      select: "name floor"
+    });
     res.status(200).json({
       status: "success",
       data: {
-        docs: bookings,
+        docs: bookings.map((booking) => ({
+          ...booking.toObject(),
+          room: booking.room_id ? {
+            name: booking.room_id.name,
+            floor: booking.room_id.floor,
+          } : null,
+        })),
         pages: await pagination(page, BookingModel, query, limit),
       },
     });
@@ -27,10 +36,19 @@ exports.index = async (req, res) => {
 exports.getBookingsByUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const bookings = await BookingModel.find({ user_id: id });
+    const bookings = await BookingModel.find({ user_id: id }).populate({
+      path: "room_id",
+      select: "name floor",
+    });
     return res.status(200).json({
       status: "success",
-      data: bookings,
+      data: bookings.map((booking) => ({
+        ...booking.toObject(),
+        room: booking.room_id ? {
+          name: booking.room_id.name,
+          floor: booking.room_id.floor,
+        } : null,
+      })),
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -62,16 +80,12 @@ exports.booking = async (req, res) => {
     checkout.setHours(0, 0, 0, 0);
     const totalPrice =
       room_type.base_price * ((checkout - checkin) / (1000 * 60 * 60 * 24));
-    const depositPaid = totalPrice * 0.5;
-    const remainingBalance = totalPrice - depositPaid;
     const newBody = {
       roomName: room.name,
       checkInTime: new Date(body.checkInDate).toLocaleString(),
       checkOutTime: new Date(body.checkOutDate).toLocaleString(),
       amenities: amenitiesList,
-      totalPrice: totalPrice,
-      depositPaid,
-      remainingBalance,
+      totalPrice: totalPrice
     };
     // send mail
     const html = await ejs.renderFile(`${__dirname}/../../views/mail.ejs`, {
@@ -101,9 +115,13 @@ exports.show = async (req, res) => {
         message: "Booking not found",
       });
     }
+    const room = await RoomModel.findById(booking.room_id);
     return res.status(200).json({
       status: "success",
-      data: booking,
+      data: {
+        ...booking.toObject(),
+        room: room ? { name: room.name, floor: room.floor } : null,
+      },
     });
   } catch (error) {
     return res.status(500).json(error);

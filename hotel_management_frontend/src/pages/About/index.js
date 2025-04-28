@@ -1,6 +1,8 @@
+import Slider from './../../shared/components/Layout/Slider';
 const About = () => {
   return (
     <>
+      <Slider />
       <div className="aboutus-section spad">
         <div className="container">
           <div className="row">
