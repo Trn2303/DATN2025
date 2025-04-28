@@ -119,7 +119,7 @@ exports.show = async (req, res) => {
     ]);
     return res.status(200).json({
       status: "success",
-      data: room.map((room) => ({
+      data: {
         _id: room._id,
         name: room.name,
         floor: room.floor,
@@ -136,7 +136,7 @@ exports.show = async (req, res) => {
         })),
         createdAt: room.createdAt,
         updatedAt: room.updatedAt,
-      })),
+      },
     });
   } catch (error) {
     return res.status(500).json(error);

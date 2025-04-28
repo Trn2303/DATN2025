@@ -12,19 +12,25 @@ exports.index = async (req, res) => {
     const page = Number(req.query.page) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
-    const bookings = await BookingModel.find(query).skip(skip).limit(limit).populate({
-      path: "room_id",
-      select: "name floor"
-    });
+    const bookings = await BookingModel.find(query)
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "room_id",
+        select: "_id name floor",
+      })
+      .lean();
     res.status(200).json({
       status: "success",
       data: {
         docs: bookings.map((booking) => ({
-          ...booking.toObject(),
-          room: booking.room_id ? {
-            name: booking.room_id.name,
-            floor: booking.room_id.floor,
-          } : null,
+          ...booking,
+          room: booking.room_id
+            ? {
+                name: booking.room_id.name,
+                floor: booking.room_id.floor,
+              }
+            : null,
         })),
         pages: await pagination(page, BookingModel, query, limit),
       },
@@ -36,18 +42,28 @@ exports.index = async (req, res) => {
 exports.getBookingsByUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const bookings = await BookingModel.find({ user_id: id }).populate({
-      path: "room_id",
-      select: "name floor",
-    });
+    const bookings = await BookingModel.find({ user_id: id })
+      .populate({
+        path: "room_id",
+        select: "name floor",
+      })
+      .lean();
     return res.status(200).json({
       status: "success",
       data: bookings.map((booking) => ({
-        ...booking.toObject(),
-        room: booking.room_id ? {
-          name: booking.room_id.name,
-          floor: booking.room_id.floor,
-        } : null,
+        _id: booking._id,
+        checkInDate: booking.checkInDate,
+        checkOutDate: booking.checkOutDate,
+        totalPrice: booking.totalPrice,
+        status: booking.status,
+        createdAt: booking.createdAt,
+        updatedAt: booking.updatedAt,
+        room: booking.room_id
+          ? {
+              name: booking.room_id.name,
+              floor: booking.room_id.floor,
+            }
+          : null,
       })),
     });
   } catch (error) {
@@ -85,7 +101,7 @@ exports.booking = async (req, res) => {
       checkInTime: new Date(body.checkInDate).toLocaleString(),
       checkOutTime: new Date(body.checkOutDate).toLocaleString(),
       amenities: amenitiesList,
-      totalPrice: totalPrice
+      totalPrice: totalPrice,
     };
     // send mail
     const html = await ejs.renderFile(`${__dirname}/../../views/mail.ejs`, {
@@ -108,19 +124,28 @@ exports.booking = async (req, res) => {
 exports.show = async (req, res) => {
   try {
     const { id } = req.params;
-    const booking = await BookingModel.findById(id);
+    const booking = await BookingModel.findById(id)
+      .populate({
+        path: "room_id",
+        select: "name floor",
+      })
+      .lean();
     if (!booking) {
       return res.status(404).json({
         status: "fail",
         message: "Booking not found",
       });
     }
-    const room = await RoomModel.findById(booking.room_id);
     return res.status(200).json({
       status: "success",
       data: {
-        ...booking.toObject(),
-        room: room ? { name: room.name, floor: room.floor } : null,
+        ...booking,
+        room: booking.room_id
+          ? {
+              name: booking.room_id.name,
+              floor: booking.room_id.floor,
+            }
+          : null,
       },
     });
   } catch (error) {
