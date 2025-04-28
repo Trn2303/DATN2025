@@ -4,7 +4,7 @@ import Header from "./shared/components/Layout/Header";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import RoomDetails from "./pages/RoomDetails";
-import Services from "./pages/Services";
+import Services from "./pages/ListService";
 import Rooms from "./pages/Rooms";
 import BookingService from "./pages/BookingService";
 import Search from './pages/Search/index';

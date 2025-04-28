@@ -10,17 +10,23 @@ const Rooms = () => {
     getRooms({
       params: {
         limit: 9,
-      }
+      },
     })
       .then(({ data }) => setRooms(data.data.docs))
-      .catch((error) => console.log(error)
-      )
+      .catch((error) => console.log(error));
   }, []);
   return (
     <>
       <Slider />
       <div className="rooms-section spad">
         <div className="container">
+          <div className="row">
+            <div className="col-lg-12">
+              <div className="section-title">
+                <h2>Our Rooms</h2>
+              </div>
+            </div>
+          </div>
           <div className="row">
             {rooms.map((items, index) => (
               <RoomItem key={index} item={items} />

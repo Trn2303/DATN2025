@@ -53,7 +53,7 @@ const RoomDetails = () => {
               <p className="f-para">{room?.room_type?.description}</p>
             </div>
             <div className="rdt-right">
-              <Link to={`/Booking-${room._id}`}>Booking Now</Link>
+              <Link to={`/Booking-${room._id}`}>Đặt phòng</Link>
             </div>
           </div>
         </div>
