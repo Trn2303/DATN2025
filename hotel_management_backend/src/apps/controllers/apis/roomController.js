@@ -1,4 +1,5 @@
 const RoomModel = require("../../models/room");
+const BookingModel = require("../../models/booking");
 const pagination = require("../../../libs/pagination");
 const Amenity = require("../../models/amenity");
 exports.index = async (req, res) => {
@@ -55,32 +56,40 @@ exports.index = async (req, res) => {
 };
 exports.customerIndex = async (req, res) => {
   try {
-    const query = { status: "clean" }; // chỉ hiển thị phòng sẵn sàng (clean)
+    const query = {};
+    const { checkIn, checkOut } = req.query;
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 9;
     const skip = (page - 1) * limit;
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    let bookedRoomIds = [];
+    if (checkIn && checkOut) {
+      // Tìm các phòng đã đặt trong khoảng thời gian checkIn và checkOut
+      bookedRoomIds = await BookingModel.find({
+        status: { $in: ["pending", "confirmed"] },
+        checkInDate: { $lt: checkOutDate },
+        checkOutDate: { $gt: checkInDate },
+      }).distinct("room_id");
+      query = {
+        $or: [
+          { status: "clean" },
+          { _id: { $nin: bookedRoomIds } }, // Chỉ lấy phòng không bị đặt
+        ],
+      };
+    } else {
+      query.status = "clean";
+    }
 
     if (req.query.roomTypeId) query.roomTypeId = req.query.roomTypeId;
-    const { checkIn, checkOut } = req.query;
-    if (checkIn && checkOut) {
-      const bookedRoomIds = await BookingModel.find({
-        $or: [
-          {
-            checkInDate: { $lt: new Date(checkOut) },
-            checkOutDate: { $gt: new Date(checkIn) }
-          }
-        ]
-      }).distinct('room_id');
-      query._id = { $nin: bookedRoomIds };
-    }
-    const total = await RoomModel.countDocuments(query);
     const rooms = await RoomModel.find(query)
       .skip(skip)
       .limit(limit)
       .populate([
         { path: "roomTypeId", select: "name base_price" },
-        { path: "amenities", select: "name" }
+        { path: "amenities", select: "name" },
       ]);
+
     return res.status(200).json({
       status: "success",
       data: {
@@ -90,9 +99,9 @@ exports.customerIndex = async (req, res) => {
           floor: room.floor,
           room_type: room.roomTypeId
             ? {
-              name: room.roomTypeId.name,
-              base_price: room.roomTypeId.base_price,
-            }
+                name: room.roomTypeId.name,
+                base_price: room.roomTypeId.base_price,
+              }
             : null,
           image: room.image,
           status: room.status,
@@ -106,7 +115,8 @@ exports.customerIndex = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json(error);
+    console.error("Error in customerIndex:", error); // Log lỗi chi tiết
+    return res.status(500).json({ status: "error", message: error.message });
   }
 };
 
@@ -115,7 +125,7 @@ exports.show = async (req, res) => {
     const { id } = req.params;
     const room = await RoomModel.findById(id).populate([
       { path: "roomTypeId", select: "name base_price description" },
-      { path: "amenities", select: "name" }
+      { path: "amenities", select: "name" },
     ]);
     return res.status(200).json({
       status: "success",
@@ -125,9 +135,9 @@ exports.show = async (req, res) => {
         floor: room.floor,
         room_type: room.roomTypeId
           ? {
-            name: room.roomTypeId.name,
-            base_price: room.roomTypeId.base_price,
-          }
+              name: room.roomTypeId.name,
+              base_price: room.roomTypeId.base_price,
+            }
           : null,
         image: room.image,
         status: room.status,

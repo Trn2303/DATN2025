@@ -5,7 +5,7 @@ import { getRoomTypes } from "../../services/Api";
 const SearchBox = () => {
   const [checIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-  const [roomType, setRoomType] = useState("");
+  const [roomTypeId, setRoomTypeId] = useState("");
   const [room_types, setRoom_types] = useState([])
   useEffect(() => {
     getRoomTypes({})
@@ -13,7 +13,7 @@ const SearchBox = () => {
       .catch((error) => console.log(error))
   }, []);
   const navigate = useNavigate();
-  const clickSearch = () => navigate(`/Search?checkIn=${checIn}&checkOut=${checkOut}&roomType=${roomType}`)
+  const clickSearch = () => navigate(`/Search?checkIn=${checIn}&checkOut=${checkOut}&roomTypeId=${roomTypeId}`)
   return (
     <>
       <div className="search-container">
@@ -29,8 +29,8 @@ const SearchBox = () => {
             />
           </div>
           <div className="input-container">
-            <label htmlFor="roomType">Loại phòng</label>
-            <select id="roomType" onChange={(e) => setRoomType(e.target.value)}            >
+            <label htmlFor="roomTypeId">Loại phòng</label>
+            <select id="roomTypeId" onChange={(e) => setRoomTypeId(e.target.value)}            >
               <option value="" disabled selected>Chọn loại phòng</option>
               {room_types.map((room_type, index) => (
                 <option key={index} value={room_type._id}>

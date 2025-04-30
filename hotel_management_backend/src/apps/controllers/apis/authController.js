@@ -41,14 +41,14 @@ exports.register = async (req, res) => {
     if (isEmail) {
       return res.status(400).json({
         status: "fail",
-        message: "Email already exists!",
+        message: "Email đã được sử dụng!",
       });
     }
     const isPhone = await UserModel.findOne({ phone });
     if (isPhone) {
       return res.status(400).json({
         status: "fail",
-        message: "Phone already exists!",
+        message: "Số điện thoại đã được sử dụng!",
       });
     }
     await UserModel({
@@ -59,7 +59,7 @@ exports.register = async (req, res) => {
     }).save();
     return res.status(200).json({
       status: "success",
-      message: "Customer created successfully!",
+      message: "Đăng ký tài khoản thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập sau 5 giây",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -70,11 +70,11 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
     const isEmail = await UserModel.findOne({ email });
     if (!isEmail) {
-      return res.status(400).json({ message: "Email invalid!" });
+      return res.status(400).json({ message: "Email không tồn tại!" });
     }
     const isPassword = isEmail.password === password;
     if (!isPassword) {
-      return res.status(400).json({ message: "Password invalid!" });
+      return res.status(400).json({ message: "Sai mật khẩu!" });
     }
     if (isEmail && isPassword) {
       const accessToken = await generateAccessToken(isEmail);
@@ -94,10 +94,13 @@ exports.login = async (req, res) => {
       }).save();
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
+        secure: true,
+        sameSite: "None",
       });
       const { password, ...others } = isEmail._doc;
       return res.status(200).json({
-        message: "Login successfully!",
+        status: "success",
+        message: "Đăng nhập thành công!",
         user: others,
         accessToken,
       });

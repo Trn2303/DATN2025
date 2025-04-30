@@ -48,15 +48,12 @@ const Header = () => {
                           {
                             room_types.map((room_type, index) =>
                               <li key={index}>
-                                <Link to={`/RoomTypes-${room_type._id}`}>{room_type.name}</Link>
+                                <Link to={`/RoomType-${room_type._id}`}>{room_type.name}</Link>
                               </li>
                             )
                           }
 
                         </ul>
-                      </li>
-                      <li className={isActive("/search")}>
-                        <Link to="/Search">Tìm kiếm</Link>
                       </li>
                     </ul>
                   </nav>

@@ -1,20 +1,31 @@
 import { useEffect, useState } from "react";
 import { getRooms } from "../../services/Api";
 import RoomItem from "../../shared/components/room-item";
-import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Slider from "../../shared/components/Layout/Slider";
+import Pagination from "../../shared/components/_pagination";
 
 const Rooms = () => {
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const limit = 9;
+
   const [rooms, setRooms] = useState([]);
+  const [pageIndex, setPageIndex] = useState({ limit });
+
   useEffect(() => {
     getRooms({
       params: {
-        limit: 9,
+        limit,
+        page,
       },
     })
-      .then(({ data }) => setRooms(data.data.docs))
+      .then(({ data }) => {
+        setRooms(data.data.docs);
+        setPageIndex({ limit, ...data.data.pages });
+      })
       .catch((error) => console.log(error));
-  }, []);
+  }, [page]);
   return (
     <>
       <Slider />
@@ -32,13 +43,7 @@ const Rooms = () => {
               <RoomItem key={index} item={items} />
             ))}
             <div className="col-lg-12">
-              <div className="room-pagination">
-                <Link to="">1</Link>
-                <Link to="">2</Link>
-                <Link to="">
-                  Next <i className="fa fa-long-arrow-right" />
-                </Link>
-              </div>
+              <Pagination pages={pageIndex} />
             </div>
           </div>
         </div>

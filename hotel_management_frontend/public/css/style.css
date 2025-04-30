@@ -191,7 +191,7 @@ ol {
   opacity: 1;
 }
 
-.menu-item .nav-menu .mainmenu li:hover>a:after {
+.menu-item .nav-menu .mainmenu li:hover > a:after {
   opacity: 1;
 }
 
@@ -522,7 +522,6 @@ ol {
   margin-bottom: 36px;
 }
 
-
 .service-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -570,6 +569,25 @@ ol {
   text-align: center;
   padding-top: 16px;
   border-top: 1px solid #ebebeb;
+}
+
+.login-background {
+  background-image: url("../img/background/bg-login.jpg"); 
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.login-box {
+
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  color: #fff;
+}
+
+.login-box input {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
 }
 
 /*------------------------
@@ -943,14 +961,13 @@ ol {
   width: 125px;
 }
 
-
-.room-pagination,
+.pagination,
 .btn-view {
   text-align: center;
   padding: 20px 0;
 }
 
-.room-pagination a {
+.pagination a {
   font-size: 16px;
   color: #707079;
   border: 1px solid #efd4b9;
@@ -963,11 +980,17 @@ ol {
   transition: all 0.3s;
 }
 
-.room-pagination a:last-child {
+.pagination a.active {
+  background: #dfa974;
+  color: #ffffff;
+  border: 1px solid #dfa974;
+}
+
+.pagination a:last-child {
   margin-right: 0;
 }
 
-.room-pagination a:hover {
+.pagination a:hover {
   background: #dfa974;
   color: #ffffff;
 }
@@ -1006,7 +1029,6 @@ ol {
   justify-content: space-between;
   gap: 20px;
 }
-
 
 .search-form label {
   font-size: 14px;
@@ -1159,7 +1181,6 @@ select:focus {
 .room-details-item .rd-text p.f-para {
   margin-bottom: 22px;
 }
-
 
 .room-booking {
   padding: 0 30px 0 40px;

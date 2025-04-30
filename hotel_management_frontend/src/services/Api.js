@@ -1,8 +1,8 @@
 import Http from "./Http";
 
 // Auth
-export const login = (data, config) => Http.post("/login", data, config);
-export const register = (data, config) => Http.post("/register", data, config);
+export const login = (data) => Http.post("/login", data);
+export const register = (data) => Http.post("/register", data);
 export const logout = (config) => Http.post("/logout", null, config);
 export const refreshToken = (config) => Http.get("/auth/refresh-token", config);
 
@@ -13,7 +13,7 @@ export const updateUser = (id, data, config) => Http.post(`/users/${id}/update`,
 // Booking
 export const getBookings = (config) => Http.get("/bookings", config);
 export const getBookingById = (id, config) => Http.get(`/bookings/${id}`, config);
-export const createBooking = (data, config) => Http.post("/admin/bookings", data, config);
+export const createBooking = (data) => Http.post("/admin/bookings", data);
 export const cancelBooking = (id, data, config) => Http.patch(`/bookings/${id}/cancelled`, data, config);
 export const checkInBooking = (id, data, config) => Http.patch(`/admin/bookings/${id}/check-in`, data, config);
 export const checkOutBooking = (id, data, config) => Http.patch(`/admin/bookings/${id}/check-out`, data, config);
@@ -38,7 +38,7 @@ export const getRoomsRoomType = (id, config) => Http.get(`/room-types/${id}/room
 // Service
 export const getServices = (config) => Http.get("/services", config);
 export const getServiceById = (id, config) => Http.get(`/services/${id}`, config);
-export const createService = (data, config) => Http.post("/admin/services", data, config);
+export const createService = (data) => Http.post("/admin/services", data);
 export const updateService = (id, data, config) => Http.put(`/admin/services/${id}/update`, data, config);
 export const getReviewsService = (id, config) => Http.get(`/services/${id}/reviews`, config);
 export const createReviewService = (id, data) => Http.post(`/services/${id}/reviews`, data);

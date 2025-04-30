@@ -9,13 +9,13 @@ const RoomItem = ({ item }) => {
           <div className="ri-text">
             <h4>{item.name}</h4>
             <h3>
-              {item.room_type.base_price.toLocaleString()}<span>₫ / đêm</span>
+              {item.room_type?.base_price?.toLocaleString()}<span>₫ / đêm</span>
             </h3>
             <table>
               <tbody>
                 <tr>
                   <td className="r-o">Loại phòng:</td>
-                  <td>{item.room_type.name}</td>
+                  <td>{item.room_type?.name}</td>
                 </tr>
                 <tr>
                   <td className="r-o">Tiện nghi:</td>

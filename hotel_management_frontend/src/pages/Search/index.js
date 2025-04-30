@@ -1,30 +1,39 @@
 import { useState, useEffect } from "react";
 import SearchBox from "../../shared/components/search-box";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { getRooms } from "../../services/Api";
 import RoomItem from "../../shared/components/room-item";
+import Pagination from "../../shared/components/_pagination";
 const Search = () => {
   const [rooms, setRooms] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  const checIn = searchParams.get("checkIn");
-  const checOut = searchParams.get("checkOut");
-  const roomType = searchParams.get("roomType");
+  const checkIn = searchParams.get("checkIn");
+  const checkOut = searchParams.get("checkOut");
+  const roomTypeId = searchParams.get("roomTypeId");
+  const page = searchParams.get("page") || 1;
+
+  const limit = 9;
+  const [pageIndex, setPageIndex] = useState({
+    limit,
+  });
   const [total, setTotal] = useState([]);
   useEffect(() => {
     getRooms({
       params: {
-        roomTypeId: roomType,
-        checkIn: checIn,
-        checkOut: checOut,
-        limit: 9,
-      }
+        roomTypeId,
+        checkIn,
+        checkOut,
+        limit,
+        page,
+      },
     })
       .then(({ data }) => {
         setRooms(data.data.docs);
         setTotal(data.data.pages);
+        setPageIndex({ limit, ...data.data.pages });
       })
-      .catch((error) => console.log(error))
-  }, [checIn, checOut, roomType])
+      .catch((error) => console.log(error));
+  }, [checkIn, checkOut, roomTypeId, page]);
 
   return (
     <>
@@ -41,18 +50,12 @@ const Search = () => {
               <RoomItem key={index} item={items} />
             ))}
             <div className="col-lg-12">
-              <div className="room-pagination">
-                <Link to="">1</Link>
-                <Link to="">2</Link>
-                <Link to="">
-                  Next <i className="fa fa-long-arrow-right" />
-                </Link>
-              </div>
+              <Pagination pages={pageIndex} />
             </div>
           </div>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 export default Search;

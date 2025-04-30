@@ -18,7 +18,7 @@ const RoomDetails = () => {
   return (
     <div className="room-details-section spad">
       <div className="container">
-        <div className="row">
+        <div className="row py-5">
           <div className="col-lg-6">
             <div className="room-details-item">
               <img src={getImageRoom(room.image)} alt={room.name} />
