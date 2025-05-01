@@ -63,7 +63,8 @@ router.get(`/services/:id/reviews`, ServiceController.reviews); // get reviews b
 router.post(`/services/:id/reviews`, ServiceController.storeReviews); // create new review
 
 // Router order
-router.get(`/users/:id/orders`, OrderController.index);
+router.get(`/admin/orders`, OrderController.index);
+router.get(`/users/:id/orders`, OrderController.getOrdersByUser);
 router.get(`/orders/:id`, OrderController.show);
 router.post(`/users/:id/orders`, OrderController.store);
 router.patch(`/orders/:id/cancelled`, OrderController.cancelled);
@@ -83,6 +84,7 @@ router.delete(`/admin/amenities/:id/delete`, AmenityController.destroy);
 
 // Router invoice
 router.get(`/invoices`, InvoiceController.index);
+router.get(`/users/:id/invoices`, InvoiceController.getInvoicesByUser);
 router.get(`/invoices/:id`, InvoiceController.show);
 router.post(`/admin/invoices`, InvoiceController.store);
 router.put(`/admin/invoices/:id/update`, InvoiceController.update);

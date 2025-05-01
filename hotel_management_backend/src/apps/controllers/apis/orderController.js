@@ -9,11 +9,19 @@ exports.index = async (req, res) => {
     const orders = await OrderModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate({
+        path: "room_id",
+        select: "name",
+      })
+      .lean();
     return res.status(200).json({
       status: "success",
       data: {
-        docs: orders,
+        docs: orders.map((order) => ({
+          ...order,
+          room: order.room_id ? { name: order.room_id.name } : null,
+        })),
         pages: await pagination(page, OrderModel, query, limit),
       },
     });
@@ -27,7 +35,10 @@ exports.getOrdersByUser = async (req, res) => {
     const orders = await OrderModel.find({ user_id: id });
     return res.status(200).json({
       status: "success",
-      data: orders,
+      data: orders.map((order) => ({
+        ...order,
+        room: order.room_id ? { name: order.room_id.name } : null,
+      })),
     });
   } catch (error) {
     return res.status(500).json(error);

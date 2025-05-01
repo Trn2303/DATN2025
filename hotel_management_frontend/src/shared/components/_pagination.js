@@ -1,10 +1,13 @@
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 const Pagination = ({ pages }) => {
   const { totalRows, page, limit, next, prev, hasNext, hasPrev } = pages;
   const totalPages = Math.ceil(totalRows / limit);
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const formatUrl = (renderPage) => {
-    return `/Rooms?page=${renderPage}`;
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("page", renderPage);
+    return `${location.pathname}?${newParams.toString()}`;
   };
 
   const renderPages = () => {
@@ -29,15 +32,21 @@ const Pagination = ({ pages }) => {
   return (
     <div className="pagination">
       {hasPrev && <Link to={formatUrl(prev)}>Trang trước</Link>}
-      {renderPages().map((renderPage, index) => (
-        <Link
-          className={`${page === renderPage ? "active" : ""}`}
-          to={formatUrl(renderPage)}
-          key={index}
-        >
-          {renderPage}
-        </Link>
-      ))}
+      {renderPages().map((renderPage, index) =>
+        renderPage === "..." ? (
+          <span key={index} className="pagination-item">
+            ...
+          </span>
+        ) : (
+          <Link
+            className={`${page === renderPage ? "active" : ""}`}
+            to={formatUrl(renderPage)}
+            key={index}
+          >
+            {renderPage}
+          </Link>
+        )
+      )}
       {hasNext && <Link to={formatUrl(next)}>Trang sau</Link>}
     </div>
   );

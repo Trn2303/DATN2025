@@ -9,11 +9,11 @@ const Header = () => {
     return location.pathname === path ? "active" : "";
   };
 
-  const [room_types, setRoom_types] = useState([])
+  const [room_types, setRoom_types] = useState([]);
   useEffect(() => {
     getRoomTypes({})
       .then(({ data }) => setRoom_types(data.data.docs))
-      .catch((error) => console.log(error))
+      .catch((error) => console.log(error));
   }, []);
 
   return (
@@ -45,14 +45,13 @@ const Header = () => {
                       <li>
                         <Link to="#">Loại phòng</Link>
                         <ul className="dropdown">
-                          {
-                            room_types.map((room_type, index) =>
-                              <li key={index}>
-                                <Link to={`/RoomType-${room_type._id}`}>{room_type.name}</Link>
-                              </li>
-                            )
-                          }
-
+                          {room_types.map((room_type, index) => (
+                            <li key={index}>
+                              <Link to={`/RoomType-${room_type._id}`}>
+                                {room_type.name}
+                              </Link>
+                            </li>
+                          ))}
                         </ul>
                       </li>
                     </ul>

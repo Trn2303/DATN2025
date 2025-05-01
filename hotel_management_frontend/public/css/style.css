@@ -300,6 +300,21 @@ ol {
   border-color: #dfa974;
 }
 
+.dropdown-menu .dropdown-item {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 10px 16px;
+  border-radius: 6px;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #dfa974;
+  color: #fff;
+}
+
+.sidebar-section .nav .nav-item:hover {
+  background-color: #dfa974;
+  color: #fff;
+}
 /*---------------------
   Hero
 -----------------------*/
@@ -572,14 +587,13 @@ ol {
 }
 
 .login-background {
-  background-image: url("../img/background/bg-login.jpg"); 
+  background-image: url("../img/background/bg-login.jpg");
   background-size: cover;
   background-position: center;
   position: relative;
 }
 
 .login-box {
-
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(6px);
   color: #fff;
@@ -965,9 +979,12 @@ ol {
 .btn-view {
   text-align: center;
   padding: 20px 0;
+  display: flex;
+  justify-content: center;
 }
 
-.pagination a {
+.pagination a,
+.pagination-item {
   font-size: 16px;
   color: #707079;
   border: 1px solid #efd4b9;

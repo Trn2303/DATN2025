@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   getServiceById,
   getReviewsService,
@@ -54,7 +54,9 @@ const ServiceDetails = () => {
             <h4 className="text-danger mb-4">
               {service?.price?.toLocaleString()}₫ / {service?.unit}
             </h4>
-            <button className="btn btn-success mb-4">Đặt dịch vụ</button>
+            <Link to={`/BookingService-${service._id}`}>
+              <button className="btn btn-success mb-4">Đặt dịch vụ</button>
+            </Link>
           </div>
           <div className="card mb-5">
             <div className="card-body">

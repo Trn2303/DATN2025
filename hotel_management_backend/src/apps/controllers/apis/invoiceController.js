@@ -25,6 +25,35 @@ exports.index = async (req, res) => {
     return res.status(500).json(error);
   }
 };
+exports.getInvoicesByUser = async (req, res) => {
+  try {
+    const query = {};
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 9;
+    const skip = (page - 1) * limit;
+    const { id } = req.params;
+    const invoices = await InvoiceModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "orders_id",
+        populate: {
+          path: "items.service_id",
+          model: "Services",
+        },
+      });
+    return res.status(200).json({
+      status: "success",
+      data: {
+        docs: invoices,
+        pages: await pagination(page, InvoiceModel, query, limit),
+      },
+    });
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+};
 exports.show = async (req, res) => {
   try {
     const { id } = req.params;

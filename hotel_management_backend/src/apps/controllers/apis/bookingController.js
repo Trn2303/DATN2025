@@ -13,6 +13,7 @@ exports.index = async (req, res) => {
     const limit = 6;
     const skip = (page - 1) * limit;
     const bookings = await BookingModel.find(query)
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate({
@@ -43,6 +44,7 @@ exports.getBookingsByUser = async (req, res) => {
   try {
     const { id } = req.params;
     const bookings = await BookingModel.find({ user_id: id })
+      .sort({ createdAt: -1 })
       .populate({
         path: "room_id",
         select: "name floor",

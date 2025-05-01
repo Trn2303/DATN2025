@@ -56,7 +56,7 @@ exports.index = async (req, res) => {
 };
 exports.customerIndex = async (req, res) => {
   try {
-    const query = {};
+    let query = {};
     const { checkIn, checkOut } = req.query;
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 9;

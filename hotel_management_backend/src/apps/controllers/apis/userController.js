@@ -12,7 +12,12 @@ exports.update = async (req, res) => {
       phone,
     };
     await UserModel.updateOne({ _id: id }, { $set: user });
-    return res.status(200).json("Update user successfully");
+    const updatedUser = await UserModel.findById(id).lean();
+    return res.status(200).json({
+      status: "success",
+      message: "Update user successfully",
+      data: updatedUser,
+    });
   } catch (error) {
     return res.status(500).json(error);
   }

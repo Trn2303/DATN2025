@@ -1,111 +1,199 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getServices, createOrder } from "../../services/Api";
+import { ToastContainer, toast } from "react-toastify";
+import Pagination from "../../shared/components/_pagination";
 
-const BookingService = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
+const BookingService = ({ userId, roomId }) => {
   const [services, setServices] = useState([]);
-  const [formData, setFormData] = useState({
-    service_id: "",
-    quantity: 1,
-    room_id: "",
-  });
+  const [orderItems, setOrderItems] = useState([]);
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const limit = 6;
+  const [pageIndex, setPageIndex] = useState({ limit });
+  const { id } = useParams();
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    // Lấy danh sách dịch vụ
-    getServices({ params: { limit: 100, status: "active" } })
-      .then(({ data }) => setServices(data.data.docs))
+    getServices({
+      params: {
+        limit,
+        page,
+      },
+    })
+      .then(({ data }) => {
+        setServices(data.data.docs);
+        setPageIndex({ limit, ...data.data.pages });
+      })
       .catch((error) => console.log(error));
-  }, []);
+  }, [page]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  useEffect(() => {
+    if (!id) return;
+    const service = services.find((s) => s._id === id);
+    if (service) {
+      setOrderItems((prev) => {
+        const exists = prev.find((item) => item.service_id === id);
+        if (exists) return prev;
+        return [
+          ...prev,
+          {
+            service_id: service._id,
+            name: service.name,
+            price: service.price,
+            quantity: 1,
+          },
+        ];
+      });
+    }
+  }, [id, services]);
+  const clickAdd = (service) => {
+    const exists = orderItems.find((item) => item.service_id === service._id);
+    if (exists) {
+      setOrderItems(
+        orderItems.map((item) =>
+          item.service_id === service._id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      );
+    } else {
+      setOrderItems([
+        ...orderItems,
+        {
+          service_id: service._id,
+          name: service.name,
+          price: service.price,
+          quantity: 1,
+        },
+      ]);
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const selectedService = services.find(
-      (service) => service._id === formData.service_id
+  const changeQuantity = (id, quantity) => {
+    if (quantity < 1) return;
+    setOrderItems(
+      orderItems.map((item) =>
+        item.service_id === id ? { ...item, quantity } : item
+      )
     );
-    if (!selectedService) {
-      alert("Vui lòng chọn dịch vụ hợp lệ!");
-      return;
-    }
+  };
 
-    const orderData = {
-      room_id: formData.room_id,
-      items: [
-        {
-          service_id: selectedService._id,
-          name: selectedService.name,
-          price: selectedService.price,
-          quantity: Number(formData.quantity),
-        },
-      ],
+  const clickRemove = (id) => {
+    setOrderItems(orderItems.filter((item) => item.service_id !== id));
+  };
+
+  const totalPrice = orderItems.reduce(
+    (total, item) => total + item.quantity * item.price,
+    0
+  );
+
+  const clickOrder = () => {
+    if (!orderItems.length) return toast.error("Bạn chưa chọn dịch vụ nào");
+
+    const payload = {
+      room_id: roomId,
+      items: orderItems.map(({ service_id, quantity }) => ({
+        service_id,
+        quantity,
+      })),
     };
 
-    createOrder(id, orderData)
+    createOrder(userId, payload)
       .then(() => {
-        alert("Đặt dịch vụ thành công!");
-        navigate("/services");
+        toast.success("Đặt dịch vụ thành công!");
+        setOrderItems([]);
       })
-      .catch((error) => {
-        console.error(error);
-        alert("Có lỗi xảy ra khi đặt dịch vụ!");
+      .catch((err) => {
+        console.error(err);
+        toast.error("Đặt dịch vụ thất bại!");
       });
   };
 
   return (
-    <div className="booking-section spad">
-      <div className="container">
-        <h2 className="text-center mb-5">Đặt Dịch Vụ</h2>
-        <form onSubmit={handleSubmit} className="booking-form">
-          <div className="row">
-            <div className="col-lg-6">
-              <label>Chọn dịch vụ</label>
-              <select
-                name="service_id"
-                value={formData.service_id}
-                onChange={handleChange}
-                className="form-control"
-                required
-              >
-                <option value="">-- Chọn dịch vụ --</option>
-                {services.map((service) => (
-                  <option key={service._id} value={service._id}>
-                    {service.name} - {service.price.toLocaleString()}₫
-                  </option>
-                ))}
-              </select>
-            </div>
+    <div className="container my-5">
+      <h2 className="mb-4">Đặt Dịch Vụ</h2>
 
-            <div className="col-lg-6">
-              <label>Số lượng</label>
-              <input
-                type="number"
-                name="quantity"
-                min="1"
-                value={formData.quantity}
-                onChange={handleChange}
-                className="form-control"
-                required
-              />
-            </div>
-
-            <div className="col-lg-12 text-center mt-4">
-              <button type="submit" className="btn btn-primary px-5 py-2">
-                Đặt dịch vụ
-              </button>
+      <div className="row">
+        {services.map((service) => (
+          <div className="col-md-4 mb-3" key={service._id}>
+            <div className="card h-100">
+              <div className="card-body">
+                <h5 className="card-title">{service.name}</h5>
+                <p className="card-text">
+                  Giá: {service.price.toLocaleString()} ₫
+                </p>
+                <p className="card-text">{service.description}</p>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => clickAdd(service)}
+                >
+                  Thêm
+                </button>
+              </div>
             </div>
           </div>
-        </form>
+        ))}
+        <div className="col-lg-12">
+          <Pagination pages={pageIndex} />
+        </div>
       </div>
+
+      {orderItems.length > 0 && (
+        <div className="mt-5">
+          <h4>Dịch vụ đã chọn</h4>
+          <table className="table table-borderless align-middle mt-3">
+            <thead className="table-light">
+              <tr>
+                <th style={{ width: "30%" }}>Thông tin dịch vụ</th>
+                <th style={{ width: "10%" }}>Tùy chọn</th>
+                <th style={{ width: "10%" }} className="text-end">
+                  Giá
+                </th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {orderItems.map((item) => (
+                <tr key={item.service_id}>
+                  <td>{item.name}</td>
+                  <td style={{ width: "100px" }}>
+                    <input
+                      type="number"
+                      className="form-control"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        changeQuantity(
+                          item.service_id,
+                          parseInt(e.target.value)
+                        )
+                      }
+                    />
+                  </td>
+                  <td>{(item.price * item.quantity).toLocaleString()} ₫</td>
+                  <td className="text-center">
+                    <button
+                      className="btn btn-sm btn-light"
+                      onClick={() => clickRemove(item.service_id)}
+                    >
+                      Xóa
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="text-end mb-3">
+            <strong>Tổng cộng: {totalPrice.toLocaleString()} ₫</strong>
+          </div>
+
+          <button className="btn btn-success" onClick={clickOrder}>
+            Xác nhận đặt dịch vụ
+          </button>
+        </div>
+      )}
     </div>
   );
 };
