@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { getServices, createOrder } from "../../services/Api";
 import { ToastContainer, toast } from "react-toastify";
 import Pagination from "../../shared/components/_pagination";
 
-const BookingService = ({ userId, roomId }) => {
+const BookingService = () => {
   const [services, setServices] = useState([]);
   const [orderItems, setOrderItems] = useState([]);
   const [searchParams] = useSearchParams();
@@ -12,7 +12,6 @@ const BookingService = ({ userId, roomId }) => {
   const limit = 6;
   const [pageIndex, setPageIndex] = useState({ limit });
   const { id } = useParams();
-  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     getServices({
@@ -89,23 +88,23 @@ const BookingService = ({ userId, roomId }) => {
   );
 
   const clickOrder = () => {
-    if (!orderItems.length) return toast.error("Bạn chưa chọn dịch vụ nào");
+    if (!orderItems.length) return toast.error("Chưa chọn dịch vụ nào");
 
     const payload = {
-      room_id: roomId,
       items: orderItems.map(({ service_id, quantity }) => ({
         service_id,
         quantity,
       })),
     };
+    console.log(payload);
 
-    createOrder(userId, payload)
-      .then(() => {
-        toast.success("Đặt dịch vụ thành công!");
+    createOrder(id, payload)
+      .then(({ data }) => {
+        toast.success(data.message);
         setOrderItems([]);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch((error) => {
+        console.error(error);
         toast.error("Đặt dịch vụ thất bại!");
       });
   };
@@ -194,6 +193,7 @@ const BookingService = ({ userId, roomId }) => {
           </button>
         </div>
       )}
+      <ToastContainer position="bottom-right" />
     </div>
   );
 };

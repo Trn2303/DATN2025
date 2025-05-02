@@ -36,29 +36,44 @@ const HeaderLogin = () => {
               <div className="col-lg-2">
                 <div className="logo">
                   <Link to="/">
-                    <img src="img/logo.png" alt="Logo" />
+                    <img src="/img/logo.png" alt="Logo" />
                   </Link>
                 </div>
               </div>
               <div className="col-lg-10">
-                <div className="nav-menu">
+                <div className="nav-menu d-flex justify-content-between align-items-center">
                   <nav className="mainmenu">
-                    <ul>
-                      <li className={isActive("/")}>
-                        <Link to="/">Home</Link>
+                    <ul className="navbar-nav flex-row">
+                      <li className={`nav-item ${isActive("/")}`}>
+                        <Link className="nav-link" to="/">
+                          Trang chủ
+                        </Link>
                       </li>
-                      <li className={isActive("/rooms")}>
-                        <Link to="/Rooms">Phòng khách sạn</Link>
+                      <li className={`nav-item ${isActive("/Rooms")}`}>
+                        <Link className="nav-link" to="/Rooms">
+                          Phòng khách sạn
+                        </Link>
                       </li>
-                      <li className={isActive("/services")}>
-                        <Link to="/Services">Dịch vụ</Link>
+                      <li className={`nav-item ${isActive("/Services")}`}>
+                        <Link className="nav-link" to="/Services">
+                          Dịch vụ
+                        </Link>
                       </li>
-                      <li>
-                        <Link to="#">Loại phòng</Link>
-                        <ul className="dropdown">
+                      <li className="nav-item dropdown">
+                        <Link
+                          className="nav-link dropdown-toggle"
+                          to="#"
+                          data-bs-toggle="dropdown"
+                        >
+                          Loại phòng
+                        </Link>
+                        <ul className="dropdown-menu">
                           {room_types.map((room_type, index) => (
                             <li key={index}>
-                              <Link to={`/RoomType-${room_type._id}`}>
+                              <Link
+                                className="dropdown-item"
+                                to={`/RoomType-${room_type._id}`}
+                              >
                                 {room_type.name}
                               </Link>
                             </li>
@@ -67,38 +82,50 @@ const HeaderLogin = () => {
                       </li>
                     </ul>
                   </nav>
-                  <div className="nav-right dropdown">
+                  <div className="dropdown ms-lg-3 nav-right">
                     <button
-                      className="btn btn-light rounded-pill dropdown-toggle  "
+                      className="btn btn-outline-dark rounded-pill dropdown-toggle"
                       type="button"
                       id="userDropdown"
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
                     >
-                      <i class="bi bi-person"></i> {user?.name || "Tài khoản"}
+                      <i className="bi bi-person-circle me-1"></i>
+                      {user?.name || "Tài khoản"}
                     </button>
-                    <ul
-                      className="dropdown-menu dropdown-menu-end shadow-sm"
-                      aria-labelledby="userDropdown"
-                    >
+                    <ul className="dropdown-menu dropdown-menu-end shadow-sm">
                       <li>
-                        <Link className="dropdown-item" to={`/Users-${user?._id}/Profile`}>
-                        <i className="bi bi-person-lines-fill"></i> Thông tin cá nhân
+                        <Link
+                          className="dropdown-item"
+                          to={`/Users-${user?._id}/Profile`}
+                        >
+                          <i className="bi bi-person-lines-fill me-2"></i>
+                          Thông tin cá nhân
                         </Link>
                       </li>
                       <li>
-                        <Link className="dropdown-item" to={`/Users-${user?._id}/BookingHistory`}>
-                        <i className="bi bi-buildings"></i> Đơn đặt phòng
+                        <Link
+                          className="dropdown-item"
+                          to={`/Users-${user?._id}/BookingHistory`}
+                        >
+                          <i className="bi bi-clock-history me-2"></i>Đơn đặt
+                          phòng
                         </Link>
                       </li>
                       <li>
-                        <Link className="dropdown-item" to={`/Users-${user?._id}/OrderHistory`}>
-                        <i className="bi bi-justify-left"></i> Đơn đặt dịch vụ
+                        <Link
+                          className="dropdown-item"
+                          to={`/Users-${user?._id}/OrderHistory`}
+                        >
+                          <i className="bi bi-justify-left me-2"></i>Đơn dịch vụ
                         </Link>
                       </li>
                       <li>
-                        <Link className="dropdown-item" to={`/Users-${user?._id}/Invoices`}>
-                        <i className="bi bi-receipt-cutoff"></i> Hóa đơn
+                        <Link
+                          className="dropdown-item"
+                          to={`/Users-${user?._id}/Invoices`}
+                        >
+                          <i className="bi bi-receipt-cutoff me-2"></i>Hóa đơn
                         </Link>
                       </li>
                       <li>
@@ -109,7 +136,8 @@ const HeaderLogin = () => {
                           className="dropdown-item text-danger"
                           onClick={clickLogout}
                         >
-                          <i className="bi bi-box-arrow-left"></i> Đăng xuất
+                          <i className="bi bi-box-arrow-right me-2"></i>Đăng
+                          xuất
                         </button>
                       </li>
                     </ul>

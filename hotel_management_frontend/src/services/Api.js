@@ -13,10 +13,10 @@ export const updateUser = (id, data) => Http.post(`/users/${id}/update`, data);
 // Booking
 export const getBookings = (config) => Http.get("/bookings", config);
 export const getBookingById = (id, config) => Http.get(`/bookings/${id}`, config);
-export const createBooking = (data) => Http.post("/admin/bookings", data);
+export const createBooking = (data) => Http.post("/bookings", data);
 export const cancelBooking = (id) => Http.patch(`/bookings/${id}/cancelled`);
-export const checkInBooking = (id, data, config) => Http.patch(`/admin/bookings/${id}/check-in`, data, config);
-export const checkOutBooking = (id, data, config) => Http.patch(`/admin/bookings/${id}/check-out`, data, config);
+export const checkInBooking = (id, data) => Http.patch(`/admin/bookings/${id}/check-in`, id, data);
+export const checkOutBooking = (id, data) => Http.patch(`/admin/bookings/${id}/check-out`, id, data);
 export const getBookingsByUser = (id, config) => Http.get(`/users/${id}/bookings`, config);
 
 // Room
@@ -24,22 +24,23 @@ export const getAdminRooms = (config) => Http.get("/admin/rooms", config);
 export const getRooms = (config) => Http.get("/rooms", config);
 export const getRoomById = (id, config) => Http.get(`/rooms/${id}`, config);
 export const createRoom = (data) => Http.post("/admin/rooms", data);
-export const updateRoom = (id, data, config) => Http.put(`/admin/rooms/${id}/update`, data, config);
-export const deleteRoom = (id, config) => Http.delete(`/admin/rooms/${id}/delete`, config);
+export const updateRoom = (id, data) => Http.put(`/admin/rooms/${id}/update`, data);
+export const deleteRoom = (id) => Http.delete(`/admin/rooms/${id}/delete`);
 
 // Room Type
 export const getRoomTypes = (config) => Http.get("/room-types", config);
 export const getRoomTypeById = (id, config) => Http.get(`/room-types/${id}`, config);
 export const createRoomType = (data) => Http.post("/admin/room-types", data);
-export const updateRoomType = (id, data, config) => Http.put(`/admin/room-types/${id}/update`, data, config);
-export const deleteRoomType = (id, config) => Http.delete(`/admin/room-types/${id}/delete`, config);
+export const updateRoomType = (id, data) => Http.put(`/admin/room-types/${id}/update`, data);
+export const deleteRoomType = (id) => Http.delete(`/admin/room-types/${id}/delete`);
 export const getRoomsRoomType = (id, config) => Http.get(`/room-types/${id}/rooms`, config);
 
 // Service
 export const getServices = (config) => Http.get("/services", config);
+export const getAdminServices = (config) => Http.get("/admin/services", config);
 export const getServiceById = (id, config) => Http.get(`/services/${id}`, config);
 export const createService = (data) => Http.post("/admin/services", data);
-export const updateService = (id, data, config) => Http.put(`/admin/services/${id}/update`, data, config);
+export const updateService = (id, data) => Http.put(`/admin/services/${id}/update`, data);
 export const getReviewsService = (id, config) => Http.get(`/services/${id}/reviews`, config);
 export const createReviewService = (id, data) => Http.post(`/services/${id}/reviews`, data);
 
@@ -68,8 +69,11 @@ export const getInvoices = (config) => Http.get("/admin/invoices", config);
 export const getInvoicesByUser = (id, config) => Http.get(`/users/${id}/invoices`, config);
 export const getInvoiceById = (id, config) => Http.get(`/invoices/${id}`, config);
 export const createInvoice = (data) => Http.post("/admin/invoices", data);
-export const updateInvoice = (id, data, config) => Http.put(`/admin/invoices/${id}/update`, data, config);
-export const cancelInvoice = (id, data, config) => Http.patch(`/admin/invoices/${id}/cancelled`, data, config);
+export const updateInvoice = (id, data) => Http.put(`/admin/invoices/${id}/update`, data);
+export const cancelInvoice = (id) => Http.patch(`/admin/invoices/${id}/cancelled` );
 
 // Statistics
 export const getDailyStatistics = (config) => Http.get("/admin/statistics/daily", config);
+
+// payment
+export const createPaymentUrl = (data) => Http.post("/admin/vnpay/create_payment_url", data);

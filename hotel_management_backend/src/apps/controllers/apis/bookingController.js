@@ -74,11 +74,13 @@ exports.getBookingsByUser = async (req, res) => {
 };
 exports.booking = async (req, res) => {
   try {
-    const { body } = req;
-    await new BookingModel(body).save();
-    const user = await UserModel.findById(body.user_id);
-    const room = await RoomModel.findById(body.room_id);
-    const room_type = await RoomTypeModel.findById(room.room_type);
+    const { email, ...bookingData } = req.body;
+    bookingData.checkInDate = new Date(bookingData.checkInDate);
+    bookingData.checkOutDate = new Date(bookingData.checkOutDate);
+    await new BookingModel(bookingData).save();
+    const user = await UserModel.findById(bookingData.user_id);
+    const room = await RoomModel.findById(bookingData.room_id);
+    const room_type = await RoomTypeModel.findById(room.roomTypeId);
 
     // Lấy danh sách amenity
     const AmenityIds = room.amenities.map((item) => item._id);
@@ -92,16 +94,17 @@ exports.booking = async (req, res) => {
         name: amenity ? amenity.name : "Unknown",
       };
     });
-    const checkin = new Date(body.checkInDate);
-    checkin.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00
-    const checkout = new Date(body.checkOutDate);
+
+    const checkin = new Date(bookingData.checkInDate);
+    checkin.setHours(0, 0, 0, 0);
+    const checkout = new Date(bookingData.checkOutDate);
     checkout.setHours(0, 0, 0, 0);
     const totalPrice =
       room_type.base_price * ((checkout - checkin) / (1000 * 60 * 60 * 24));
     const newBody = {
       roomName: room.name,
-      checkInTime: new Date(body.checkInDate).toLocaleString(),
-      checkOutTime: new Date(body.checkOutDate).toLocaleString(),
+      checkInTime: bookingData.checkInDate.toLocaleString(),
+      checkOutTime: bookingData.checkInDate.toLocaleString(),
       amenities: amenitiesList,
       totalPrice: totalPrice,
     };
@@ -111,7 +114,7 @@ exports.booking = async (req, res) => {
     });
     await transporter.sendMail({
       from: '"Binh Dan Hotel 💫" <binhdanhotel@gmail.com>', // sender address
-      to: user.email, // list of receivers
+      to: email, // list of receivers
       subject: "Booking Confirmation ✔️",
       html, // html body
     });
@@ -178,7 +181,7 @@ exports.checkOut = async (req, res) => {
     );
     return res.status(200).json({
       status: "success",
-      message: "Check-out completed successfully",
+      message: "Check-out thành công",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -193,7 +196,7 @@ exports.cancelled = async (req, res) => {
     );
     return res.status(200).json({
       status: "success",
-      message: "Booking cancelled successfully",
+      message: "Hủy đặt phòng thành công",
     });
   } catch (error) {
     return res.status(500).json(error);

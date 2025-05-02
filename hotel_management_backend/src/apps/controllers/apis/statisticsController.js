@@ -1,17 +1,19 @@
 const InvoiceModel = require("../../models/invoice");
 const BookingModel = require("../../models/booking");
+const RoomModel = require("../../models/room");
 
 exports.dailyReport = async (req, res) => {
   try {
     const today = new Date().setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
-    const countCheckIn = BookingModel.countDocuments({
+    const countCheckIn = await BookingModel.countDocuments({
       checkInDate: { $gte: today, $lt: tomorrow },
     });
-    const countCheckOut = BookingModel.countDocuments({
+    const countCheckOut = await BookingModel.countDocuments({
       checkOutDate: { $gte: today, $lt: tomorrow },
     });
+    // Tính doanh thu mỗi ngày
     const getIncomeForDay = async (day) => {
       const startDate = new Date(today);
       startDate.setDate(today.getDate() - day);
@@ -23,19 +25,42 @@ exports.dailyReport = async (req, res) => {
       });
       return invoices.reduce((total, invoice) => total + invoice.totalPrice, 0);
     };
-    const incomeToday = await getIncomeForDay(0);
-    const incomeYesterday = await getIncomeForDay(1);
-    const incomeTwoDaysAgo = await getIncomeForDay(2);
-    const incomeThreeDaysAgo = await getIncomeForDay(3);
+    // Khách đang lưu trú
+    const stayingGuests = await BookingModel.countDocuments({
+      checkInDate: { $lte: today },
+      checkOutDate: { $gt: today },
+    });
+    // booking của ngày hôm nay
+    const bookingsToday = await BookingModel.countDocuments({
+      createdAt: { $gte: today, $lt: tomorrow },
+    });
+    // Phòng còn trống
+    const emptyRooms = await RoomModel.countDocuments({
+      status: "clean",
+    });
+    const incomeLast7Days = [];
+    const last7DaysLabels = [];
+    for (let i = 6; i >= 0; i--) {
+      const startDate = new Date(today);
+      startDate.setDate(startDate.getDate() - i);
+      const label = `${startDate.getDate().toString().padStart(2, "0")}/${(
+        startDate.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}`;
+      last7DaysLabels.push(label);
+      incomeLast7Days.push(await getIncomeForDay(i));
+    }
     return res.status(200).json({
       status: "success",
       data: {
         countCheckIn,
         countCheckOut,
-        incomeToday,
-        incomeYesterday,
-        incomeTwoDaysAgo,
-        incomeThreeDaysAgo,
+        incomeLast7Days,
+        last7DaysLabels,
+        emptyRooms,
+        stayingGuests,
+        bookingsToday,
       },
     });
   } catch (error) {

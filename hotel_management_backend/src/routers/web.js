@@ -15,6 +15,8 @@ const AmenityController = require("../apps/controllers/apis/amenityController");
 const InvoiceController = require("../apps/controllers/apis/invoiceController");
 const StatisticsController = require("../apps/controllers/apis/statisticsController");
 const PaymentController = require("../apps/controllers/apis/paymentController");
+const VnPayController = require("../apps/controllers/apis/vnpayController");
+
 
 // Import middleware
 const AuthMiddleware = require("../apps/middlewares/authMiddleware");
@@ -30,9 +32,9 @@ router.get(`/users/:id`, UserController.show);
 router.post(`/users/:id/update`, UserController.update);
 
 // Router booking
-router.get(`/bookings`, BookingController.index);
+router.get(`/admin/bookings`, BookingController.index);
 router.get(`/bookings/:id`, BookingController.show);
-router.post(`/admin/bookings`, BookingController.booking);
+router.post(`/bookings`, BookingController.booking);
 router.patch(`/bookings/:id/cancelled`, BookingController.cancelled);
 router.patch(`/admin/bookings/:id/check-in`, BookingController.checkIn);
 router.patch(`/admin/bookings/:id/check-out`, BookingController.checkOut);
@@ -47,7 +49,7 @@ router.put(`/admin/rooms/:id/update`, RoomController.update);
 router.delete(`/admin/rooms/:id/delete`, RoomController.destroy);
 
 // Router room type
-router.get(`/room-types`, RoomTypeController.index);
+router.get(`/admin/room-types`, RoomTypeController.index);
 router.get(`/room-types/:id`, RoomTypeController.show);
 router.post(`/admin/room-types`, RoomTypeController.store);
 router.put(`/admin/room-types/:id/update`, RoomTypeController.update);
@@ -55,7 +57,8 @@ router.delete(`/admin/room-types/:id/delete`, RoomTypeController.destroy);
 router.get(`/room-types/:id/rooms`, RoomTypeController.getRoomsByType);
 
 // Router service
-router.get(`/services`, ServiceController.index);
+router.get(`/admin/services`, ServiceController.index);
+router.get(`/services`, ServiceController.getServicesByUser);
 router.get(`/services/:id`, ServiceController.show); // service details
 router.post(`/admin/services`, ServiceController.store);
 router.put(`/admin/services/:id/update`, ServiceController.update);
@@ -77,23 +80,24 @@ router.put(`/admin/staffs/:id/update`, StaffController.update);
 router.patch(`/admin/staffs/:id/status`, StaffController.deactivate);
 
 // Router amenity
-router.get(`/amenities`, AmenityController.index);
+router.get(`/admin/amenities`, AmenityController.index);
 router.post(`/admin/amenities`, AmenityController.store);
 router.put(`/admin/amenities/:id/update`, AmenityController.update);
 router.delete(`/admin/amenities/:id/delete`, AmenityController.destroy);
 
 // Router invoice
-router.get(`/invoices`, InvoiceController.index);
+router.get(`/admin/invoices`, InvoiceController.index);
 router.get(`/users/:id/invoices`, InvoiceController.getInvoicesByUser);
 router.get(`/invoices/:id`, InvoiceController.show);
 router.post(`/admin/invoices`, InvoiceController.store);
 router.put(`/admin/invoices/:id/update`, InvoiceController.update);
-router.patch(`/invoices/:id/cancelled`, InvoiceController.cancelled);
+router.patch(`/admin/invoices/:id/cancelled`, InvoiceController.cancelled);
 
 // Router statistics
 router.get(`/admin/statistics/daily`, StatisticsController.dailyReport);
 
 // Router payment
 router.post(`/payment`, PaymentController.createPaymentUrl);
-
+router.post("/admin/vnpay/create_payment_url", VnPayController.createPaymentUrl);
+router.get("/admin/vnpay/vnpay_return", VnPayController.vnpayReturn);
 module.exports = router;

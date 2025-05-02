@@ -6,12 +6,12 @@ exports.index = async (req, res) => {
   try {
     const query = {};
     const page = Number(req.query.page) || 1;
-    const limit = 4;
-    // const skip = (page - 1) * limit;
-    if (req.query.status != null) query.status = req.query.status;
-    if (req.query.type != null) query.type = req.query.type;
+    const limit = Number(req.query.limit) || 4;
     // lấy danh sách phòng
-    const rooms = await RoomModel.find(query);
+    const rooms = await RoomModel.find(query).populate([
+      { path: "roomTypeId", select: "name base_price" },
+      { path: "amenities", select: "name" },
+    ]);
 
     // nhóm phòng theo status
     const groupedRooms = {
@@ -40,10 +40,6 @@ exports.index = async (req, res) => {
 
     return res.status(200).json({
       status: "success",
-      filters: {
-        status: req.query.status || null,
-        type: req.query.type || null,
-      },
       data: {
         docs: paginatedRooms,
         totalCounts,
@@ -137,6 +133,7 @@ exports.show = async (req, res) => {
           ? {
               name: room.roomTypeId.name,
               base_price: room.roomTypeId.base_price,
+              description: room.roomTypeId.description,
             }
           : null,
         image: room.image,
@@ -195,7 +192,7 @@ exports.store = async (req, res) => {
     await room.save();
     return res.status(200).json({
       status: "success",
-      message: "Room created successfully!",
+      message: "Tạo phòng thành công!",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -232,7 +229,7 @@ exports.update = async (req, res) => {
     await RoomModel.updateOne({ _id: id }, { $set: room });
     return res.status(200).json({
       status: "success",
-      message: "Room updated successfully!",
+      message: "Cập nhật phòng thành công!",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -244,7 +241,7 @@ exports.destroy = async (req, res) => {
     const room = await RoomModel.deleteOne({ _id: id });
     return res.status(200).json({
       status: "success",
-      message: "Room deleted successfully!",
+      message: "Xóa phòng thành công!",
     });
   } catch (error) {
     return res.status(500).json(error);

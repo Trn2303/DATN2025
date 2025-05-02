@@ -74,14 +74,15 @@ ol {
   margin: 0;
 }
 
+
 /*---------------------
   Helper CSS
 -----------------------*/
 
 .section-title {
   text-align: center;
-  padding: 20px 0;
-  margin: 20px 0;
+  padding: 10px 0;
+  margin: 10px 0;
 }
 
 .section-title span {
@@ -97,6 +98,16 @@ ol {
   color: #19191a;
   line-height: 58px;
   margin-top: 10px;
+}
+
+.btn-xs {
+  padding: 0.25rem 0.3rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  margin: 0.1rem;
+}
+.sidebar {
+  background: #222736;
 }
 
 .set-bg {
@@ -176,96 +187,91 @@ ol {
   text-align: right;
 }
 
-.menu-item .nav-menu .mainmenu {
+.nav-item.active .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 10px;
+  width: 100%;
+  height: 2px;
+  background: #dfa974;
+  opacity: 0;
+  transition: all 0.3s;
+}
+
+.nav-link {
+  position: relative;
+}
+
+.mainmenu {
   display: inline-block;
 }
 
-.menu-item .nav-menu .mainmenu li {
+.mainmenu .navbar-nav > li {
   list-style: none;
   display: inline-block;
   position: relative;
-  z-index: 1;
+  margin-right: 20px;
 }
 
-.menu-item .nav-menu .mainmenu li.active a:after {
-  opacity: 1;
-}
-
-.menu-item .nav-menu .mainmenu li:hover > a:after {
-  opacity: 1;
-}
-
-.menu-item .nav-menu .mainmenu li:hover .dropdown {
-  top: 72px;
-  opacity: 1;
-  visibility: visible;
-}
-
-.menu-item .nav-menu .mainmenu li a {
+.mainmenu .navbar-nav > li > a {
   font-size: 16px;
   color: #19191a;
-  margin-right: 42px;
   font-weight: 500;
   display: inline-block;
   padding: 20px 0;
   position: relative;
-  -webkit-transition: all 0.3s;
-  -o-transition: all 0.3s;
   transition: all 0.3s;
 }
 
-.menu-item .nav-menu .mainmenu li a:after {
+
+.mainmenu .navbar-nav > li > a::after {
+  content: "";
   position: absolute;
   left: 0;
-  top: 45px;
+  bottom: 10px;
   width: 100%;
   height: 2px;
   background: #dfa974;
-  content: "";
   opacity: 0;
-  -webkit-transition: all 0.3s;
-  -o-transition: all 0.3s;
   transition: all 0.3s;
 }
 
-.menu-item .nav-menu .mainmenu li .dropdown {
-  position: absolute;
-  left: 0;
-  top: 72px;
-  width: 180px;
-  background: #ffffff;
-  z-index: 9;
-  opacity: 0;
-  visibility: hidden;
-  -webkit-transition: all 0.3s;
-  -o-transition: all 0.3s;
-  transition: all 0.3s;
-  -webkit-box-shadow: 0px 9px 15px rgba(25, 25, 26, 0.05);
+.mainmenu .navbar-nav > li:hover > a::after,
+.mainmenu .navbar-nav > li.active > a::after {
+  opacity: 1;
+}
+
+
+.mainmenu .navbar-nav > li.dropdown > a::after {
+  display: none !important;
+}
+
+/* ========== DROPDOWN MENU ========== */
+
+.dropdown-menu {
+  background-color: #ffffff;
+  border: none;
   box-shadow: 0px 9px 15px rgba(25, 25, 26, 0.05);
+  margin-top: 10px;
+  padding: 10px 0;
+  min-width: 180px;
 }
 
-.menu-item .nav-menu .mainmenu li .dropdown li {
+.dropdown-menu li {
   list-style: none;
-  display: block;
 }
 
-.menu-item .nav-menu .mainmenu li .dropdown li a {
+.dropdown-menu li a.dropdown-item {
   font-size: 16px;
   color: #19191a;
-  display: block;
-  text-align: left;
   padding: 8px 15px;
-  -webkit-transition: all 0.3s;
-  -o-transition: all 0.3s;
   transition: all 0.3s;
 }
 
-.menu-item .nav-menu .mainmenu li .dropdown li a:hover {
+.dropdown-menu li a.dropdown-item:hover {
   color: #dfa974;
-}
-
-.menu-item .nav-menu .mainmenu li .dropdown li a:after {
-  display: none;
+  background-color: transparent;
 }
 
 .menu-item .nav-menu .nav-right {
@@ -913,6 +919,7 @@ ol {
   color: #ffffff;
 }
 
+
 /*---------------------
   Room Section
 -----------------------*/
@@ -923,6 +930,7 @@ ol {
 
 .room-item {
   margin-bottom: 30px;
+  background: #fff;
 }
 
 .room-item:hover {
@@ -938,7 +946,6 @@ ol {
 }
 
 .room-item .ri-text {
-  border: 1px solid #ebebeb;
   border-top: none;
   padding: 24px 24px 30px 28px;
 }
@@ -983,33 +990,35 @@ ol {
   justify-content: center;
 }
 
-.pagination a,
-.pagination-item {
-  font-size: 16px;
-  color: #707079;
-  border: 1px solid #efd4b9;
-  border-radius: 2px;
-  padding: 7px 13px 5px;
-  margin-right: 7px;
-  display: inline-block;
-  -webkit-transition: all 0.3s;
-  -o-transition: all 0.3s;
-  transition: all 0.3s;
+.pagination .page-item.active .page-link {
+  background-color: #dfa974;
+  border-color: #dfa974;
+  color: white;
 }
 
-.pagination a.active {
-  background: #dfa974;
-  color: #ffffff;
-  border: 1px solid #dfa974;
+.pagination .page-link {
+  color: #333;
 }
 
-.pagination a:last-child {
-  margin-right: 0;
+.pagination .page-link:hover {
+  background-color: #f1e4d3;
+  border-color: #dfa974;
+  color: #dfa974;
 }
 
-.pagination a:hover {
-  background: #dfa974;
-  color: #ffffff;
+
+.breadcrumbs-wrapper {
+  background: white;
+  padding: 0;
+  border-bottom: 1px solid #ddd; /* Gạch dưới */
+}
+
+.breadcrumbs-wrapper span {
+  font-size: 15px;
+}
+
+.breadcrumb {
+  background-color: transparent !important;
 }
 
 .btn-view-all {
@@ -1017,6 +1026,7 @@ ol {
   padding: 10px 20px;
   color: #707079;
   border: 1px solid #efd4b9;
+  background: #fff;
   border-radius: 30px;
   font-weight: 600;
   text-decoration: none;

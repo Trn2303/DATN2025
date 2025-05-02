@@ -2,7 +2,7 @@ import { Link, useLocation, useSearchParams } from "react-router-dom";
 const Pagination = ({ pages }) => {
   const { totalRows, page, limit, next, prev, hasNext, hasPrev } = pages;
   const totalPages = Math.ceil(totalRows / limit);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const location = useLocation();
   const formatUrl = (renderPage) => {
     const newParams = new URLSearchParams(searchParams);
@@ -30,24 +30,43 @@ const Pagination = ({ pages }) => {
     return pagesIndex;
   };
   return (
-    <div className="pagination">
-      {hasPrev && <Link to={formatUrl(prev)}>Trang trước</Link>}
-      {renderPages().map((renderPage, index) =>
-        renderPage === "..." ? (
-          <span key={index} className="pagination-item">
-            ...
-          </span>
-        ) : (
-          <Link
-            className={`${page === renderPage ? "active" : ""}`}
-            to={formatUrl(renderPage)}
-            key={index}
-          >
-            {renderPage}
-          </Link>
-        )
-      )}
-      {hasNext && <Link to={formatUrl(next)}>Trang sau</Link>}
+    <div className="pagination-container">
+      <nav>
+        <ul className="pagination justify-content-center">
+          {hasPrev && (
+            <li className="page-item">
+              <Link className="page-link" to={formatUrl(prev)}>
+                Trang trước
+              </Link>
+            </li>
+          )}
+
+          {renderPages().map((renderPage, index) =>
+            renderPage === "..." ? (
+              <li key={index} className="page-item disabled">
+                <span className="page-link">...</span>
+              </li>
+            ) : (
+              <li
+                key={index}
+                className={`page-item ${page === renderPage ? "active" : ""}`}
+              >
+                <Link className="page-link" to={formatUrl(renderPage)}>
+                  {renderPage}
+                </Link>
+              </li>
+            )
+          )}
+
+          {hasNext && (
+            <li className="page-item">
+              <Link className="page-link" to={formatUrl(next)}>
+                Trang sau
+              </Link>
+            </li>
+          )}
+        </ul>
+      </nav>
     </div>
   );
 };

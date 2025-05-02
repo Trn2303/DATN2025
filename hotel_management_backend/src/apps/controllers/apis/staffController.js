@@ -6,7 +6,7 @@ exports.index = async (req, res) => {
   try {
     const query = {};
     const page = Number(req.query.page) || 1;
-    const limit = 4;
+    const limit = Number(req.query.page) || 6;
     const skip = (page - 1) * limit;
     if (req.query.status != null) query.status = req.query.status;
     // lấy danh sách nhân viên
@@ -54,14 +54,14 @@ exports.store = async (req, res) => {
     if (isEmail) {
       return res.status(400).json({
         status: "fail",
-        message: "Email already exists",
+        message: "Email đã tồn tại",
       });
     }
     const isPhone = await UserModel.findOne({ phone });
     if (isPhone) {
       return res.status(400).json({
         status: "fail",
-        message: "Phone already exists",
+        message: "Phone đã tồn tại",
       });
     }
     const user = new UserModel({
@@ -81,7 +81,7 @@ exports.store = async (req, res) => {
     await staff.save();
     return res.status(200).json({
       status: "success",
-      message: "Staff created successfully",
+      message: "Thêm mới nhân viên thành công",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -90,17 +90,24 @@ exports.store = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;
-    const { position, address, salary, status } = req.body;
-    const staff = new StaffModel({
-      position,
-      address,
-      salary,
-      status,
-    });
-    await StaffModel.updateOne({ _id: id }, { $set: staff });
+    const { name, email, phone, password, position, address, salary, status } =
+      req.body;
+    const staff = await StaffModel.findById(id);
+    if (!staff) {
+      return res.status(404).json({ message: "Staff not found" });
+    }
+
+    const userUpdateData = { name, email, phone };
+    if (password) {
+      userUpdateData.password = password;
+    }
+    await UserModel.updateOne({ _id: staff.user_id }, { $set: userUpdateData });
+
+    const staffUpdateData = { position, address, salary, status };
+    await StaffModel.updateOne({ _id: id }, { $set: staffUpdateData });
     return res.status(200).json({
       status: "success",
-      message: "Staff updated successfully",
+      message: "Cập nhật thông tin nhân viên thành công",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -120,7 +127,7 @@ exports.deactivate = async (req, res) => {
     await staff.save();
     return res.status(200).json({
       status: "success",
-      message: "Staff status changed successfully",
+      message: "Đổi trạng thái nhân viên thành công",
     });
   } catch (error) {
     return res.status(500).json(error);

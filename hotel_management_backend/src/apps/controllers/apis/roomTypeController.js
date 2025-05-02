@@ -51,12 +51,14 @@ exports.update = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, description, base_price } = req.body;
-    const room_type = new RoomTypeModel({
-      name,
-      description,
-      base_price,
-    });
-    await RoomTypeModel.updateOne({ _id: id }, room_type);
+    await RoomTypeModel.updateOne(
+      { _id: id },
+      {
+        name,
+        description,
+        base_price: Number(base_price), 
+      }
+    );
     return res.status(200).json({
       status: "success",
       message: "Update room type successfully",

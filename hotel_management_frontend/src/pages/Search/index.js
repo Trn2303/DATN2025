@@ -6,7 +6,7 @@ import RoomItem from "../../shared/components/room-item";
 import Pagination from "../../shared/components/_pagination";
 const Search = () => {
   const [rooms, setRooms] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
   const roomTypeId = searchParams.get("roomTypeId");
@@ -37,12 +37,22 @@ const Search = () => {
 
   return (
     <>
+    <div className="hero-section">
+      <div className="row">
+        <div className="col-lg-12">
+          <div className="section-title">
+            <h2>Tìm kiếm phòng khách sạn</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+      
       <SearchBox />
-      <div className="rooms-section spad">
+      <div className="rooms-section spad my-5">
         <div className="container">
           <div className="row">
-            <div className="col-lg-12">
-              <h4>Tìm thấy {total} kết quả</h4>
+            <div className="col-lg-12 my-3">
+              <h4>Tìm thấy {total?.totalRows} kết quả</h4>
             </div>
           </div>
           <div className="row">

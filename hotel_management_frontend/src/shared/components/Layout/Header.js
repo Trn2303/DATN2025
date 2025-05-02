@@ -25,29 +25,44 @@ const Header = () => {
               <div className="col-lg-2">
                 <div className="logo">
                   <Link to="/">
-                    <img src="img/logo.png" alt="Logo" />
+                    <img src="/img/logo.png" alt="Logo" />
                   </Link>
                 </div>
               </div>
               <div className="col-lg-10">
-                <div className="nav-menu">
+                <div className="nav-menu d-flex justify-content-between align-items-center">
                   <nav className="mainmenu">
-                    <ul>
-                      <li className={isActive("/")}>
-                        <Link to="/">Home</Link>
+                    <ul className="navbar-nav flex-row">
+                      <li className={`nav-item ${isActive("/")}`}>
+                        <Link className="nav-link" to="/">
+                        Trang chủ
+                        </Link>
                       </li>
-                      <li className={isActive("/rooms")}>
-                        <Link to="/Rooms">Phòng khách sạn</Link>
+                      <li className={`nav-item ${isActive("/Rooms")}`}>
+                        <Link className="nav-link" to="/Rooms">
+                          Phòng khách sạn
+                        </Link>
                       </li>
-                      <li className={isActive("/services")}>
-                        <Link to="/Services">Dịch vụ</Link>
+                      <li className={`nav-item ${isActive("/Services")}`}>
+                        <Link className="nav-link" to="/Services">
+                          Dịch vụ
+                        </Link>
                       </li>
-                      <li>
-                        <Link to="#">Loại phòng</Link>
-                        <ul className="dropdown">
+                      <li className="nav-item dropdown">
+                        <Link
+                          className="nav-link dropdown-toggle"
+                          to="#"
+                          data-bs-toggle="dropdown"
+                        >
+                          Loại phòng
+                        </Link>
+                        <ul className="dropdown-menu">
                           {room_types.map((room_type, index) => (
                             <li key={index}>
-                              <Link to={`/RoomType-${room_type._id}`}>
+                              <Link
+                                className="dropdown-item"
+                                to={`/RoomType-${room_type._id}`}
+                              >
                                 {room_type.name}
                               </Link>
                             </li>
@@ -58,10 +73,14 @@ const Header = () => {
                   </nav>
                   <div className="nav-right auth-buttons">
                     <Link to="/Login">
-                      <button className="btn-login">Đăng nhập</button>
+                      <button className=" btn-login">
+                        Đăng nhập
+                      </button>
                     </Link>
                     <Link to="/Register">
-                      <button className="btn-register">Đăng ký</button>
+                      <button className=" btn-register">
+                        Đăng ký
+                      </button>
                     </Link>
                   </div>
                 </div>

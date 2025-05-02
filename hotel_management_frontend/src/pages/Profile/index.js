@@ -53,6 +53,7 @@ const UserProfile = () => {
             localStorage.setItem("user", JSON.stringify(updatedUser));
             setUserInfo(updatedUser);
             toast.success("Cập nhật thông tin thành công!");
+            window.location.reload();
           } catch (err) {
             console.log("Failed to update localStorage:", err);
           }

@@ -18,6 +18,27 @@ const RoomDetails = () => {
   return (
     <div className="room-details-section spad">
       <div className="container">
+        <div className="breadcrumbs-wrapper mb-4">
+          <ol className="breadcrumb mb-0">
+            <li className="breadcrumb-item d-flex align-items-center gap-2">
+              <Link to="/" className="text-muted text-decoration-none">
+                <i className="bi bi-house-door"></i> Trang chủ
+              </Link>
+            </li>
+            <li className="breadcrumb-item">
+              <Link to="/Rooms" className="text-muted text-decoration-none">
+                Tìm khách sạn
+              </Link>
+            </li>
+            <li
+              className="breadcrumb-item active text-dark fw-semibold"
+              aria-current="page"
+            >
+              {room.name}
+            </li>
+          </ol> 
+        </div>
+
         <div className="row py-5">
           <div className="col-lg-6">
             <div className="room-details-item">
@@ -30,7 +51,8 @@ const RoomDetails = () => {
                 <h3>{room.name}</h3>
               </div>
               <h2>
-                {room?.room_type?.base_price.toLocaleString()}<span>₫ / đêm</span>
+                {room?.room_type?.base_price.toLocaleString()}
+                <span>₫ / đêm</span>
               </h2>
               <table>
                 <tbody>
@@ -45,7 +67,9 @@ const RoomDetails = () => {
                   <tr>
                     <td className="r-o">Tiện nghi:</td>
                     <td>
-                      {room?.amenities?.map((amenity) => amenity.name).join(", ")}
+                      {room?.amenities
+                        ?.map((amenity) => amenity.name)
+                        .join(", ")}
                     </td>
                   </tr>
                 </tbody>

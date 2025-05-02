@@ -61,7 +61,18 @@ exports.store = async (req, res) => {
   try {
     const { id } = req.params;
     const order = req.body;
+    const booking = await BookingModel.findOne({
+      user_id: id,
+      status: "confirmed",
+    });
+    if (!booking) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Cần đặt phòng và check-in trước khi đặt dịch vụ",
+      });
+    }
     order.user_id = id;
+    order.room_id = booking.room_id;
     order.totalPrice = order.items.reduce(
       (total, item) => total + item.price * item.quantity,
       0
@@ -69,7 +80,7 @@ exports.store = async (req, res) => {
     await new OrderModel(order).save();
     return res.status(200).json({
       status: "success",
-      message: "Order created successfully",
+      message: "Đặt dịch vụ thành công",
     });
   } catch (error) {
     res.status(500).json(error);

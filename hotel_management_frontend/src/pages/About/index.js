@@ -26,20 +26,20 @@ const About = () => {
                   rental, resort, apartment, guest house, or tree house, we’ve
                   got you covered.
                 </p>
-                <a href="#" className="primary-btn about-btn">
+                {/* <a href="#" className="primary-btn about-btn">
                   Read More
-                </a>
+                </a> */}
               </div>
             </div>
             <div className="col-lg-6">
               <div className="about-pic">
                 <div className="row">
-                  <div className="col-sm-6">
+                  {/* <div className="col-sm-6">
                     <img src="img/about/about-1.jpg" alt />
                   </div>
                   <div className="col-sm-6">
                     <img src="img/about/about-2.jpg" alt />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

@@ -1,7 +1,5 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "bootstrap/dist/js/bootstrap.bundle.min";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import Footer from "./shared/components/Layout/Footer";
 import Header from "./shared/components/Layout/Header";
 import HeaderAfterLogin from "./shared/components/Layout/HeaderAfterLogin";
@@ -21,6 +19,16 @@ import BookingHistory from "./pages/BookingHistory";
 import OrderHistory from "./pages/OrderHistory";
 import UserInvoices from "./pages/UserInvoices";
 import UserProfile from "./pages/Profile";
+import Booking from "./pages/Booking";
+import AdminLayout from "./shared/components/Layout/AdminLayout";
+import Dashboard from "./pages/Admin/Dashboard";
+import RoomsAdmin from "./pages/Admin/Rooms";
+import RoomTypeAdmin from "./pages/Admin/RoomTypes";
+import StaffManagement from "./pages/Admin/Staffs";
+import ServiceAdmin from "./pages/Admin/Services_";
+import BookingManagement from "./pages/Admin/Bookings";
+import AmenityManagement from "./pages/Admin/Amenities";
+import InvoiceManagement from "./pages/Admin/Invoices";
 
 const App = () => {
   const HeaderWrapper = () => {
@@ -28,42 +36,55 @@ const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(
       !!localStorage.getItem("token")
     );
+    const user = localStorage.getItem("user");
 
     useEffect(() => {
       setIsLoggedIn(!!localStorage.getItem("token"));
     }, [location]);
-
+    // if (user.role === "customer")
+    //   return isLoggedIn ? <HeaderAfterLogin /> : <Header />;
     return isLoggedIn ? <HeaderAfterLogin /> : <Header />;
   };
   return (
-    <>
-      <BrowserRouter>
-        {/* Header Section Begin */}
-        <HeaderWrapper />
-        {/* Header End */}
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/Login" element={<Login />} />
-          <Route path="/Register" element={<Register />} />
-          <Route path="/About" element={<About />} />
-          <Route path="/NotFound" element={<NotFound />} />
-          <Route path="/Search" element={<Search />} />
-          <Route path="/Services" element={<Services />} />
-          <Route path="/ServiceDetails-:id" element={<ServiceDetails />} />
-          <Route path="/Rooms" element={<Rooms />} />
-          <Route path="/RoomType-:id" element={<RoomType />} />
-          <Route path="/RoomDetails-:id" element={<RoomDetails />} />
-          <Route path="/BookingService-:id" element={<BookingService />} />
-          <Route path="/Users-:id/BookingHistory" element={<BookingHistory />} />
-          <Route path="/Users-:id/OrderHistory" element={<OrderHistory />} />
-          <Route path="/Users-:id/Invoices" element={<UserInvoices />} />
-          <Route path="/Users-:id/Profile" element={<UserProfile />} />
-        </Routes>
-        {/* Footer Section Begin */}
-        <Footer />
-        {/* Footer Section End */}
-      </BrowserRouter>
-    </>
+    <BrowserRouter>
+      {/* Header Section Begin */}
+      <HeaderWrapper />
+      {/* Header End */}
+      <Routes>
+        {/* Admin */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="rooms" element={<RoomsAdmin />} />
+          <Route path="room-types" element={<RoomTypeAdmin />} />
+          <Route path="staffs" element={<StaffManagement />} />
+          <Route path="services" element={<ServiceAdmin />} />
+          <Route path="bookings" element={<BookingManagement />} />
+          <Route path="amenities" element={<AmenityManagement />} />
+          <Route path="invoices" element={<InvoiceManagement />} />
+        </Route>
+        {/* User */}
+        <Route path="/" element={<Home />} />
+        <Route path="/Login" element={<Login />} />
+        <Route path="/Register" element={<Register />} />
+        <Route path="/About" element={<About />} />
+        <Route path="/NotFound" element={<NotFound />} />
+        <Route path="/Search" element={<Search />} />
+        <Route path="/Services" element={<Services />} />
+        <Route path="/ServiceDetails-:id" element={<ServiceDetails />} />
+        <Route path="/BookingService-:id" element={<BookingService />} />
+        <Route path="/Rooms" element={<Rooms />} />
+        <Route path="/RoomType-:id" element={<RoomType />} />
+        <Route path="/RoomDetails-:id" element={<RoomDetails />} />
+        <Route path="/Booking-:id" element={<Booking />} />
+        <Route path="/Users-:id/BookingHistory" element={<BookingHistory />} />
+        <Route path="/Users-:id/OrderHistory" element={<OrderHistory />} />
+        <Route path="/Users-:id/Invoices" element={<UserInvoices />} />
+        <Route path="/Users-:id/Profile" element={<UserProfile />} />
+      </Routes>
+      {/* Footer Section Begin */}
+      <Footer />
+      {/* Footer Section End */}
+    </BrowserRouter>
   );
 };
 
