@@ -22,7 +22,7 @@ exports.index = async (req, res) => {
 };
 exports.getServicesByUser = async (req, res) => {
   try {
-    const query = {status: "active"};
+    const query = {status: "available"};
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 6;
     const skip = (page - 1) * limit;

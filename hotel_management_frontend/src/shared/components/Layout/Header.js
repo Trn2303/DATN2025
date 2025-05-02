@@ -15,6 +15,8 @@ const Header = () => {
       .then(({ data }) => setRoom_types(data.data.docs))
       .catch((error) => console.log(error));
   }, []);
+  console.log(room_types);
+  
 
   return (
     <>

@@ -32,6 +32,7 @@ exports.getInvoicesByUser = async (req, res) => {
     const limit = Number(req.query.limit) || 9;
     const skip = (page - 1) * limit;
     const { id } = req.params;
+    query.user_id = id;
     const invoices = await InvoiceModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)

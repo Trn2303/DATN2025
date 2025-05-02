@@ -14,8 +14,8 @@ const Booking = () => {
     checkInDate: "",
     checkOutDate: "",
     name: "",
-    email: "", 
-    phone: "", 
+    email: "",
+    phone: "",
   });
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -26,9 +26,9 @@ const Booking = () => {
           ...prev,
           room_id: data.data._id,
           user_id: user?._id || "",
-          userName: user?.name || "",
-          userEmail: user?.email || "",
-          userPhone: user?.phone || "",
+          name: user?.name || "",
+          email: user?.email || "",
+          phone: user?.phone || "",
         }));
       })
       .catch((error) => console.log(error));

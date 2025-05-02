@@ -21,10 +21,6 @@ const InvoiceManagement = () => {
   const [pages, setPages] = useState({});
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    loadInvoices();
-  }, [page]);
-
   const loadInvoices = async () => {
     try {
       const { data } = await getInvoices({ params: { page } });
@@ -34,7 +30,9 @@ const InvoiceManagement = () => {
       toast.error("Lỗi khi tải hóa đơn");
     }
   };
-
+  useEffect(() => {
+    loadInvoices();
+  }, [page]);
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -176,7 +174,6 @@ const InvoiceManagement = () => {
                 onChange={handleInputChange}
               >
                 <option value="cash">Tiền mặt</option>
-                <option value="card">Thẻ</option>
                 <option value="bank">Chuyển khoản</option>
               </select>
             </div>

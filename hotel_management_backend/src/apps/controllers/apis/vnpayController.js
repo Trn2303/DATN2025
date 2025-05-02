@@ -1,35 +1,39 @@
 const moment = require("moment");
 const querystring = require("qs");
 const crypto = require("crypto");
-const config = require("../../../../config/vnpay");
+const config = require("config");
 
 exports.createPaymentUrl = (req, res) => {
-  const ipAddr = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+  process.env.TZ = "Asia/Ho_Chi_Minh";
 
-  const tmnCode = config.vnp_TmnCode;
-  const secretKey = config.vnp_HashSecret;
-  const vnpUrl = config.vnp_Url;
-  const returnUrl = config.vnp_ReturnUrl;
+  let date = new Date();
+  let createDate = moment(date).format("YYYYMMDDHHmmss");
+  let orderId = moment(date).format("DDHHmmss");
 
-  const date = new Date();
-  const createDate = moment(date).format("YYYYMMDDHHmmss");
+  let ipAddr =
+    req.headers["x-forwarded-for"] ||
+    req.connection.remoteAddress ||
+    req.socket?.remoteAddress ||
+    (req.connection.socket && req.connection.socket.remoteAddress) ||
+    "";
 
-  const orderId = moment(date).format("HHmmss");
-  const amount = req.body.amount;
-  const bankCode = req.body.bankCode;
+  let tmnCode = config.get("vnpay.vnp_TmnCode");
+  let secretKey = config.get("vnpay.vnp_HashSecret");
+  let vnpUrl = config.get("vnpay.vnp_Url");
+  let returnUrl = config.get("vnpay.vnp_ReturnUrl");
 
-  const orderInfo = "Thanh toan don hang";
-  const locale = req.body.language || "vn";
-  const currCode = "VND";
+  let amount = parseInt(req.body.amount, 10);
+  let bankCode = req.body.bankCode || "";
+  let locale = req.body.language || "vn";
 
   let vnp_Params = {
     vnp_Version: "2.1.0",
     vnp_Command: "pay",
     vnp_TmnCode: tmnCode,
     vnp_Locale: locale,
-    vnp_CurrCode: currCode,
+    vnp_CurrCode: "VND",
     vnp_TxnRef: orderId,
-    vnp_OrderInfo: orderInfo,
+    vnp_OrderInfo: "Thanh toan cho ma GD:" + orderId,
     vnp_OrderType: "other",
     vnp_Amount: amount * 100,
     vnp_ReturnUrl: returnUrl,
@@ -37,47 +41,68 @@ exports.createPaymentUrl = (req, res) => {
     vnp_CreateDate: createDate,
   };
 
-  if (bankCode) {
+  if (bankCode !== "") {
     vnp_Params["vnp_BankCode"] = bankCode;
   }
 
   vnp_Params = sortObject(vnp_Params);
 
   const signData = querystring.stringify(vnp_Params, { encode: false });
-  const hmac = crypto.createHmac("sha512", secretKey);
+  const hmac = crypto.createHmac("sha512", config.get("vnpay.vnp_HashSecret"));
   const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
-
   vnp_Params["vnp_SecureHash"] = signed;
-  const paymentUrl = `${vnpUrl}?${querystring.stringify(vnp_Params, { encode: true })}`;
 
-  res.status(200).json({
-    status: "success",
-    paymentUrl,
-  });
+  const finalUrl =
+    vnpUrl + "?" + querystring.stringify(vnp_Params, { encode: true });
+
+  res.redirect(finalUrl);
 };
 
 exports.vnpayReturn = (req, res) => {
+  const querystring = require("qs");
+  const crypto = require("crypto");
+  const config = require("config");
+
   let vnp_Params = req.query;
-  const secureHash = vnp_Params["vnp_SecureHash"];
+  let secureHash = vnp_Params["vnp_SecureHash"];
 
   delete vnp_Params["vnp_SecureHash"];
   delete vnp_Params["vnp_SecureHashType"];
 
   vnp_Params = sortObject(vnp_Params);
+
   const signData = querystring.stringify(vnp_Params, { encode: false });
-  const hmac = crypto.createHmac("sha512", config.vnp_HashSecret);
+  const hmac = crypto.createHmac("sha512", config.get("vnp_HashSecret"));
   const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
 
   if (secureHash === signed) {
-    res.redirect(`/payment-result?code=00`);
+    res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
   } else {
-    res.redirect(`/payment-result?code=97`);
+    res.render("success", { code: "97" });
   }
 };
 
+// function sortObject(obj) {
+//   let sorted = {};
+//   let str = [];
+//   let key;
+//   for (key in obj) {
+//     if (obj.hasOwnProperty(key)) {
+//       str.push(encodeURIComponent(key));
+//     }
+//   }
+//   str.sort();
+//   for (key = 0; key < str.length; key++) {
+//     sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+//   }
+//   return sorted;
+// }
+
 function sortObject(obj) {
-  const sorted = {};
-  const keys = Object.keys(obj).sort();
-  keys.forEach((key) => (sorted[key] = obj[key]));
+  let sorted = {};
+  let keys = Object.keys(obj).sort();
+  for (let key of keys) {
+    sorted[key] = obj[key]; 
+  }
   return sorted;
 }

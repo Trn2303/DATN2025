@@ -77,7 +77,6 @@ exports.booking = async (req, res) => {
     const { email, ...bookingData } = req.body;
     bookingData.checkInDate = new Date(bookingData.checkInDate);
     bookingData.checkOutDate = new Date(bookingData.checkOutDate);
-    await new BookingModel(bookingData).save();
     const user = await UserModel.findById(bookingData.user_id);
     const room = await RoomModel.findById(bookingData.room_id);
     const room_type = await RoomTypeModel.findById(room.roomTypeId);
@@ -101,10 +100,12 @@ exports.booking = async (req, res) => {
     checkout.setHours(0, 0, 0, 0);
     const totalPrice =
       room_type.base_price * ((checkout - checkin) / (1000 * 60 * 60 * 24));
+    bookingData.totalPrice = totalPrice;
+    await new BookingModel(bookingData).save();
     const newBody = {
       roomName: room.name,
       checkInTime: bookingData.checkInDate.toLocaleString(),
-      checkOutTime: bookingData.checkInDate.toLocaleString(),
+      checkOutTime: bookingData.checkOutDate.toLocaleString(),
       amenities: amenitiesList,
       totalPrice: totalPrice,
     };

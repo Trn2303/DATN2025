@@ -17,14 +17,17 @@ const StatisticsController = require("../apps/controllers/apis/statisticsControl
 const PaymentController = require("../apps/controllers/apis/paymentController");
 const VnPayController = require("../apps/controllers/apis/vnpayController");
 
-
 // Import middleware
 const AuthMiddleware = require("../apps/middlewares/authMiddleware");
 
 // Router auth
 router.post(`/login`, AuthController.login);
 router.post(`/register`, AuthController.register);
-router.post(  `/logout`, AuthMiddleware.verifyAuthentication, AuthController.logout);
+router.post(
+  `/logout`,
+  AuthMiddleware.verifyAuthentication,
+  AuthController.logout
+);
 router.get(`/auth/refresh-token`, AuthController.refreshToken);
 
 // Router user
@@ -49,7 +52,7 @@ router.put(`/admin/rooms/:id/update`, RoomController.update);
 router.delete(`/admin/rooms/:id/delete`, RoomController.destroy);
 
 // Router room type
-router.get(`/admin/room-types`, RoomTypeController.index);
+router.get(`/room-types`, RoomTypeController.index);
 router.get(`/room-types/:id`, RoomTypeController.show);
 router.post(`/admin/room-types`, RoomTypeController.store);
 router.put(`/admin/room-types/:id/update`, RoomTypeController.update);
@@ -98,6 +101,6 @@ router.get(`/admin/statistics/daily`, StatisticsController.dailyReport);
 
 // Router payment
 router.post(`/payment`, PaymentController.createPaymentUrl);
-router.post("/admin/vnpay/create_payment_url", VnPayController.createPaymentUrl);
-router.get("/admin/vnpay/vnpay_return", VnPayController.vnpayReturn);
+router.post("/vnpay/create_payment_url", VnPayController.createPaymentUrl);
+router.get("/vnpay/vnpay_return", VnPayController.vnpayReturn);
 module.exports = router;

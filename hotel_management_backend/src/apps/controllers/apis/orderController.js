@@ -32,13 +32,17 @@ exports.index = async (req, res) => {
 exports.getOrdersByUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const orders = await OrderModel.find({ user_id: id });
+    const orders = await OrderModel.find({ user_id: id })
+      .populate("room_id", "name")
+      .lean();
     return res.status(200).json({
       status: "success",
-      data: orders.map((order) => ({
-        ...order,
-        room: order.room_id ? { name: order.room_id.name } : null,
-      })),
+      data: {
+        docs: orders.map((order) => ({
+          ...order,
+          room: order.room_id ? { name: order.room_id.name } : null,
+        }))
+      },
     });
   } catch (error) {
     return res.status(500).json(error);
