@@ -3,7 +3,7 @@ const RoomTypeModel = require("../../models/room_type");
 const BookingModel = require("../../models/booking");
 const pagination = require("../../../libs/pagination");
 const Amenity = require("../../models/amenity");
-const upload = require("../middlewares/upload");
+const upload = require("../../middlewares/upload")
 exports.index = async (req, res) => {
   try {
     const query = {};

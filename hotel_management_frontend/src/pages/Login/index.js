@@ -19,10 +19,15 @@ const Login = () => {
     login(inputLogin)
       .then(({ data }) => {
         if (data.status === "success") {
+          const user = data.user;
           localStorage.setItem("token", data.accessToken);
           localStorage.setItem("user", JSON.stringify(data.user));
           toast.success(data.message || "Đăng nhập thành công!");
-          navigate("/");
+          if (user.role === "admin") {
+            navigate("/admin");
+          } else {
+            navigate("/");
+          }
         }
       })
       .catch((error) => {
