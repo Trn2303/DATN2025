@@ -1,12 +1,13 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { getImageRoom } from "../../shared/ultils";
 import { useEffect, useState } from "react";
 import { getRoomById } from "../../services/Api";
+import { ToastContainer, toast } from "react-toastify";
 
 const RoomDetails = () => {
   const [room, setRoom] = useState({});
   const { id } = useParams();
-
+  const navigate = useNavigate();
   useEffect(() => {
     getRoomById(id, {})
       .then(({ data }) => setRoom(data.data))
@@ -14,12 +15,20 @@ const RoomDetails = () => {
   }, [id]);
 
   if (!room) return <div>Loading...</div>;
+  const handleBookingClick = () => {
+    const user = localStorage.getItem("user");
+    if (!user) {
+      toast.warning("Vui lòng đăng nhập để đặt phòng!");
+      return;
+    }
+    navigate(`/Booking-${room._id}`);
+  };
 
   return (
     <div className="room-details-section spad">
       <div className="container">
         <div className="breadcrumbs-wrapper mb-4">
-          <ol className="breadcrumb mb-0">
+          <ol className="breadcrumb mb-0 mt-4">
             <li className="breadcrumb-item d-flex align-items-center gap-2">
               <Link to="/" className="text-muted text-decoration-none">
                 <i className="bi bi-house-door"></i> Trang chủ
@@ -36,7 +45,7 @@ const RoomDetails = () => {
             >
               {room.name}
             </li>
-          </ol> 
+          </ol>
         </div>
 
         <div className="row py-5">
@@ -77,10 +86,16 @@ const RoomDetails = () => {
               <p className="f-para">{room?.room_type?.description}</p>
             </div>
             <div className="rdt-right">
-              <Link to={`/Booking-${room._id}`}>Đặt phòng</Link>
+              <button
+                onClick={handleBookingClick}
+                className="btn btn-success mt-3 px-4 py-2"
+              >
+                <i className="bi bi-calendar-check me-2"></i> Đặt phòng ngay
+              </button>
             </div>
           </div>
         </div>
+        <ToastContainer position="bottom-right" autoClose={3000} />
       </div>
     </div>
   );

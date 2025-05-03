@@ -13,7 +13,17 @@ exports.index = async (req, res) => {
     const invoices = await InvoiceModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate("user_id", "fullName email")
+      .populate({
+        path: "booking_id",
+        populate: {
+          path: "room_id",
+          model: "Rooms",
+          select: "name",
+        },
+      })
+      .exec();
     return res.status(200).json({
       status: "success",
       data: {
@@ -75,52 +85,61 @@ exports.show = async (req, res) => {
 };
 exports.store = async (req, res) => {
   try {
-    const { name } = req.body;
-    const room = await RoomModel.findOne({ name });
-    if (!room) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Room not found",
-      });
-    }
-    const booking = await BookingModel.findOne({
-      room_id: room._id,
-      status: "confirmed",
-    });
+    const { booking_id } = req.body;
+
+    // Lấy thông tin đặt phòng
+    const booking = await BookingModel.findById(booking_id).populate("room_id");
+
     if (!booking) {
       return res.status(404).json({
         status: "fail",
-        message: "Booking not found",
+        message: "Không tìm thấy đặt phòng",
       });
     }
+
+    if (booking.status !== "confirmed") {
+      return res.status(400).json({
+        status: "fail",
+        message: "Chỉ tạo hóa đơn cho đơn đã check-in",
+      });
+    }
+
     const orders = await OrderModel.find({
-      room_id: room._id,
+      room_id: booking.room_id._id,
       status: "pending",
     });
+
     const totalService = orders.reduce(
-      (total, order) => total + order.totalPrice,
+      (sum, order) => sum + order.totalPrice,
       0
     );
     const totalAmount = booking.totalPrice + totalService;
+
     const invoice = new InvoiceModel({
       user_id: booking.user_id,
       booking_id: booking._id,
-      orders_id: orders.length > 0 ? orders.map((order) => order._id) : [],
+      orders_id: orders.map((order) => order._id),
       totalAmount,
-      paymentMethod: req.body.paymentMethod,
+      paymentMethod: "momo",
       issuedDate: new Date(),
-      dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
+      dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
       paymentStatus: "pending",
     });
+
     await invoice.save();
+
     return res.status(201).json({
       status: "success",
-      message: "invoice created successfully",
+      message: "Hóa đơn đã được tạo thành công",
+      data: invoice,
     });
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({
+      error,
+    });
   }
 };
+
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;

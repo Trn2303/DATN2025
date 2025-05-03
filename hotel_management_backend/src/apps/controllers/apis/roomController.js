@@ -3,7 +3,7 @@ const RoomTypeModel = require("../../models/room_type");
 const BookingModel = require("../../models/booking");
 const pagination = require("../../../libs/pagination");
 const Amenity = require("../../models/amenity");
-const upload = require("../../middlewares/upload")
+const upload = require("../../middlewares/upload");
 exports.index = async (req, res) => {
   try {
     const query = {};
@@ -54,32 +54,38 @@ exports.index = async (req, res) => {
 };
 exports.customerIndex = async (req, res) => {
   try {
-    let query = {};
-    const { checkIn, checkOut } = req.query;
+    const { checkIn, checkOut, roomTypeId } = req.query;
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 9;
     const skip = (page - 1) * limit;
-    const checkInDate = new Date(checkIn);
-    const checkOutDate = new Date(checkOut);
+    const query = {};
     let bookedRoomIds = [];
+
     if (checkIn && checkOut) {
-      // Tìm các phòng đã đặt trong khoảng thời gian checkIn và checkOut
+      const checkInDate = new Date(checkIn);
+      const checkOutDate = new Date(checkOut);
+
       bookedRoomIds = await BookingModel.find({
         status: { $in: ["pending", "confirmed"] },
         checkInDate: { $lt: checkOutDate },
         checkOutDate: { $gt: checkInDate },
       }).distinct("room_id");
-      query = {
-        $or: [
-          { status: "clean" },
-          { _id: { $nin: bookedRoomIds } }, // Chỉ lấy phòng không bị đặt
-        ],
-      };
+
+      query.$and = [
+        { status: "clean" },
+        { _id: { $nin: bookedRoomIds } }, // loại trừ phòng đã đặt
+      ];
     } else {
       query.status = "clean";
     }
 
-    if (req.query.roomTypeId) query.roomTypeId = req.query.roomTypeId;
+    if (roomTypeId) {
+      query.roomTypeId = roomTypeId;
+    }
+
+    const totalRows = await RoomModel.countDocuments(query);
+    const totalPages = Math.ceil(totalRows / limit);
+
     const rooms = await RoomModel.find(query)
       .skip(skip)
       .limit(limit)
@@ -103,9 +109,7 @@ exports.customerIndex = async (req, res) => {
             : null,
           image: room.image,
           status: room.status,
-          amenities: (room.amenities || []).map((amenity) => ({
-            name: amenity.name,
-          })),
+          amenities: (room.amenities || []).map((a) => ({ name: a.name })),
           createdAt: room.createdAt,
           updatedAt: room.updatedAt,
         })),
@@ -113,8 +117,7 @@ exports.customerIndex = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error in customerIndex:", error); // Log lỗi chi tiết
-    return res.status(500).json({ status: "error", message: error.message });
+    return res.status(500).json(error);
   }
 };
 
@@ -154,56 +157,7 @@ exports.show = async (req, res) => {
 exports.store = async (req, res) => {
   try {
     const { name, floor, room_type, status, amenities } = req.body;
-    if (!name || !floor || !room_type) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Missing required fields",
-      });
-    }
-    // Kiểm tra room_type
-    const existingRoomType = await RoomType.findById(room_type);
-    if (!existingRoomType) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Invalid room type",
-      });
-    }
-    // Kiểm tra status có hợp lệ không
-    const validStatuses = ["clean", "occupied", "dirty", "maintenance"];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Invalid status value",
-      });
-    }
-    // Kiểm tra danh sách amenities có hợp lệ không
-    const validAmenities = await Amenity.find({ _id: { $in: amenities } });
-    if (validAmenities.length !== amenities.length) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Invalid amenities list",
-      });
-    }
-    const room = new RoomModel({
-      name,
-      floor,
-      room_type,
-      status: status || "clean",
-      amenities: validAmenities.map((a) => a._id),
-    });
-    await room.save();
-    return res.status(200).json({
-      status: "success",
-      message: "Tạo phòng thành công!",
-    });
-  } catch (error) {
-    return res.status(500).json(error);
-  }
-};
-exports.store = async (req, res) => {
-  try {
-    const { name, floor, room_type, status, amenities } = req.body;
-    const image = req.file?.filename || null; // lấy tên ảnh
+    const image = req.file?.filename || null;
 
     if (!name || !floor || !room_type) {
       return res.status(400).json({
@@ -263,9 +217,9 @@ exports.store = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, floor, room_type, status, amenities, image } = req.body;
+    const { name, floor, room_type, status, amenities } = req.body;
+    const image = req.file?.filename || req.body.image || null;
 
-    // Kiểm tra status có hợp lệ không
     const validStatuses = ["clean", "occupied", "dirty", "maintenance"];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
@@ -274,7 +228,6 @@ exports.update = async (req, res) => {
       });
     }
 
-    // Kiểm tra danh sách amenities có hợp lệ không
     const validAmenities = await Amenity.find({ _id: { $in: amenities } });
     if (validAmenities.length !== amenities.length) {
       return res.status(400).json({
@@ -283,15 +236,15 @@ exports.update = async (req, res) => {
       });
     }
 
-    // Tạo object thông tin cập nhật
     const updatedRoom = {
       name,
       floor,
       room_type,
       status,
       amenities: validAmenities.map((a) => a._id),
-      image,
     };
+
+    if (image) updatedRoom.image = image;
 
     await RoomModel.updateOne({ _id: id }, { $set: updatedRoom });
 

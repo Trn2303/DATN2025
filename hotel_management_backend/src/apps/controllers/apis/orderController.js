@@ -45,6 +45,7 @@ exports.getOrdersByUser = async (req, res) => {
           ...order,
           room: order.room_id ? { name: order.room_id.name } : null,
         })),
+        pages: await pagination(page, OrderModel, query, limit),
       },
     });
   } catch (error) {

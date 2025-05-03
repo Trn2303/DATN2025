@@ -65,21 +65,24 @@ exports.getBookingsByUser = async (req, res) => {
       .lean();
     return res.status(200).json({
       status: "success",
-      data: bookings.map((booking) => ({
-        _id: booking._id,
-        checkInDate: booking.checkInDate,
-        checkOutDate: booking.checkOutDate,
-        totalPrice: booking.totalPrice,
-        status: booking.status,
-        createdAt: booking.createdAt,
-        updatedAt: booking.updatedAt,
-        room: booking.room_id
-          ? {
-              name: booking.room_id.name,
-              floor: booking.room_id.floor,
-            }
-          : null,
-      })),
+      data: {
+        docs: bookings.map((booking) => ({
+          _id: booking._id,
+          checkInDate: booking.checkInDate,
+          checkOutDate: booking.checkOutDate,
+          totalPrice: booking.totalPrice,
+          status: booking.status,
+          createdAt: booking.createdAt,
+          updatedAt: booking.updatedAt,
+          room: booking.room_id
+            ? {
+                name: booking.room_id.name,
+                floor: booking.room_id.floor,
+              }
+            : null,
+        })),
+        pages: await pagination(page, BookingModel, query, limit),
+      },
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -115,6 +118,10 @@ exports.booking = async (req, res) => {
       room_type.base_price * ((checkout - checkin) / (1000 * 60 * 60 * 24));
     bookingData.totalPrice = totalPrice;
     await new BookingModel(bookingData).save();
+    await RoomModel.updateOne(
+      { _id: room._id },
+      { $set: { status: "occupied" } }
+    );
     const newBody = {
       roomName: room.name,
       checkInTime: bookingData.checkInDate.toLocaleString(),
@@ -207,6 +214,13 @@ exports.cancelled = async (req, res) => {
     await BookingModel.updateOne(
       { _id: id },
       { $set: { status: "cancelled" } }
+    );
+    const booking = await BookingModel.findById(id);
+    await RoomModel.updateOne(
+      {
+        _id: booking.room_id,
+      },
+      { $set: { status: "clean" } }
     );
     return res.status(200).json({
       status: "success",

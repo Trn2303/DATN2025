@@ -1,4 +1,10 @@
-import { BrowserRouter, Route, Routes, useLocation, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import { useEffect, useState } from "react";
 import Footer from "./shared/components/Layout/Footer";
 import Header from "./shared/components/Layout/Header";
@@ -43,7 +49,7 @@ const LayoutWrapper = ({ children }) => {
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   if (isAdminRoute) {
-    return children; // Không render header/footer
+    return children;
   }
 
   return (

@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   getServiceById,
   getReviewsService,
   createReviewService,
 } from "../../services/Api";
 import moment from "moment";
+import { toast, ToastContainer } from "react-toastify";
 
 const ServiceDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [service, setService] = useState({});
   const [reviews, setReviews] = useState([]);
   const [inputReview, setInputReview] = useState({
@@ -54,10 +56,21 @@ const ServiceDetails = () => {
             <h4 className="text-danger mb-4">
               {service?.price?.toLocaleString()}₫ / {service?.unit}
             </h4>
-            <Link to={`/BookingService-${service._id}`}>
-              <button className="btn btn-success mb-4">Đặt dịch vụ</button>
-            </Link>
+            <button
+              className="btn btn-success mb-4"
+              onClick={() => {
+                const user = localStorage.getItem("user");
+                if (!user) {
+                  toast.warning("Vui lòng đăng nhập để đặt dịch vụ!");
+                } else {
+                  navigate(`/BookingService-${service._id}`);
+                }
+              }}
+            >
+              Đặt dịch vụ
+            </button>
           </div>
+          <ToastContainer position="bottom-right" autoClose={3000} />
           <div className="card mb-5">
             <div className="card-body">
               <h4 className="card-title">Đánh giá dịch vụ</h4>

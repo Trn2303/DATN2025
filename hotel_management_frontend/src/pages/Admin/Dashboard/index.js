@@ -77,9 +77,7 @@ const Dashboard = () => {
             <div className="card text-white bg-warning">
               <div className="card-body">
                 <h5 className="card-title">Phòng còn trống </h5>
-                <p className="card-text fs-4">
-                  {(report.incomeToday || 0).toLocaleString()}₫
-                </p>
+                <p className="card-text fs-4">{report.emptyRooms || 0}</p>
               </div>
             </div>
           </div>
@@ -89,7 +87,7 @@ const Dashboard = () => {
               <div className="card-body">
                 <h5 className="card-title">Doanh thu hôm nay</h5>
                 <p className="card-text fs-4">
-                  {(report.incomeYesterday || 0).toLocaleString()}₫
+                  {(report.incomeLast7Days[6] || 0).toLocaleString()}₫
                 </p>
               </div>
             </div>
@@ -136,14 +134,18 @@ const Dashboard = () => {
             <div className="card text-center shadow-sm my-2">
               <div className="card-body">
                 <h6 className="mb-2">Khách đang lưu trú</h6>
-                <p className="fs-4 fw-bold text-primary mb-0">12</p>
+                <p className="fs-4 fw-bold text-primary mb-0">
+                  {report.stayingGuests}
+                </p>
               </div>
             </div>
 
             <div className="card text-center shadow-sm my-4">
               <div className="card-body">
                 <h6 className="mb-2">Đặt phòng hôm nay</h6>
-                <p className="fs-4 fw-bold text-success mb-0">7</p>
+                <p className="fs-4 fw-bold text-success mb-0">
+                  {report.bookingsToday}
+                </p>
               </div>
             </div>
           </div>

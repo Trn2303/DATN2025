@@ -15,7 +15,7 @@ const paymentSchema = new mongoose.Schema(
     amount: { type: Number, required: true, min: 0 },
     paymentMethod: {
       type: String,
-      enum: ["cash", "momo", "vnpay"],
+      enum: ["cash", "momo"],
       required: true,
     },
     status: {

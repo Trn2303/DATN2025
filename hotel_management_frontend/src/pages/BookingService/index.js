@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { getServices, createOrder } from "../../services/Api";
 import { ToastContainer, toast } from "react-toastify";
 import Pagination from "../../shared/components/_pagination";
@@ -12,6 +12,7 @@ const BookingService = () => {
   const limit = 6;
   const [pageIndex, setPageIndex] = useState({ limit });
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     getServices({
@@ -98,16 +99,17 @@ const BookingService = () => {
         price,
       })),
     };
-    console.log(payload);
 
     createOrder(user._id, payload)
       .then(({ data }) => {
         toast.success(data.message);
         setOrderItems([]);
+        setTimeout(() => {
+          navigate(`/Users-${user?._id}/OrderHistory`);
+        }, 2000);
       })
       .catch((error) => {
-        console.error(error);
-        toast.error("Đặt dịch vụ thất bại!");
+        toast.error(error);
       });
   };
 

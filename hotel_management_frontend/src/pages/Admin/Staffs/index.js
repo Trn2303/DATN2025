@@ -27,28 +27,34 @@ const StaffManagement = () => {
     salary: "",
   });
   const [searchParams] = useSearchParams();
-  const page = searchParams.get("page") || 1;
-  const limit = 9;
+  const page = parseInt(searchParams.get("page")) || 1;
+  const limit = 6;
   const [pageIndex, setPageIndex] = useState({ limit });
   const [statusFilter, setStatusFilter] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const reloadStaffs = useCallback(() => {
-    const config = { params: { page, status: statusFilter || undefined } };
+    const config = {
+      params: {
+        page,
+        limit,
+        status: statusFilter || undefined,
+      },
+    };
 
     getStaffs(config)
       .then(({ data }) => {
         setStaffs(data.data.docs);
         setPageIndex({ limit, ...data.data.pages });
       })
-      .catch((err) => {
+      .catch(() => {
         toast.error("Lỗi tải danh sách nhân viên!");
       });
   }, [page, statusFilter]);
 
   useEffect(() => {
     reloadStaffs();
-  }, [reloadStaffs]);
+  }, [page, reloadStaffs]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -69,7 +75,9 @@ const StaffManagement = () => {
       reloadStaffs();
       handleCloseModal();
     } catch (e) {
-      toast.error("Có lỗi xảy ra!");
+      const message =
+        e?.response?.data?.message || e?.message || "Có lỗi xảy ra!";
+      toast.error(message);
     }
   };
 
@@ -138,7 +146,7 @@ const StaffManagement = () => {
 
   return (
     <div className="container py-4">
-      <h1 className="mb-4 text-center">Quản lý nhân viên</h1>
+      <h3 className="mb-4 text-center">Quản lý nhân viên</h3>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Button variant="success" onClick={handleShowModal}>
           <i className="bi bi-plus"></i> Thêm

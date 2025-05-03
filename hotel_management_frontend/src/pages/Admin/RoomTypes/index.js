@@ -19,6 +19,8 @@ const RoomTypeAdmin = () => {
   });
   const [editingId, setEditingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const fetchRoomTypes = async () => {
     try {
@@ -75,25 +77,29 @@ const RoomTypeAdmin = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa loại phòng này không?")) {
-      try {
-        await deleteRoomType(id);
-        toast.success("Xóa loại phòng thành công");
-        fetchRoomTypes();
-      } catch (error) {
-        console.error("Xóa thất bại:", error);
-        toast.error("Đã xảy ra lỗi khi xóa");
-      }
+  const confirmDelete = (id) => {
+    setDeletingId(id);
+    setShowDeleteModal(true);
+  };
+  const handleDelete = async () => {
+    try {
+      await deleteRoomType(deletingId);
+      toast.success("Xóa loại phòng thành công");
+      fetchRoomTypes();
+    } catch (error) {
+      console.error("Xóa thất bại:", error);
+      toast.error("Đã xảy ra lỗi khi xóa");
+    } finally {
+      setShowDeleteModal(false);
+      setDeletingId(null);
     }
   };
 
   return (
-    <div className="container">
+    <div className="container mt-4">
       <ToastContainer position="bottom-right" />
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-00">Quản lý loại phòng</h2>
-
+      <h3 className="mb-4 text-center">Quản lý loại phòng</h3>
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <Button
           variant="success"
           className="mb-3"
@@ -152,10 +158,24 @@ const RoomTypeAdmin = () => {
               Đóng
             </Button>
             <Button type="submit" variant="primary">
-              {editingId ? "Cập nhật" : "Thêm"}
+              {editingId ? "Cập nhật" : "Tạo"}
             </Button>
           </Modal.Footer>
         </form>
+      </Modal>
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Xác nhận xóa</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Bạn có chắc chắn muốn xóa loại phòng này không?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Xác nhận
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       <table className="table table-bordered">
@@ -186,7 +206,7 @@ const RoomTypeAdmin = () => {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() => handleDelete(room._id)}
+                    onClick={() => confirmDelete(room._id)}
                   >
                     Xóa
                   </Button>

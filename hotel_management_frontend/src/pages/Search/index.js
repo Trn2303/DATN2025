@@ -29,7 +29,7 @@ const Search = () => {
     })
       .then(({ data }) => {
         setRooms(data.data.docs);
-        setTotal(data.data.pages);
+        setTotal(data.data.pages.totalRows);
         setPageIndex({ limit, ...data.data.pages });
       })
       .catch((error) => console.log(error));
@@ -37,16 +37,16 @@ const Search = () => {
 
   return (
     <>
-    <div className="hero-section">
-      <div className="row">
-        <div className="col-lg-12">
-          <div className="section-title">
-            <h2>Tìm kiếm phòng khách sạn</h2>
+      <div className="hero-section">
+        <div className="row">
+          <div className="col-lg-12">
+            <div className="section-title">
+              <h2>Tìm kiếm phòng khách sạn</h2>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-      
+
       <SearchBox />
       <div className="rooms-section spad my-5">
         <div className="container">

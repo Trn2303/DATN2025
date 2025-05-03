@@ -22,7 +22,15 @@ const PaymentSuccess = () => {
   }, [navigate]);
 
   return (
-    <div className="container text-center mt-5">
+    <div
+      className="container text-center mt-5"
+      style={{
+        minHeight: "90vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
       <h1 className="text-success">🎉 Thanh toán thành công!</h1>
       <p>Bạn sẽ được chuyển về trang hóa đơn trong giây lát...</p>
     </div>

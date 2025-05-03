@@ -13,6 +13,8 @@ const AmenityManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingAmenity, setEditingAmenity] = useState(null);
   const [formData, setFormData] = useState({ name: "" });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [amenityToDelete, setAmenityToDelete] = useState(null);
 
   useEffect(() => {
     loadAmenities();
@@ -49,15 +51,22 @@ const AmenityManagement = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa tiện nghi này?")) {
-      try {
-        await deleteAmenity(id);
-        toast.success("Xoá thành công!");
-        loadAmenities();
-      } catch {
-        toast.error("Không thể xoá tiện nghi");
-      }
+  const handleDelete = (id) => {
+    setAmenityToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!amenityToDelete) return;
+    try {
+      await deleteAmenity(amenityToDelete);
+      toast.success("Xoá thành công!");
+      loadAmenities();
+    } catch {
+      toast.error("Không thể xoá tiện nghi");
+    } finally {
+      setShowDeleteModal(false);
+      setAmenityToDelete(null);
     }
   };
 
@@ -133,6 +142,25 @@ const AmenityManagement = () => {
             </div>
           </Form>
         </Modal.Body>
+      </Modal>
+
+      <Modal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        centered
+      >
+        <Modal.Header closeButton className="no-modal-border">
+          <Modal.Title>Xác nhận xoá</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Bạn có chắc chắn muốn xóa tiện nghi này?</Modal.Body>
+        <Modal.Footer className="no-modal-border">
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="danger" onClick={confirmDelete}>
+            Xóa
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       <ToastContainer position="bottom-right" />

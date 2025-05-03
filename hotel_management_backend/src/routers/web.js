@@ -47,8 +47,12 @@ router.get(`/users/:id/bookings`, BookingController.getBookingsByUser);
 router.get(`/admin/rooms`, RoomController.index);
 router.get(`/rooms`, RoomController.customerIndex); // get all rooms for customer
 router.get(`/rooms/:id`, RoomController.show);
-router.post(`/admin/rooms`,upload.single("image"), RoomController.store);
-router.put(`/admin/rooms/:id/update`, RoomController.update);
+router.post("/rooms", upload.single("imageFile"), RoomController.store);
+router.put(
+  "/rooms/:id/update",
+  upload.single("imageFile"),
+  RoomController.update
+);
 router.delete(`/admin/rooms/:id/delete`, RoomController.destroy);
 
 // Router room type
@@ -100,6 +104,6 @@ router.patch(`/admin/invoices/:id/cancelled`, InvoiceController.cancelled);
 router.get(`/admin/statistics/daily`, StatisticsController.dailyReport);
 
 // Router payment
-router.post('/payment', PaymentController.createPayment);
-router.get('/payment-return', PaymentController.paymentCallback);
+router.post("/payment", PaymentController.createPayment);
+router.get("/payment-return", PaymentController.paymentCallback);
 module.exports = router;

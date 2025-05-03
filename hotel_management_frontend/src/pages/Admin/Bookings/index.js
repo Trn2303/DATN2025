@@ -3,6 +3,7 @@ import {
   getBookings,
   checkInBooking,
   checkOutBooking,
+  createInvoice,
 } from "../../../services/Api";
 import { toast, ToastContainer } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
@@ -13,7 +14,7 @@ const BookingManagement = () => {
   const [loadingIds, setLoadingIds] = useState([]); // Track loading per booking
   const [searchParams] = useSearchParams();
   const page = searchParams.get("page") || 1;
-  const limit = 9;
+  const limit = 6;
   const [pageIndex, setPageIndex] = useState({ limit });
   const [searchText, setSearchText] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
@@ -50,9 +51,23 @@ const BookingManagement = () => {
       const { data } = await checkOutBooking(id, {});
       if (data.status === "success") {
         toast.success(data.message);
+
         setBookings((prev) =>
           prev.map((b) => (b._id === id ? { ...b, status: "completed" } : b))
         );
+
+        try {
+          const invoiceRes = await createInvoice({
+            booking_id: id,
+          });
+          if (invoiceRes.data.status === "success") {
+            toast.success("Đã tạo hóa đơn thành công");
+          } else {
+            toast.warn("Check-out thành công, nhưng không tạo được hóa đơn");
+          }
+        } catch (invoiceErr) {
+          toast.error("Tạo hóa đơn thất bại");
+        }
       }
     } catch {
       toast.error("Check-out thất bại");
@@ -71,7 +86,7 @@ const BookingManagement = () => {
 
   return (
     <div className="container py-4">
-      <h1 className="text-center mb-4">Quản lý đặt phòng</h1>
+      <h3 className="text-center mb-4">Quản lý đặt phòng</h3>
       <div className="mb-3 d-flex justify-content-between align-items-center">
         <input
           type="text"
@@ -97,8 +112,16 @@ const BookingManagement = () => {
           <div className="col-md-6" key={booking._id}>
             <div className="card shadow-sm">
               <div className="card-body">
-                <h5>Phòng: {booking.room?.name || "Không có"}</h5>
-                <p>Tầng: {booking.room?.floor}</p>
+                <h5>{booking.room?.name || "Không có"}</h5>
+                <p>Tầng: {booking.room?.floor ?? "Không có"}</p>
+                <p>
+                  Ngày nhận phòng:{" "}
+                  {new Date(booking.checkInDate).toLocaleDateString()}
+                </p>
+                <p>
+                  Ngày trả phòng:{" "}
+                  {new Date(booking.checkOutDate).toLocaleDateString()}
+                </p>
                 <p>Trạng thái: {booking.status}</p>
                 <div className="d-flex gap-2">
                   {booking.status === "pending" && (

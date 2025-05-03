@@ -83,6 +83,8 @@ const RoomsAdmin = () => {
   const [allAmenities, setAllAmenities] = useState([]);
   const [selectedAmenity, setSelectedAmenity] = useState("");
   const [isSelectingAmenity, setIsSelectingAmenity] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [roomToDelete, setRoomToDelete] = useState(null);
 
   const clickEdit = (room) => {
     setIsEditMode(true);
@@ -104,20 +106,8 @@ const RoomsAdmin = () => {
   };
 
   const clickDelete = (room) => {
-    if (window.confirm(`Bạn có chắc muốn xóa ${room.name}?`)) {
-      deleteRoom(room._id)
-        .then(({ data }) => {
-          toast.success(data.message);
-          setRooms((prev) => ({
-            ...prev,
-            [room.status]: prev[room.status].filter((r) => r._id !== room._id),
-          }));
-        })
-        .catch((error) => {
-          console.log(error);
-          toast.error("Đã xảy ra lỗi khi xóa phòng.");
-        });
-    }
+    setRoomToDelete(room);
+    setShowDeleteModal(true);
   };
 
   useEffect(() => {
@@ -148,7 +138,6 @@ const RoomsAdmin = () => {
       .then(({ data }) => setAllAmenities(data.data.docs))
       .catch((error) => console.log(error));
   }, []);
-  console.log(allAmenities);
 
   return (
     <div className="container my-4">
@@ -166,22 +155,28 @@ const RoomsAdmin = () => {
               onSubmit={async (e) => {
                 e.preventDefault();
                 try {
-                  const payload = {
-                    name: currentRoom.name,
-                    floor: currentRoom.floor,
-                    room_type: currentRoom.room_type,
-                    status: currentRoom.status,
-                    amenities: currentRoom.amenities.map((a) => a._id || a),
-                    image: currentRoom.imageFile
-                      ? currentRoom.imageFile.name
-                      : currentRoom.image, // Gửi tên file ảnh
-                  };
+                  const formData = new FormData();
+                  formData.append("name", currentRoom.name);
+                  formData.append("floor", currentRoom.floor);
+                  formData.append("room_type", currentRoom.room_type);
+                  formData.append("status", currentRoom.status);
+
+                  currentRoom.amenities.forEach((a) => {
+                    formData.append(
+                      "amenities[]",
+                      typeof a === "string" ? a : a._id
+                    );
+                  });
+
+                  if (currentRoom.imageFile) {
+                    formData.append("imageFile", currentRoom.imageFile); // Gửi file ảnh thật
+                  }
 
                   let res;
                   if (isEditMode) {
-                    res = await updateRoom(currentRoom._id, payload);
+                    res = await updateRoom(currentRoom._id, formData);
                   } else {
-                    res = await createRoom(payload);
+                    res = await createRoom(formData);
                   }
 
                   toast.success(res.data.message);
@@ -380,15 +375,15 @@ const RoomsAdmin = () => {
               </div>
 
               <button className="btn btn-primary" type="submit">
-                {isEditMode ? "Cập nhật" : "Thêm phòng"}
+                {isEditMode ? "Cập nhật" : "Tạo"}
               </button>
             </form>
           </Modal.Body>
         </Modal>
       )}
 
+      <h2 className="mb-4 text-center">Quản lý Phòng</h2>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0">Phòng</h2>
         <button className="btn btn-success" onClick={clickAdd}>
           <i className="bi bi-plus"></i> Thêm
         </button>
@@ -419,6 +414,46 @@ const RoomsAdmin = () => {
         <Pagination pages={pageIndex} />
       </div>
       <ToastContainer position="bottom-right" />
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Xác nhận</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Bạn có chắc chắn muốn xóa phòng <strong>{roomToDelete?.name}</strong>{" "}
+          không?
+        </Modal.Body>
+        <Modal.Footer>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setShowDeleteModal(false)}
+          >
+            Hủy
+          </button>
+          <button
+            className="btn btn-danger"
+            onClick={async () => {
+              try {
+                const res = await deleteRoom(roomToDelete._id);
+                toast.success(res.data.message);
+                setRooms((prev) => ({
+                  ...prev,
+                  [roomToDelete.status]: prev[roomToDelete.status].filter(
+                    (r) => r._id !== roomToDelete._id
+                  ),
+                }));
+              } catch (error) {
+                console.error(error);
+                toast.error("Đã xảy ra lỗi khi xóa phòng.");
+              } finally {
+                setShowDeleteModal(false);
+                setRoomToDelete(null);
+              }
+            }}
+          >
+            Xác nhận xóa
+          </button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

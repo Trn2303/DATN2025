@@ -14,20 +14,23 @@ const UserProfile = () => {
     role: "",
     updatedAt: "",
   });
+  const [initialUserInfo, setInitialUserInfo] = useState(null);
 
   useEffect(() => {
     try {
       const userString = localStorage.getItem("user");
       if (userString) {
         const user = JSON.parse(userString);
-        setUserInfo({
+        const formattedUser = {
           _id: user._id || "",
           name: user.name || "",
           email: user.email || "",
           phone: user.phone || "",
           role: user.role || "",
           updatedAt: user.updatedAt || "",
-        });
+        };
+        setUserInfo(formattedUser);
+        setInitialUserInfo(formattedUser); // Lưu bản gốc để hoàn tác
       }
     } catch (error) {
       console.error("Failed to parse user from localStorage", error);
@@ -39,8 +42,8 @@ const UserProfile = () => {
     const { name, value } = e.target;
     setUserInfo({ ...userInfo, [name]: value });
   };
+
   const clickUpdate = () => {
-    console.log(userInfo);
     updateUser(id, { name: userInfo.name, phone: userInfo.phone })
       .then(({ data }) => {
         if (data.status === "success") {
@@ -52,8 +55,8 @@ const UserProfile = () => {
           try {
             localStorage.setItem("user", JSON.stringify(updatedUser));
             setUserInfo(updatedUser);
+            setInitialUserInfo(updatedUser); // Cập nhật giá trị ban đầu mới
             toast.success("Cập nhật thông tin thành công!");
-            window.location.reload();
           } catch (err) {
             console.log("Failed to update localStorage:", err);
           }
@@ -66,6 +69,14 @@ const UserProfile = () => {
         toast.error("Có lỗi xảy ra khi cập nhật thông tin");
       });
   };
+
+  const handleCancel = () => {
+    if (initialUserInfo) {
+      setUserInfo(initialUserInfo);
+      toast.info("Đã hoàn tác thay đổi.");
+    }
+  };
+
   return (
     <div className="container mt-4">
       <div className="row">
@@ -73,7 +84,7 @@ const UserProfile = () => {
           <SidebarUser />
         </div>
         <div className="col-md-9">
-          <h2 className="mb-4">Thông tin cá nhân</h2>
+          <h3 className="mb-4">Thông tin cá nhân</h3>
           <hr className="bg-secondary" />
           <form method="post">
             <div className="mb-3">
@@ -120,13 +131,22 @@ const UserProfile = () => {
               />
             </div>
 
-            <button
-              onClick={clickUpdate}
-              type="button"
-              className="btn btn-success"
-            >
-              Cập nhật thông tin
-            </button>
+            <div className="d-flex gap-2">
+              <button
+                onClick={clickUpdate}
+                type="button"
+                className="btn btn-success"
+              >
+                Cập nhật
+              </button>
+              <button
+                onClick={handleCancel}
+                type="button"
+                className="btn btn-secondary"
+              >
+                Hủy
+              </button>
+            </div>
           </form>
           <ToastContainer position="bottom-right" />
         </div>

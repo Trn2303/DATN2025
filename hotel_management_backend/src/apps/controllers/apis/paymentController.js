@@ -1,6 +1,11 @@
 const crypto = require("crypto");
 const axios = require("axios");
 const InvoiceModel = require("../../models/invoice");
+const PaymentModel = require("../../models/payment"); // Thêm dòng này
+
+const partnerCode = "MOMO";
+const accessKey = "F8BBA842ECF85";
+const secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
 
 async function createPayment(req, res) {
   const { amount, invoiceId } = req.body;
@@ -9,14 +14,11 @@ async function createPayment(req, res) {
     return res.status(400).json({ error: "Thiếu thông tin thanh toán." });
   }
 
-  const partnerCode = "MOMO";
-  const accessKey = "F8BBA842ECF85";
-  const secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
   const requestId = partnerCode + new Date().getTime();
-  const orderId = invoiceId + "_" + requestId;
+  const orderId = `${invoiceId}_${requestId}`;
   const orderInfo = `Thanh toán hóa đơn ${invoiceId}`;
   const redirectUrl = "http://localhost:3000/payment-success";
-  const ipnUrl = "https://localhost:8000/api/v1/payment-return";
+  const ipnUrl = "http://localhost:8000/api/v1/payment-return"; // Nhớ đổi lại HTTPS khi deploy
   const requestType = "captureWallet";
   const extraData = "";
 
@@ -80,7 +82,6 @@ async function paymentCallback(req, res) {
 
   console.log("MoMo callback data:", data);
 
-  // Xác thực chữ ký
   const generatedSignature = generateSignatureFromObject(data, secretkey);
   if (generatedSignature !== data.signature) {
     console.error("Invalid signature");
@@ -97,15 +98,44 @@ async function paymentCallback(req, res) {
       return res.status(404).json({ error: "Không tìm thấy hóa đơn." });
     }
 
-    // Nếu thanh toán thành công
+    // Check if payment with same transaction_id already exists
+    const existingPayment = await PaymentModel.findOne({
+      transaction_id: data.transId,
+    });
+    if (existingPayment) {
+      return res.status(200).json({ message: "Giao dịch đã được xử lý." });
+    }
+
+    const paymentData = {
+      invoice_id: invoice._id,
+      user_id: invoice.user_id,
+      amount: invoice.totalAmount,
+      paymentMethod: "momo",
+      transaction_id: data.transId,
+    };
+
     if (resultCode === 0) {
       invoice.paymentStatus = "paid";
       invoice.paymentMethod = "momo";
       await invoice.save();
-      return res
-        .status(200)
-        .json({ message: "Cập nhật trạng thái thanh toán thành công." });
+
+      const newPayment = new PaymentModel({
+        ...paymentData,
+        status: "successful",
+      });
+      await newPayment.save();
+
+      return res.status(200).json({ message: "Thanh toán thành công." });
     } else {
+      const failedPayment = new PaymentModel({
+        ...paymentData,
+        status: "cancelled",
+      });
+      await failedPayment.save();
+
+      invoice.paymentStatus = "cancelled";
+      await invoice.save();
+
       return res
         .status(200)
         .json({ message: "Thanh toán thất bại hoặc bị hủy." });

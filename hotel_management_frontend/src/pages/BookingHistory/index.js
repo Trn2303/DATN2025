@@ -1,25 +1,41 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { cancelBooking, getBookingsByUser } from "../../services/Api";
 import SidebarUser from "../../shared/components/Layout/SidebarUser";
 import { toast, ToastContainer } from "react-toastify";
+import Pagination from "../../shared/components/_pagination";
 const BookingHistory = () => {
   const { id } = useParams();
   const [bookings, setBookings] = useState([]);
+  const [searchParams] = useSearchParams();
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = 5;
+  const [pageIndex, setPageIndex] = useState({ limit });
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   useEffect(() => {
-    getBookingsByUser(id, {})
+    getBookingsByUser(id, {
+      params: { page, limit },
+    })
       .then(({ data }) => {
-        setBookings(data.data);
+        if (data.status === "success") {
+          setBookings(data.data.docs);
+          setPageIndex({ limit, ...data.data.pages });
+        }
       })
       .catch((error) => console.log(error));
-  }, [id]);
+  }, [id, page]);
+  const handleClickCancel = (bookingId, checkInDate) => {
+    setSelectedBooking({ bookingId, checkInDate });
+  };
 
-  const clickCancel = (bookingId, checkInDate) => {
+  const confirmCancelBooking = () => {
+    const { bookingId, checkInDate } = selectedBooking;
     const currentTime = new Date();
     const checkInTime = new Date(checkInDate);
     const timeDifference = checkInTime - currentTime;
     const hoursDifference = timeDifference / (1000 * 60 * 60);
+
     if (hoursDifference > 24) {
       cancelBooking(bookingId)
         .then(({ data }) => {
@@ -29,10 +45,12 @@ const BookingHistory = () => {
               prevBookings.filter((booking) => booking._id !== bookingId)
             );
           }
+          setSelectedBooking(null);
         })
-        .catch((error) => toast.error("Không thể hủy đặt phòng"));
+        .catch(() => toast.error("Không thể hủy đặt phòng"));
     } else {
       toast.error("Đã đến hạn, không thể hủy đặt phòng!");
+      setSelectedBooking(null);
     }
   };
 
@@ -43,67 +61,136 @@ const BookingHistory = () => {
           <SidebarUser />
         </div>
         <div className="col-md-9">
-          <h2 className="mb-4">Đơn đặt phòng</h2>
+          <h3 className="mb-4">Đơn đặt phòng</h3>
           <hr className="bg-secondary" />
-          <ul className="list-group">
-            {bookings.length > 0 ? (
-              bookings.map((booking, index) => {
-                let badgeClass = "";
-                let icon = "";
+          <hr />
+          {bookings.length > 0 ? (
+            bookings.map((booking, index) => {
+              let badgeClass = "";
+              let icon = "";
 
-                switch (booking.status) {
-                  case "completed":
-                    badgeClass = "bg-success";
-                    icon = "bi bi-check-circle";
-                    break;
-                  case "pending":
-                    badgeClass = "bg-warning";
-                    icon = "bi bi-hourglass-split";
-                    break;
-                  case "cancelled":
-                    badgeClass = "bg-danger";
-                    icon = "bi bi-x-circle";
-                    break;
-                  case "confirmed":
-                    badgeClass = "bg-info";
-                    icon = "bi bi-check2-circle";
-                    break;
-                  default:
-                    badgeClass = "bg-secondary";
-                    icon = "bi bi-question-circle";
-                }
+              switch (booking.status) {
+                case "completed":
+                  badgeClass = "bg-success";
+                  icon = "bi bi-check-circle";
+                  break;
+                case "pending":
+                  badgeClass = "bg-warning";
+                  icon = "bi bi-hourglass-split";
+                  break;
+                case "cancelled":
+                  badgeClass = "bg-danger";
+                  icon = "bi bi-x-circle";
+                  break;
+                case "confirmed":
+                  badgeClass = "bg-info";
+                  icon = "bi bi-check2-circle";
+                  break;
+                default:
+                  badgeClass = "bg-secondary";
+                  icon = "bi bi-question-circle";
+              }
 
-                return (
-                  <li key={index} className="list-group-item">
-                    <strong>{booking.room?.name || "Không rõ"} </strong>{" "}
-                    <span className={`mx-3 badge ${badgeClass} text-dark`}>
-                      {booking.status} <i className={icon}></i>
-                    </span>
-                    <br />
-                    <strong>Check-in:</strong>{" "}
-                    {new Date(booking.checkInDate).toLocaleDateString()} <br />
-                    <strong>Check-out:</strong>{" "}
-                    {new Date(booking.checkOutDate).toLocaleDateString()} <br />
-                    <strong>Tổng tiền:</strong>{" "}
-                    {booking.totalPrice.toLocaleString()} ₫
-                    <br />
-                    {booking.status !== "cancelled" && ( 
-                      <button
-                        className="btn btn-danger btn-sm mt-2"
-                        onClick={() =>
-                          clickCancel(booking._id, booking.checkInDate)
-                        } 
+              return (
+                <div
+                  key={index}
+                  className="card shadow-sm mb-4 border-0 rounded-4"
+                >
+                  <div className="card-body">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <h5 className="card-title mb-0">
+                        {booking.room?.name || "Phòng không xác định"}
+                      </h5>
+                      <span
+                        className={`badge ${badgeClass} px-3 py-2 rounded-pill`}
                       >
-                        Hủy đặt phòng
-                      </button>
+                        {booking.status.toUpperCase()} <i className={icon}></i>
+                      </span>
+                    </div>
+
+                    <p className="mb-1">
+                      <strong>Check-in:</strong>{" "}
+                      {new Date(booking.checkInDate).toLocaleDateString()}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Check-out:</strong>{" "}
+                      {new Date(booking.checkOutDate).toLocaleDateString()}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Tổng tiền:</strong>{" "}
+                      {booking.totalPrice.toLocaleString()} ₫
+                    </p>
+
+                    {booking.status !== "cancelled" && (
+                      <div className="text-end mt-3">
+                        <button
+                          className="btn btn-outline-danger btn-sm px-4 py-2"
+                          data-bs-toggle="modal"
+                          data-bs-target="#cancelModal"
+                          onClick={() =>
+                            handleClickCancel(booking._id, booking.checkInDate)
+                          }
+                        >
+                          Hủy đặt phòng
+                        </button>
+                      </div>
                     )}
-                  </li>
-                );
-              })
-            ) : (
-              <p>Không có lịch sử đặt phòng.</p>
-            )}
-          </ul>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="alert alert-secondary text-center">
+              Không có lịch sử đặt phòng.
+            </div>
+          )}
+          <div
+            className="modal fade"
+            id="cancelModal"
+            tabIndex="-1"
+            aria-labelledby="cancelModalLabel"
+            aria-hidden="true"
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title" id="cancelModalLabel">
+                    Xác nhận hủy đặt phòng
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  Bạn có chắc chắn muốn hủy đặt phòng này không?
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Đóng
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    data-bs-dismiss="modal"
+                    onClick={confirmCancelBooking}
+                  >
+                    Xác nhận hủy
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="d-flex justify-content-center mt-4">
+            <Pagination pages={pageIndex} />
+          </div>
           <ToastContainer position="bottom-right" />
         </div>
       </div>

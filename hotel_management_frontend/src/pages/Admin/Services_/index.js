@@ -6,6 +6,7 @@ import {
   updateService,
 } from "../../../services/Api";
 import { useSearchParams } from "react-router-dom";
+import Pagination from "../../../shared/components/_pagination";
 
 const AdminServiceManager = () => {
   const [services, setServices] = useState([]);
@@ -36,7 +37,7 @@ const AdminServiceManager = () => {
       })
       .catch((err) => console.log(err));
   }, [page]);
-  console.log(services)
+  console.log(services);
 
   const handleShowModal = (service = null) => {
     setEditingService(service);
@@ -94,9 +95,11 @@ const AdminServiceManager = () => {
 
   return (
     <div className="container mt-4">
+      <h3 className="mb-4 text-center">Quản lý Dịch vụ</h3>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3>Quản lý Dịch vụ</h3>
-        <Button variant="success" onClick={() => handleShowModal()}><i className="bi bi-plus"></i> Thêm</Button>
+        <Button variant="success" onClick={() => handleShowModal()}>
+          <i className="bi bi-plus"></i> Thêm
+        </Button>
       </div>
       <Table striped bordered hover>
         <thead>
@@ -132,7 +135,9 @@ const AdminServiceManager = () => {
           ))}
         </tbody>
       </Table>
-
+      <div className="d-flex justify-content-center mt-4">
+        <Pagination pages={pageIndex} />
+      </div>
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>{editingService ? "Sửa" : "Thêm"} Dịch vụ</Modal.Title>

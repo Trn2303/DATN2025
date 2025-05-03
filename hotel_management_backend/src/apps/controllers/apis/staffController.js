@@ -6,7 +6,7 @@ exports.index = async (req, res) => {
   try {
     const query = {};
     const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.page) || 6;
+    const limit = Number(req.query.limit) || 6;
     const skip = (page - 1) * limit;
     if (req.query.status != null) query.status = req.query.status;
     // lấy danh sách nhân viên

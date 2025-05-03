@@ -4,7 +4,7 @@ const path = require("path");
 // Thư mục lưu ảnh
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null,  path.join(__dirname, "../src/public/uploads")); 
+    cb(null, path.join(__dirname, "../src/public/uploads"));
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
   },
 });
 
-// Lọc file chỉ cho phép ảnh
+// Lọc chỉ cho phép ảnh jpg, jpeg, png
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png/;
   const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -25,6 +25,9 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({
+  storage,
+  fileFilter,
+});
 
 module.exports = upload;

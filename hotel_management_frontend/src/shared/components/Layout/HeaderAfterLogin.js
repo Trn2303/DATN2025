@@ -108,7 +108,7 @@ const HeaderLogin = () => {
                           className="dropdown-item"
                           to={`/Users-${user?._id}/BookingHistory`}
                         >
-                          <i className="bi bi-clock-history me-2"></i>Đơn đặt
+                          <i className="bi bi-buildings me-2"></i>Đơn đặt
                           phòng
                         </Link>
                       </li>

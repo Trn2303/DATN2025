@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import {
   getInvoices,
-  createInvoice,
   updateInvoice,
   cancelInvoice,
 } from "../../../services/Api";
 import { toast, ToastContainer } from "react-toastify";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { useSearchParams } from "react-router-dom";
 import Pagination from "../../../shared/components/_pagination";
 
 const InvoiceManagement = () => {
@@ -18,14 +18,16 @@ const InvoiceManagement = () => {
   });
   const [showModal, setShowModal] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState(null);
-  const [pages, setPages] = useState({});
-  const [page, setPage] = useState(1);
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const limit = 10;
+  const [pageIndex, setPageIndex] = useState({ limit });
 
   const loadInvoices = async () => {
     try {
-      const { data } = await getInvoices({ params: { page } });
+      const { data } = await getInvoices({ params: { page, limit } });
       setInvoices(data.data.docs);
-      setPages(data.data.pages);
+      setPageIndex(limit, ...data.data.pages);
     } catch (error) {
       toast.error("Lỗi khi tải hóa đơn");
     }
@@ -37,13 +39,13 @@ const InvoiceManagement = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleShowModal = (invoice = null) => {
+  const handleShowModal = (invoice) => {
+    if (!invoice) return;
     setEditingInvoice(invoice);
-    setFormData(
-      invoice
-        ? { name: invoice.roomName, paymentMethod: invoice.paymentMethod }
-        : { name: "", paymentMethod: "cash" }
-    );
+    setFormData({
+      name: invoice.roomName,
+      paymentMethod: invoice.paymentMethod,
+    });
     setShowModal(true);
   };
 
@@ -55,18 +57,19 @@ const InvoiceManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!editingInvoice) {
+      toast.error("Không thể tạo hóa đơn mới!");
+      return;
+    }
+
     try {
-      if (editingInvoice) {
-        await updateInvoice(editingInvoice._id, formData);
-        toast.success("Cập nhật hóa đơn thành công!");
-      } else {
-        await createInvoice(formData);
-        toast.success("Tạo hóa đơn thành công!");
-      }
+      await updateInvoice(editingInvoice._id, formData);
+      toast.success("Cập nhật hóa đơn thành công!");
       loadInvoices();
       handleCloseModal();
     } catch {
-      toast.error("Lỗi khi lưu hóa đơn!");
+      toast.error("Lỗi khi cập nhật hóa đơn!");
     }
   };
 
@@ -85,13 +88,6 @@ const InvoiceManagement = () => {
   return (
     <div className="container py-4">
       <h2 className="mb-4 text-center">Quản lý hóa đơn</h2>
-      <Button
-        variant="success"
-        className="mb-3"
-        onClick={() => handleShowModal()}
-      >
-        <i className="bi bi-plus-circle"></i> Tạo hóa đơn
-      </Button>
 
       {/* Danh sách hóa đơn */}
       <div className="table-responsive">
@@ -99,21 +95,47 @@ const InvoiceManagement = () => {
           <thead>
             <tr>
               <th>Phòng</th>
+              <th>Khách hàng</th>
               <th>Tổng tiền</th>
-              <th>Ngày tạo</th>
-              <th>Trạng thái</th>
+              <th>Ngày lập</th>
+              <th>Hạn thanh toán</th>
+              <th>Phương thức</th>
               <th>Thanh toán</th>
               <th>Hành động</th>
             </tr>
           </thead>
+
           <tbody>
             {invoices.map((invoice) => (
               <tr key={invoice._id}>
-                <td>{invoice.roomName || "(Chưa có tên)"}</td>
+                <td>{invoice.booking_id?.room_id?.name || "(Chưa có tên)"}</td>
+                <td>
+                  {invoice.user_id?.fullName || invoice.user_id?.email || "N/A"}
+                </td>
                 <td>{invoice.totalAmount.toLocaleString()} đ</td>
                 <td>{new Date(invoice.issuedDate).toLocaleDateString()}</td>
-                <td>{invoice.status || "Đang xử lý"}</td>
-                <td>{invoice.paymentStatus}</td>
+                <td>{new Date(invoice.dueDate).toLocaleDateString()}</td>
+                <td>
+                  {invoice.paymentMethod === "cash" ? "Tiền mặt" : "Momo"}
+                </td>
+                <td>
+                  <span
+                    className={
+                      "badge " +
+                      (invoice.paymentStatus === "paid"
+                        ? "bg-success"
+                        : invoice.paymentStatus === "cancelled"
+                        ? "bg-danger"
+                        : "bg-warning text-dark")
+                    }
+                  >
+                    {invoice.paymentStatus === "pending"
+                      ? "Chờ thanh toán"
+                      : invoice.paymentStatus === "paid"
+                      ? "Đã thanh toán"
+                      : "Đã hủy"}
+                  </span>
+                </td>
                 <td>
                   <Button
                     size="sm"
@@ -134,7 +156,7 @@ const InvoiceManagement = () => {
             ))}
             {invoices.length === 0 && (
               <tr>
-                <td colSpan="6" className="text-center">
+                <td colSpan="8" className="text-center">
                   Không có hóa đơn nào
                 </td>
               </tr>
@@ -143,14 +165,12 @@ const InvoiceManagement = () => {
         </table>
       </div>
 
-      <Pagination pages={pages} onPageChange={setPage} />
+      <Pagination pages={pageIndex} />
 
       {/* Modal thêm/sửa */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>
-            {editingInvoice ? "Cập nhật" : "Tạo mới"} hóa đơn
-          </Modal.Title>
+          <Modal.Title>Cập nhật hóa đơn</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form onSubmit={handleSubmit} id="invoice-form">
@@ -184,7 +204,7 @@ const InvoiceManagement = () => {
             Hủy
           </Button>
           <Button variant="primary" type="submit" form="invoice-form">
-            {editingInvoice ? "Cập nhật" : "Tạo mới"}
+            Cập nhật
           </Button>
         </Modal.Footer>
       </Modal>
