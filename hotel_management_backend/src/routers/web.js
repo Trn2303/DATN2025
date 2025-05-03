@@ -15,7 +15,6 @@ const AmenityController = require("../apps/controllers/apis/amenityController");
 const InvoiceController = require("../apps/controllers/apis/invoiceController");
 const StatisticsController = require("../apps/controllers/apis/statisticsController");
 const PaymentController = require("../apps/controllers/apis/paymentController");
-const VnPayController = require("../apps/controllers/apis/vnpayController");
 
 // Import middleware
 const AuthMiddleware = require("../apps/middlewares/authMiddleware");
@@ -47,7 +46,7 @@ router.get(`/users/:id/bookings`, BookingController.getBookingsByUser);
 router.get(`/admin/rooms`, RoomController.index);
 router.get(`/rooms`, RoomController.customerIndex); // get all rooms for customer
 router.get(`/rooms/:id`, RoomController.show);
-router.post(`/admin/rooms`, RoomController.store);
+router.post(`/admin/rooms`,upload.single("image"), RoomController.store);
 router.put(`/admin/rooms/:id/update`, RoomController.update);
 router.delete(`/admin/rooms/:id/delete`, RoomController.destroy);
 
@@ -100,7 +99,6 @@ router.patch(`/admin/invoices/:id/cancelled`, InvoiceController.cancelled);
 router.get(`/admin/statistics/daily`, StatisticsController.dailyReport);
 
 // Router payment
-router.post(`/payment`, PaymentController.createPaymentUrl);
-router.post("/vnpay/create_payment_url", VnPayController.createPaymentUrl);
-router.get("/vnpay/vnpay_return", VnPayController.vnpayReturn);
+router.post('/payment', PaymentController.createPayment);
+router.get('/payment-return', PaymentController.paymentCallback);
 module.exports = router;

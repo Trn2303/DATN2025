@@ -11,7 +11,7 @@ export const getUser = (id, config) => Http.get(`/users/${id}`, config);
 export const updateUser = (id, data) => Http.post(`/users/${id}/update`, data);
 
 // Booking
-export const getBookings = (config) => Http.get("/bookings", config);
+export const getBookings = (config) => Http.get("admin/bookings", config);
 export const getBookingById = (id, config) => Http.get(`/bookings/${id}`, config);
 export const createBooking = (data) => Http.post("/bookings", data);
 export const cancelBooking = (id) => Http.patch(`/bookings/${id}/cancelled`);
@@ -76,4 +76,5 @@ export const cancelInvoice = (id) => Http.patch(`/admin/invoices/${id}/cancelled
 export const getDailyStatistics = (config) => Http.get("/admin/statistics/daily", config);
 
 // payment
-export const createPaymentUrl = (data) => Http.post("/admin/vnpay/create_payment_url", data);
+export const createPayment = (data) => Http.post("/payment", data);
+export const momoReturn = (config) => Http.get("/payment-return", config);

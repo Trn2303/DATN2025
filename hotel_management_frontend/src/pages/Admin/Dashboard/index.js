@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getDailyStatistics } from "../../../services/Api";
 import { Line } from "react-chartjs-2";
-
+import { Spinner } from "react-bootstrap";
 import {
   Chart,
   LineElement,
@@ -20,7 +20,7 @@ Chart.register(
   Tooltip,
   Legend
 );
-// import { Spinner } from "react-bootstrap";
+
 const Dashboard = () => {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,6 +29,7 @@ const Dashboard = () => {
     const loadReport = async () => {
       try {
         const response = await getDailyStatistics();
+        console.log("🧾 Response:", response.data);
         setReport(response.data.data);
       } catch (error) {
         console.error("Failed to load report", error);
@@ -38,26 +39,16 @@ const Dashboard = () => {
     };
     loadReport();
   }, []);
-  const incomeLast7Days = [
-    123123, 123456, 456123, 456789, 786456, 156789, 654789,
-  ];
-  const last7DaysLabels = [
-    "26/04",
-    "27/04",
-    "28/04",
-    "29/04",
-    "30/04",
-    "01/05",
-    "02/05",
-  ];
+  const incomeLast7Days = report?.incomeLast7Days || [];
+  const last7DaysLabels = report?.last7DaysLabels || [];
 
-  // if (loading) {
-  //   return <Spinner animation="border" variant="primary" />;
-  // }
+  if (loading) {
+    return <Spinner animation="border" variant="primary" />;
+  }
 
-  // if (!report) {
-  //   return <div className="alert alert-danger">Không có dữ liệu thống kê.</div>;
-  // }
+  if (!report) {
+    return <div className="alert alert-danger">Không có dữ liệu thống kê.</div>;
+  }
 
   return (
     <>
@@ -68,7 +59,7 @@ const Dashboard = () => {
             <div className="card text-white bg-primary">
               <div className="card-body">
                 <h5 className="card-title">Lượt Check-in</h5>
-                {/* <p className="card-text fs-4">{report.countCheckIn || 0}</p> */}
+                <p className="card-text fs-4">{report.countCheckIn || 0}</p>
               </div>
             </div>
           </div>
@@ -77,7 +68,7 @@ const Dashboard = () => {
             <div className="card text-white bg-success">
               <div className="card-body">
                 <h5 className="card-title">Lượt Check-out</h5>
-                {/* <p className="card-text fs-4">{report.countCheckOut || 0}</p> */}
+                <p className="card-text fs-4">{report.countCheckOut || 0}</p>
               </div>
             </div>
           </div>
@@ -87,7 +78,7 @@ const Dashboard = () => {
               <div className="card-body">
                 <h5 className="card-title">Phòng còn trống </h5>
                 <p className="card-text fs-4">
-                  {/* {(report.incomeToday || 0).toLocaleString()}₫ */}
+                  {(report.incomeToday || 0).toLocaleString()}₫
                 </p>
               </div>
             </div>
@@ -98,7 +89,7 @@ const Dashboard = () => {
               <div className="card-body">
                 <h5 className="card-title">Doanh thu hôm nay</h5>
                 <p className="card-text fs-4">
-                  {/* {(report.incomeYesterday || 0).toLocaleString()}₫ */}
+                  {(report.incomeYesterday || 0).toLocaleString()}₫
                 </p>
               </div>
             </div>
@@ -117,7 +108,7 @@ const Dashboard = () => {
                     data: incomeLast7Days || [],
                     borderColor: "#dfa974",
                     backgroundColor: "rgba(223, 169, 116, 0.2)",
-                    fill: origin,
+                    fill: "origin",
                     tension: 0.4,
                     pointBackgroundColor: "#dfa974",
                   },

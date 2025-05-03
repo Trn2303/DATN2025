@@ -4,7 +4,8 @@ const RoomModel = require("../../models/room");
 
 exports.dailyReport = async (req, res) => {
   try {
-    const today = new Date().setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
     const countCheckIn = await BookingModel.countDocuments({

@@ -54,6 +54,9 @@ const Booking = () => {
       .then(({ data }) => {
         if (data.status === "success") {
           toast.success(data.message);
+          setTimeout(() => {
+            navigate(`/Users-${bookingData.user_id}/BookingHistory`);
+          }, 3500);
         }
       })
       .catch((error) => {

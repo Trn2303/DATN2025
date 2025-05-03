@@ -1,7 +1,9 @@
 const RoomModel = require("../../models/room");
+const RoomTypeModel = require("../../models/room_type");
 const BookingModel = require("../../models/booking");
 const pagination = require("../../../libs/pagination");
 const Amenity = require("../../models/amenity");
+const upload = require("../middlewares/upload");
 exports.index = async (req, res) => {
   try {
     const query = {};
@@ -198,10 +200,71 @@ exports.store = async (req, res) => {
     return res.status(500).json(error);
   }
 };
+exports.store = async (req, res) => {
+  try {
+    const { name, floor, room_type, status, amenities } = req.body;
+    const image = req.file?.filename || null; // lấy tên ảnh
+
+    if (!name || !floor || !room_type) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Missing required fields",
+      });
+    }
+
+    const existingRoomType = await RoomTypeModel.findById(room_type);
+    if (!existingRoomType) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid room type",
+      });
+    }
+
+    const validStatuses = ["clean", "occupied", "dirty", "maintenance"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid status value",
+      });
+    }
+
+    const validAmenities = await Amenity.find({ _id: { $in: amenities } });
+    if (validAmenities.length !== amenities.length) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid amenities list",
+      });
+    }
+
+    const room = new RoomModel({
+      name,
+      floor,
+      room_type,
+      status: status || "clean",
+      amenities: validAmenities.map((a) => a._id),
+      image,
+    });
+
+    await room.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Tạo phòng thành công!",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "Đã xảy ra lỗi khi tạo phòng",
+      error: error.message,
+    });
+  }
+};
+
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, floor, room_type, status, amenities } = req.body;
+    const { name, floor, room_type, status, amenities, image } = req.body;
+
     // Kiểm tra status có hợp lệ không
     const validStatuses = ["clean", "occupied", "dirty", "maintenance"];
     if (!validStatuses.includes(status)) {
@@ -210,6 +273,7 @@ exports.update = async (req, res) => {
         message: "Invalid status value",
       });
     }
+
     // Kiểm tra danh sách amenities có hợp lệ không
     const validAmenities = await Amenity.find({ _id: { $in: amenities } });
     if (validAmenities.length !== amenities.length) {
@@ -218,23 +282,32 @@ exports.update = async (req, res) => {
         message: "Invalid amenities list",
       });
     }
-    // Cập nhật thông tin phòng
-    const room = new RoomModel({
+
+    // Tạo object thông tin cập nhật
+    const updatedRoom = {
       name,
       floor,
       room_type,
       status,
       amenities: validAmenities.map((a) => a._id),
-    });
-    await RoomModel.updateOne({ _id: id }, { $set: room });
+      image,
+    };
+
+    await RoomModel.updateOne({ _id: id }, { $set: updatedRoom });
+
     return res.status(200).json({
       status: "success",
       message: "Cập nhật phòng thành công!",
     });
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Đã xảy ra lỗi khi cập nhật phòng",
+      error: error.message,
+    });
   }
 };
+
 exports.destroy = async (req, res) => {
   try {
     const { id } = req.params;

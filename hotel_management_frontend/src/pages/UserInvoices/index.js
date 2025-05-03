@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import SidebarUser from "../../shared/components/Layout/SidebarUser";
-import { getInvoicesByUser } from "../../services/Api"; // Giả sử API gọi tên này
-import { ToastContainer } from "react-toastify";
+import { getInvoicesByUser, createPayment } from "../../services/Api"; // Giả sử API gọi tên này
+import { ToastContainer, toast } from "react-toastify";
 
 const UserInvoices = () => {
   const { id } = useParams();
@@ -17,9 +17,28 @@ const UserInvoices = () => {
       })
       .catch((error) => console.log(error));
   }, [id]);
-  const clickPay = (invoiceId) => {
-    
-  };
+
+  const clickPay = async (invoiceId) => {
+  try {
+    const invoice = invoices.find((inv) => inv._id === invoiceId);
+    if (!invoice) return;
+
+    const { data } = await createPayment({
+      amount: invoice.totalAmount.toString(), // MoMo yêu cầu chuỗi
+      invoiceId: invoice._id,
+    });
+
+    if (data && data.paymentUrl) {
+      window.location.href = data.paymentUrl;
+    } else {
+      toast.error("Không thể tạo liên kết thanh toán.");
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error("Lỗi khi tạo liên kết thanh toán.");
+  }
+};
+
 
   return (
     <div className="container mt-4">
@@ -100,7 +119,9 @@ const UserInvoices = () => {
                 );
               })
             ) : (
-              <p>Không có hóa đơn nào.</p>
+              <li className="list-group-item text-muted text-center">
+                Không có hóa đơn.
+              </li>
             )}
           </ul>
           <ToastContainer position="bottom-right" />

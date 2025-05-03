@@ -4,13 +4,14 @@ import {
   getAdminRooms,
   getAmenities,
   getRoomTypes,
+  createRoom,
+  updateRoom,
 } from "../../../services/Api";
 import { useSearchParams } from "react-router-dom";
 import { getImageRoom } from "../../../shared/ultils";
 import { toast, ToastContainer } from "react-toastify";
 import Pagination from "../../../shared/components/_pagination";
 import Modal from "react-bootstrap/Modal";
-import { updateRoom } from "../../../services/Api";
 
 const RoomsAdmin = () => {
   const RoomCard = ({ room }) => (
@@ -75,15 +76,30 @@ const RoomsAdmin = () => {
     maintenance: [],
     totalCounts: {},
   });
-  const [editingRoom, setEditingRoom] = useState(null);
+  const [currentRoom, setCurrentRoom] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [roomTypes, setRoomTypes] = useState([]);
   const [allAmenities, setAllAmenities] = useState([]);
   const [selectedAmenity, setSelectedAmenity] = useState("");
   const [isSelectingAmenity, setIsSelectingAmenity] = useState(false);
 
   const clickEdit = (room) => {
-    setEditingRoom(room);
+    setIsEditMode(true);
+    setCurrentRoom(room);
+    setShowModal(true);
+  };
+
+  const clickAdd = () => {
+    setIsEditMode(false);
+    setCurrentRoom({
+      name: "",
+      floor: "",
+      room_type: roomTypes[0]?._id || "",
+      status: "clean",
+      amenities: [],
+      imageFile: null,
+    });
     setShowModal(true);
   };
 
@@ -136,32 +152,41 @@ const RoomsAdmin = () => {
 
   return (
     <div className="container my-4">
-      {editingRoom && (
+      {currentRoom && (
         <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
           <Modal.Header closeButton>
-            <Modal.Title>Chỉnh sửa phòng: {editingRoom.name}</Modal.Title>
+            <Modal.Title>
+              {isEditMode
+                ? `Chỉnh sửa phòng: ${currentRoom.name}`
+                : "Thêm phòng mới"}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
                 try {
-                  const formData = new FormData();
-                  formData.append("name", editingRoom.name);
-                  formData.append("floor", editingRoom.floor);
-                  formData.append("room_type", editingRoom.room_type);
-                  formData.append("status", editingRoom.status);
-                  editingRoom.amenities.forEach((a) => {
-                    formData.append("amenities", a._id || a);
-                  });
-                  if (editingRoom.imageFile) {
-                    formData.append("image", editingRoom.imageFile);
+                  const payload = {
+                    name: currentRoom.name,
+                    floor: currentRoom.floor,
+                    room_type: currentRoom.room_type,
+                    status: currentRoom.status,
+                    amenities: currentRoom.amenities.map((a) => a._id || a),
+                    image: currentRoom.imageFile
+                      ? currentRoom.imageFile.name
+                      : currentRoom.image, // Gửi tên file ảnh
+                  };
+
+                  let res;
+                  if (isEditMode) {
+                    res = await updateRoom(currentRoom._id, payload);
+                  } else {
+                    res = await createRoom(payload);
                   }
 
-                  const res = await updateRoom(editingRoom._id, formData);
                   toast.success(res.data.message);
                   setShowModal(false);
-                  setEditingRoom(null);
+                  setCurrentRoom(null);
 
                   const { data } = await getAdminRooms({
                     params: { page, limit },
@@ -175,7 +200,7 @@ const RoomsAdmin = () => {
                   });
                 } catch (err) {
                   console.error(err);
-                  toast.error("Lỗi khi cập nhật phòng");
+                  toast.error("Lỗi khi lưu phòng");
                 }
               }}
             >
@@ -183,9 +208,9 @@ const RoomsAdmin = () => {
                 <label className="form-label">Tên phòng</label>
                 <input
                   className="form-control"
-                  value={editingRoom.name}
+                  value={currentRoom.name}
                   onChange={(e) =>
-                    setEditingRoom({ ...editingRoom, name: e.target.value })
+                    setCurrentRoom({ ...currentRoom, name: e.target.value })
                   }
                 />
               </div>
@@ -193,9 +218,9 @@ const RoomsAdmin = () => {
                 <label className="form-label">Tầng</label>
                 <input
                   className="form-control"
-                  value={editingRoom.floor}
+                  value={currentRoom.floor}
                   onChange={(e) =>
-                    setEditingRoom({ ...editingRoom, floor: e.target.value })
+                    setCurrentRoom({ ...currentRoom, floor: e.target.value })
                   }
                 />
               </div>
@@ -203,10 +228,10 @@ const RoomsAdmin = () => {
                 <label className="form-label">Loại phòng</label>
                 <select
                   className="form-control"
-                  value={editingRoom.room_type}
+                  value={currentRoom.room_type}
                   onChange={(e) =>
-                    setEditingRoom({
-                      ...editingRoom,
+                    setCurrentRoom({
+                      ...currentRoom,
                       room_type: e.target.value,
                     })
                   }
@@ -222,9 +247,9 @@ const RoomsAdmin = () => {
                 <label className="form-label">Trạng thái</label>
                 <select
                   className="form-control"
-                  value={editingRoom.status}
+                  value={currentRoom.status}
                   onChange={(e) =>
-                    setEditingRoom({ ...editingRoom, status: e.target.value })
+                    setCurrentRoom({ ...currentRoom, status: e.target.value })
                   }
                 >
                   <option value="clean">Clean</option>
@@ -233,10 +258,10 @@ const RoomsAdmin = () => {
                   <option value="maintenance">Maintenance</option>
                 </select>
               </div>
+
               <div className="mb-3">
                 <label className="form-label">Dịch vụ</label>
 
-                {/* Nút để mở dropdown */}
                 {!isSelectingAmenity && (
                   <button
                     type="button"
@@ -247,7 +272,6 @@ const RoomsAdmin = () => {
                   </button>
                 )}
 
-                {/* Dropdown hiển thị khi nhấn + */}
                 {isSelectingAmenity && (
                   <div className="d-flex mb-2">
                     <select
@@ -259,7 +283,7 @@ const RoomsAdmin = () => {
                       {allAmenities
                         .filter(
                           (a) =>
-                            !editingRoom.amenities.some(
+                            !currentRoom.amenities.some(
                               (item) =>
                                 (typeof item === "string" ? item : item._id) ===
                                 a._id
@@ -280,9 +304,9 @@ const RoomsAdmin = () => {
                           (a) => a._id === selectedAmenity
                         );
                         if (newAmenity) {
-                          setEditingRoom({
-                            ...editingRoom,
-                            amenities: [...editingRoom.amenities, newAmenity],
+                          setCurrentRoom({
+                            ...currentRoom,
+                            amenities: [...currentRoom.amenities, newAmenity],
                           });
                           setSelectedAmenity("");
                           setIsSelectingAmenity(false);
@@ -294,9 +318,8 @@ const RoomsAdmin = () => {
                   </div>
                 )}
 
-                {/* Danh sách các amenity đã chọn */}
                 <div className="d-flex flex-wrap gap-2">
-                  {editingRoom.amenities.map((a) => {
+                  {currentRoom.amenities.map((a) => {
                     const amenity =
                       typeof a === "string"
                         ? allAmenities.find((x) => x._id === a)
@@ -312,9 +335,9 @@ const RoomsAdmin = () => {
                           type="button"
                           className="btn-close btn-close-white ms-2"
                           onClick={() => {
-                            setEditingRoom({
-                              ...editingRoom,
-                              amenities: editingRoom.amenities.filter(
+                            setCurrentRoom({
+                              ...currentRoom,
+                              amenities: currentRoom.amenities.filter(
                                 (item) =>
                                   (typeof item === "string"
                                     ? item
@@ -331,10 +354,10 @@ const RoomsAdmin = () => {
 
               <div className="mb-3">
                 <label className="form-label">Ảnh phòng</label>
-                {editingRoom.image && (
+                {isEditMode && currentRoom.image && (
                   <div className="mb-2">
                     <img
-                      src={getImageRoom(editingRoom.image)}
+                      src={getImageRoom(currentRoom.image)}
                       alt="room"
                       width="120"
                       height="80"
@@ -342,19 +365,22 @@ const RoomsAdmin = () => {
                     />
                   </div>
                 )}
+
                 <input
                   type="file"
                   className="form-control"
-                  onChange={(e) =>
-                    setEditingRoom({
-                      ...editingRoom,
-                      imageFile: e.target.files[0],
-                    })
-                  }
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    setCurrentRoom({
+                      ...currentRoom,
+                      imageFile: file,
+                    });
+                  }}
                 />
               </div>
+
               <button className="btn btn-primary" type="submit">
-                Cập nhật
+                {isEditMode ? "Cập nhật" : "Thêm phòng"}
               </button>
             </form>
           </Modal.Body>
@@ -363,7 +389,7 @@ const RoomsAdmin = () => {
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Phòng</h2>
-        <button className="btn btn-success">
+        <button className="btn btn-success" onClick={clickAdd}>
           <i className="bi bi-plus"></i> Thêm
         </button>
       </div>

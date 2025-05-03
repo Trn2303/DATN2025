@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import SidebarUser from "../../shared/components/Layout/SidebarUser";
-import { getOrdersByUser } from "../../services/Api"; // Giả sử API gọi tên này
-import { ToastContainer } from "react-toastify";
+import { getOrdersByUser, cancelOrder } from "../../services/Api"; // Giả sử API gọi tên này
+import { ToastContainer, toast } from "react-toastify";
 
 const OrderHistory = () => {
   const { id } = useParams();
   const [orders, setOrders] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   useEffect(() => {
-    getOrdersByUser(id,{})
+    getOrdersByUser(id, {})
       .then(({ data }) => {
         if (data.status === "success") {
           setOrders(data.data.docs);
@@ -17,6 +19,35 @@ const OrderHistory = () => {
       })
       .catch((error) => console.log(error));
   }, [id]);
+  
+  const openModal = (orderId) => {
+    setSelectedOrderId(orderId);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setSelectedOrderId(null);
+    setShowModal(false);
+  };
+  const handleCancelConfirm = async () => {
+    try {
+      const response = await cancelOrder(selectedOrderId);
+      if (response.data.status === "success") {
+        toast.success("Đã hủy đơn thành công!");
+        setOrders((prev) =>
+          prev.map((order) =>
+            order._id === selectedOrderId
+              ? { ...order, status: "cancelled" }
+              : order
+          )
+        );
+        closeModal();
+      }
+    } catch (error) {
+      toast.error("Hủy đơn thất bại.");
+      console.error(error);
+    }
+  };
 
   return (
     <div className="container mt-4">
@@ -60,7 +91,7 @@ const OrderHistory = () => {
                     <strong>Ngày tạo:</strong>{" "}
                     {new Date(order.createdAt).toLocaleString()}
                     <br />
-                    <strong>Phòng:</strong> {order.room.name}
+                    <strong>Phòng:</strong> {order.room?.name}
                     <br />
                     <strong>Dịch vụ:</strong>
                     <ul className="mt-1">
@@ -73,11 +104,52 @@ const OrderHistory = () => {
                     </ul>
                     <strong>Tổng tiền:</strong>{" "}
                     {order.totalPrice.toLocaleString()} ₫
+                    <br />
+                    {order.status === "pending" && (
+                      <button
+                        className="btn btn-sm btn-outline-danger mt-2"
+                        onClick={() => openModal(order._id)}
+                      >
+                        Hủy đơn
+                      </button>
+                    )}
                   </li>
                 );
               })
             ) : (
-              <p>Không có đơn đặt dịch vụ.</p>
+              <li className="list-group-item text-muted text-center">
+                Không có đơn đặt dịch vụ.
+              </li>
+            )}
+            {showModal && (
+              <div className="modal show d-block" tabIndex="-1" role="dialog">
+                <div className="modal-dialog" role="document">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">Xác nhận hủy đơn</h5>
+                    </div>
+                    <div className="modal-body">
+                      <p>Bạn có chắc chắn muốn hủy đơn dịch vụ này không?</p>
+                    </div>
+                    <div className="modal-footer">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={closeModal}
+                      >
+                        Đóng
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-danger"
+                        onClick={handleCancelConfirm}
+                      >
+                        Xác nhận hủy
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </ul>
           <ToastContainer position="bottom-right" />

@@ -10,6 +10,7 @@ import Pagination from "../../../shared/components/_pagination";
 
 const BookingManagement = () => {
   const [bookings, setBookings] = useState([]);
+  const [loadingIds, setLoadingIds] = useState([]); // Track loading per booking
   const [searchParams] = useSearchParams();
   const page = searchParams.get("page") || 1;
   const limit = 9;
@@ -21,35 +22,43 @@ const BookingManagement = () => {
     getBookings({ params: { page, limit } })
       .then(({ data }) => {
         setBookings(data.data.docs);
-        setPageIndex({ limit, ...data.data.pages });  
+        setPageIndex({ limit, ...data.data.pages });
       })
       .catch(() => toast.error("Lỗi tải danh sách đặt phòng"));
   }, [page]);
 
-  const handleCheckIn = (id) => {
-    checkInBooking(id, {})
-      .then(({ data }) => {
-        if (data.status === "success") {
-          toast.success(data.message);
-          getBookings({ params: { page, limit } }).then(({ data }) =>
-            setBookings(data.data.docs)
-          );
-        }
-      })
-      .catch(() => toast.error("Check-in thất bại"));
+  const handleCheckIn = async (id) => {
+    setLoadingIds((prev) => [...prev, id]);
+    try {
+      const { data } = await checkInBooking(id, {});
+      if (data.status === "success") {
+        toast.success(data.message);
+        setBookings((prev) =>
+          prev.map((b) => (b._id === id ? { ...b, status: "confirmed" } : b))
+        );
+      }
+    } catch {
+      toast.error("Check-in thất bại");
+    } finally {
+      setLoadingIds((prev) => prev.filter((x) => x !== id));
+    }
   };
 
-  const handleCheckOut = (id) => {
-    checkOutBooking(id, {})
-      .then(({ data }) => {
-        if (data.status === "success") {
-          toast.success(data.message);
-          getBookings({ params: { page, limit } }).then(({ data }) =>
-            setBookings(data.data.docs)
-          );
-        }
-      })
-      .catch(() => toast.error("Check-out thất bại"));
+  const handleCheckOut = async (id) => {
+    setLoadingIds((prev) => [...prev, id]);
+    try {
+      const { data } = await checkOutBooking(id, {});
+      if (data.status === "success") {
+        toast.success(data.message);
+        setBookings((prev) =>
+          prev.map((b) => (b._id === id ? { ...b, status: "completed" } : b))
+        );
+      }
+    } catch {
+      toast.error("Check-out thất bại");
+    } finally {
+      setLoadingIds((prev) => prev.filter((x) => x !== id));
+    }
   };
 
   const filteredBookings = bookings.filter((booking) => {
@@ -96,16 +105,22 @@ const BookingManagement = () => {
                     <button
                       className="btn btn-success btn-sm"
                       onClick={() => handleCheckIn(booking._id)}
+                      disabled={loadingIds.includes(booking._id)}
                     >
-                      Check-in
+                      {loadingIds.includes(booking._id)
+                        ? "Đang xử lý..."
+                        : "Check-in"}
                     </button>
                   )}
                   {booking.status === "confirmed" && (
                     <button
                       className="btn btn-primary btn-sm"
                       onClick={() => handleCheckOut(booking._id)}
+                      disabled={loadingIds.includes(booking._id)}
                     >
-                      Check-out
+                      {loadingIds.includes(booking._id)
+                        ? "Đang xử lý..."
+                        : "Check-out"}
                     </button>
                   )}
                 </div>

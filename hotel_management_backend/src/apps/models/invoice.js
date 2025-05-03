@@ -15,7 +15,7 @@ const invoiceSchema = new mongoose.Schema(
     totalAmount: { type: Number, required: true },
     paymentMethod: {
       type: String,
-      enum: ["cash", "vnpay", "momo"],
+      enum: ["cash", "momo"],
       required: true,
     },
     issuedDate: {

@@ -10,8 +10,9 @@ exports.index = async (req, res) => {
   try {
     const query = {};
     const page = Number(req.query.page) || 1;
-    const limit = 6;
+    const limit = Number(req.query.limit) || 9;
     const skip = (page - 1) * limit;
+
     const bookings = await BookingModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -21,25 +22,37 @@ exports.index = async (req, res) => {
         select: "_id name floor",
       })
       .lean();
+    const formattedBookings = bookings.map((booking) => {
+      const room = booking.room_id
+        ? {
+            name: booking.room_id.name,
+            floor: booking.room_id.floor,
+          }
+        : null;
+      return {
+        ...booking,
+        room,
+        room_id: booking.room_id?._id || null,
+      };
+    });
+
+    const totalPages = await pagination(page, BookingModel, query, limit);
+
     res.status(200).json({
       status: "success",
       data: {
-        docs: bookings.map((booking) => ({
-          ...booking,
-          room: booking.room_id
-            ? {
-                name: booking.room_id.name,
-                floor: booking.room_id.floor,
-              }
-            : null,
-        })),
-        pages: await pagination(page, BookingModel, query, limit),
+        docs: formattedBookings,
+        pages: totalPages,
       },
     });
   } catch (error) {
-    return res.status(500).json(error);
+    console.error(error);
+    return res
+      .status(500)
+      .json({ status: "error", message: "Internal Server Error" });
   }
 };
+
 exports.getBookingsByUser = async (req, res) => {
   try {
     const { id } = req.params;

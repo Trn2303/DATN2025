@@ -89,16 +89,18 @@ const BookingService = () => {
 
   const clickOrder = () => {
     if (!orderItems.length) return toast.error("Chưa chọn dịch vụ nào");
-
+    const user = JSON.parse(localStorage.getItem("user"));
     const payload = {
-      items: orderItems.map(({ service_id, quantity }) => ({
+      items: orderItems.map(({ service_id, name, quantity, price }) => ({
         service_id,
+        name,
         quantity,
+        price,
       })),
     };
     console.log(payload);
 
-    createOrder(id, payload)
+    createOrder(user._id, payload)
       .then(({ data }) => {
         toast.success(data.message);
         setOrderItems([]);
