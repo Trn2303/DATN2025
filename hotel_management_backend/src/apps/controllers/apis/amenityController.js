@@ -11,7 +11,7 @@ exports.index = async (req, res) => {
       status: "success",
       data: {
         docs: amenities,
-        pages: await pagination(page, ServiceModel, query, limit),
+        pages: await pagination(page, AmenityModel, query, limit),
       },
     });
   } catch (error) {
