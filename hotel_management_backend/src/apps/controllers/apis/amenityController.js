@@ -1,4 +1,5 @@
 const AmenityModel = require("../../models/amenity");
+const pagination = require("../../../libs/pagination");
 
 exports.index = async (req, res) => {
   try {
@@ -7,6 +8,7 @@ exports.index = async (req, res) => {
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     const amenities = await AmenityModel.find(query).skip(skip).limit(limit);
+
     return res.status(200).json({
       status: "success",
       data: {

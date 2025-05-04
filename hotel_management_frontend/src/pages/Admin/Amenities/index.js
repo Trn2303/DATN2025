@@ -24,7 +24,7 @@ const AmenityManagement = () => {
 
   useEffect(() => {
     loadAmenities();
-  }, [page]);
+  }, [page, limit]);
 
   const loadAmenities = () => {
     getAmenities({
