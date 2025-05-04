@@ -59,7 +59,8 @@ exports.register = async (req, res) => {
     }).save();
     return res.status(200).json({
       status: "success",
-      message: "Đăng ký tài khoản thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập sau 5 giây",
+      message:
+        "Đăng ký tài khoản thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập sau 5 giây",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -149,6 +150,23 @@ exports.logout = async (req, res) => {
     setTokenBlackList(token.refreshToken);
     await TokenModel.deleteOne({ user_id });
     return res.status(200).json("Logout successfully!");
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+};
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Email không tồn tại!" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.status(200).json({ message: "Đặt lại mật khẩu thành công!" });
   } catch (error) {
     return res.status(500).json(error);
   }

@@ -36,6 +36,7 @@ import BookingManagement from "./pages/Admin/Bookings";
 import AmenityManagement from "./pages/Admin/Amenities";
 import InvoiceManagement from "./pages/Admin/Invoices";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const LayoutWrapper = ({ children }) => {
   const location = useLocation();
@@ -100,6 +101,8 @@ const App = () => {
           <Route path="/Users-:id/Invoices" element={<UserInvoices />} />
           <Route path="/Users-:id/Profile" element={<UserProfile />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           {/* Redirects */}
           <Route path="*" element={<Navigate to="/NotFound" />} />
         </Routes>

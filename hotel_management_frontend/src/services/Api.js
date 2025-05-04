@@ -10,6 +10,8 @@ export const refreshToken = (config) => Http.get("/auth/refresh-token", config);
 export const getUser = (id, config) => Http.get(`/users/${id}`, config);
 export const updateUser = (id, data) => Http.post(`/users/${id}/update`, data);
 
+export const forgotPassword = (data) => Http.post(`/forgot-password`, data);
+
 // Booking
 export const getBookings = (config) => Http.get("admin/bookings", config);
 export const getBookingById = (id, config) =>

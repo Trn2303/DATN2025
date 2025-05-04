@@ -29,6 +29,7 @@ router.post(
   AuthController.logout
 );
 router.get(`/auth/refresh-token`, AuthController.refreshToken);
+router.post("/forgot-password", AuthController.forgotPassword);
 
 // Router user
 router.get(`/users/:id`, UserController.show);

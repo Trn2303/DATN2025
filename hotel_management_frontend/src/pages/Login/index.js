@@ -74,8 +74,17 @@ const Login = () => {
             {loading ? "Đang đăng nhập..." : "TIẾN HÀNH ĐĂNG NHẬP"}
           </button>
         </form>
+        <div className="small mt-4">
+          <span
+            className="text-info fw-semibold"
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/forgot-password")}
+          >
+            Quên mật khẩu?
+          </span>
+        </div>
 
-        <div className="text-center text-white mt-4 small">
+        <div className="text-white mt-4 small">
           <p className="text-white">
             Chưa có tài khoản?{" "}
             <span
