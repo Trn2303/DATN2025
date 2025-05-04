@@ -47,9 +47,9 @@ router.get(`/users/:id/bookings`, BookingController.getBookingsByUser);
 router.get(`/admin/rooms`, RoomController.index);
 router.get(`/rooms`, RoomController.customerIndex); // get all rooms for customer
 router.get(`/rooms/:id`, RoomController.show);
-router.post("/rooms", upload.single("imageFile"), RoomController.store);
+router.post("/admin/rooms", upload.single("imageFile"), RoomController.store);
 router.put(
-  "/rooms/:id/update",
+  "/admin/rooms/:id/update",
   upload.single("imageFile"),
   RoomController.update
 );

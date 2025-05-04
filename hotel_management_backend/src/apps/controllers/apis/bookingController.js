@@ -56,8 +56,14 @@ exports.index = async (req, res) => {
 exports.getBookingsByUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const bookings = await BookingModel.find({ user_id: id })
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const query = { user_id: id };
+
+    const bookings = await BookingModel.find(query)
       .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
       .populate({
         path: "room_id",
         select: "name floor",
@@ -141,7 +147,7 @@ exports.booking = async (req, res) => {
     });
     return res.status(200).json({
       status: "success",
-      message: "Booking successfully",
+      message: "Đặt phòng thành công",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -187,7 +193,7 @@ exports.checkIn = async (req, res) => {
     );
     return res.status(200).json({
       status: "success",
-      message: "Check-in completed successfully",
+      message: "Check-in thành công",
     });
   } catch (error) {
     return res.status(500).json(error);

@@ -279,7 +279,7 @@ const StaffManagement = () => {
             Hủy
           </Button>
           <Button variant="primary" type="submit" form="staff-form">
-            {staff ? "Cập nhật" : "Thêm mới"}
+            {staff ? "Cập nhật" : "Tạo"}
           </Button>
         </Modal.Footer>
       </Modal>

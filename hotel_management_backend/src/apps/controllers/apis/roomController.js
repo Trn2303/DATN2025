@@ -154,15 +154,36 @@ exports.show = async (req, res) => {
     return res.status(500).json(error);
   }
 };
+
 exports.store = async (req, res) => {
   try {
-    const { name, floor, room_type, status, amenities } = req.body;
+    const { name, floor, room_type, status } = req.body;
     const image = req.file?.filename || null;
+    let amenities = req.body.amenities;
+
+    if (typeof amenities === "string") {
+      try {
+        amenities = JSON.parse(amenities);
+      } catch {
+        return res.status(400).json({
+          status: "fail",
+          message: "Invalid amenities format",
+        });
+      }
+    }
 
     if (!name || !floor || !room_type) {
       return res.status(400).json({
         status: "fail",
         message: "Missing required fields",
+      });
+    }
+
+    const floorNumber = Number(floor);
+    if (isNaN(floorNumber)) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid floor value",
       });
     }
 
@@ -192,9 +213,9 @@ exports.store = async (req, res) => {
 
     const room = new RoomModel({
       name,
-      floor,
-      room_type,
-      status: status || "clean",
+      floor: floorNumber,
+      roomTypeId: room_type,
+      status,
       amenities: validAmenities.map((a) => a._id),
       image,
     });
@@ -217,8 +238,28 @@ exports.store = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, floor, room_type, status, amenities } = req.body;
+    const { name, floor, room_type, status } = req.body;
     const image = req.file?.filename || req.body.image || null;
+
+    let amenities = req.body.amenities;
+    if (typeof amenities === "string") {
+      try {
+        amenities = JSON.parse(amenities);
+      } catch {
+        return res.status(400).json({
+          status: "fail",
+          message: "Invalid amenities format",
+        });
+      }
+    }
+
+    const floorNumber = Number(floor);
+    if (isNaN(floorNumber)) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid floor value",
+      });
+    }
 
     const validStatuses = ["clean", "occupied", "dirty", "maintenance"];
     if (!validStatuses.includes(status)) {
@@ -238,8 +279,8 @@ exports.update = async (req, res) => {
 
     const updatedRoom = {
       name,
-      floor,
-      room_type,
+      floor: floorNumber,
+      roomTypeId: room_type,
       status,
       amenities: validAmenities.map((a) => a._id),
     };

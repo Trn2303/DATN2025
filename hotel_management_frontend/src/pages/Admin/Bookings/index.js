@@ -55,7 +55,7 @@ const BookingManagement = () => {
         setBookings((prev) =>
           prev.map((b) => (b._id === id ? { ...b, status: "completed" } : b))
         );
-
+        console.log(id);
         try {
           const invoiceRes = await createInvoice({
             booking_id: id,

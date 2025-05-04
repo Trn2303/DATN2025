@@ -155,7 +155,7 @@ const RoomTypeAdmin = () => {
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Đóng
+              Hủy
             </Button>
             <Button type="submit" variant="primary">
               {editingId ? "Cập nhật" : "Tạo"}

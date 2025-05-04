@@ -29,7 +29,7 @@ const Search = () => {
     })
       .then(({ data }) => {
         setRooms(data.data.docs);
-        setTotal(data.data.pages.totalRows);
+        setTotal(data.data.pages);
         setPageIndex({ limit, ...data.data.pages });
       })
       .catch((error) => console.log(error));

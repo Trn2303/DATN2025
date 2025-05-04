@@ -161,15 +161,23 @@ const RoomsAdmin = () => {
                   formData.append("room_type", currentRoom.room_type);
                   formData.append("status", currentRoom.status);
 
-                  currentRoom.amenities.forEach((a) => {
-                    formData.append(
-                      "amenities[]",
-                      typeof a === "string" ? a : a._id
-                    );
-                  });
+                  formData.append(
+                    "amenities",
+                    JSON.stringify(
+                      currentRoom.amenities.map((a) =>
+                        typeof a === "string" ? a : a._id
+                      )
+                    )
+                  );
+                  if (!currentRoom.imageFile && isEditMode) {
+                    formData.append("image", currentRoom.image);
+                  }
 
                   if (currentRoom.imageFile) {
-                    formData.append("imageFile", currentRoom.imageFile); // Gửi file ảnh thật
+                    formData.append("imageFile", currentRoom.imageFile);
+                  }
+                  for (let [key, value] of formData.entries()) {
+                    console.log(key, value);
                   }
 
                   let res;
@@ -450,7 +458,7 @@ const RoomsAdmin = () => {
               }
             }}
           >
-            Xác nhận xóa
+            Xác nhận
           </button>
         </Modal.Footer>
       </Modal>

@@ -14,7 +14,7 @@ exports.index = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("user_id", "fullName email")
+      .populate("user_id", "name email")
       .populate({
         path: "booking_id",
         populate: {
@@ -97,13 +97,6 @@ exports.store = async (req, res) => {
       });
     }
 
-    if (booking.status !== "confirmed") {
-      return res.status(400).json({
-        status: "fail",
-        message: "Chỉ tạo hóa đơn cho đơn đã check-in",
-      });
-    }
-
     const orders = await OrderModel.find({
       room_id: booking.room_id._id,
       status: "pending",
@@ -154,7 +147,7 @@ exports.update = async (req, res) => {
     await InvoiceModel.updateOne({ _id: id }, { $set: invoiceUpdate });
     return res.status(200).json({
       status: "success",
-      message: "Invoice updated successfully",
+      message: "Cập nhật thành công",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -176,7 +169,7 @@ exports.cancelled = async (req, res) => {
     );
     return res.status(200).json({
       status: "success",
-      message: "Invoice cancelled successfully",
+      message: "Hủy thành công",
     });
   } catch (error) {
     return res.status(500).json(error);

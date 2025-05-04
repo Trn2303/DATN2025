@@ -110,7 +110,7 @@ const InvoiceManagement = () => {
               <tr key={invoice._id}>
                 <td>{invoice.booking_id?.room_id?.name || "(Chưa có tên)"}</td>
                 <td>
-                  {invoice.user_id?.fullName || invoice.user_id?.email || "N/A"}
+                  {invoice.user_id?.name || invoice.user_id?.email || "N/A"}
                 </td>
                 <td>{invoice.totalAmount.toLocaleString()} đ</td>
                 <td>{new Date(invoice.issuedDate).toLocaleDateString()}</td>

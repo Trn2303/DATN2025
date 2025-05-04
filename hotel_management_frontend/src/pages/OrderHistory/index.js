@@ -108,7 +108,7 @@ const OrderHistory = () => {
                       </span>
                     </div>
                     <p className="mb-1">
-                      <strong>{order.room?.name || "Không xác định"}</strong>
+                      <strong>{order.room_id?.name || "Không xác định"}</strong>
                     </p>
                     <p className="mb-2">
                       <strong>Dịch vụ:</strong>
