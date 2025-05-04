@@ -97,7 +97,7 @@ const Booking = () => {
             </div>
           </div>
         </div>
-        <div className="row spad">
+        <div className="row mt-4">
           <div className="col-lg-6">
             <img
               src={getImageRoom(room.image)}

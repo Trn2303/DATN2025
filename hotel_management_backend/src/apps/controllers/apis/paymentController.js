@@ -18,7 +18,7 @@ async function createPayment(req, res) {
   const orderInfo = `${invoiceId}`;
   const redirectUrl = "http://localhost:3000/payment-success";
   const ipnUrl =
-    "https://6eda-14-235-27-87.ngrok-free.app/api/v1/payment-return";
+    "https://ce2c-14-235-27-87.ngrok-free.app/api/v1/payment-return";
   const requestType = "captureWallet";
   const extraData = "";
 
@@ -44,11 +44,15 @@ async function createPayment(req, res) {
     "&requestType=" +
     requestType;
   //puts raw signature
+  console.log("--------------------RAW SIGNATURE----------------");
+  console.log(rawSignature);
   const crypto = require("crypto");
   var signature = crypto
     .createHmac("sha256", secretkey)
     .update(rawSignature)
     .digest("hex");
+  console.log("--------------------SIGNATURE----------------");
+  console.log(signature);
 
   const requestBody = JSON.stringify({
     partnerCode: partnerCode,
@@ -103,6 +107,21 @@ async function paymentCallback(req, res) {
       signature,
     } = req.body;
 
+    console.log("MoMo callback raw data:", {
+      accessKey,
+      amount,
+      extraData,
+      message,
+      orderId,
+      orderInfo,
+      orderType,
+      partnerCode,
+      payType,
+      requestId,
+      responseTime,
+      resultCode,
+      transId,
+    });
     const rawSignature =
       "accessKey=" +
       accessKey +
@@ -135,6 +154,9 @@ async function paymentCallback(req, res) {
       .createHmac("sha256", secretkey)
       .update(rawSignature)
       .digest("hex");
+    console.log("Raw Signature String:", rawSignature);
+    console.log("Expected Signature:", expectedSignature);
+    console.log("Received Signature:", signature);
 
     if (signature !== expectedSignature) {
       return res.status(400).json({ error: "Chữ ký không hợp lệ." });

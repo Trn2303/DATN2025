@@ -89,86 +89,93 @@ const InvoiceManagement = () => {
   };
 
   return (
-    <div className="container py-4">
-      <h2 className="mb-4 text-center">Quản lý hóa đơn</h2>
+    <div className="d-flex flex-column min-vh-100">
+      <div className="container py-4 flex-grow-1">
+        <h2 className="mb-4 text-center">Quản lý hóa đơn</h2>
 
-      {/* Danh sách hóa đơn */}
-      <div className="table-responsive">
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>Phòng</th>
-              <th>Khách hàng</th>
-              <th>Tổng tiền</th>
-              <th>Ngày lập</th>
-              <th>Hạn thanh toán</th>
-              <th>Phương thức</th>
-              <th>Thanh toán</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {invoices.map((invoice) => (
-              <tr key={invoice._id}>
-                <td>{invoice.booking_id?.room_id?.name || "(Chưa có tên)"}</td>
-                <td>
-                  {invoice.user_id?.name || invoice.user_id?.email || "N/A"}
-                </td>
-                <td>{invoice.totalAmount.toLocaleString()} đ</td>
-                <td>{new Date(invoice.issuedDate).toLocaleDateString()}</td>
-                <td>{new Date(invoice.dueDate).toLocaleDateString()}</td>
-                <td>
-                  {invoice.paymentMethod === "cash" ? "Tiền mặt" : "Momo"}
-                </td>
-                <td>
-                  <span
-                    className={
-                      "badge " +
-                      (invoice.paymentStatus === "paid"
-                        ? "bg-success"
-                        : invoice.paymentStatus === "cancelled"
-                        ? "bg-danger"
-                        : "bg-warning text-dark")
-                    }
-                  >
-                    {invoice.paymentStatus === "pending"
-                      ? "Chờ thanh toán"
-                      : invoice.paymentStatus === "paid"
-                      ? "Đã thanh toán"
-                      : "Đã hủy"}
-                  </span>
-                </td>
-                <td>
-                  <Button
-                    size="sm"
-                    variant="outline-primary"
-                    onClick={() => handleShowModal(invoice)}
-                  >
-                    Sửa
-                  </Button>{" "}
-                  <Button
-                    size="sm"
-                    variant="outline-danger"
-                    onClick={() => handleCancel(invoice._id)}
-                  >
-                    Hủy
-                  </Button>
-                </td>
-              </tr>
-            ))}
-            {invoices.length === 0 && (
+        {/* Danh sách hóa đơn */}
+        <div className="table-responsive">
+          <table className="table table-bordered">
+            <thead>
               <tr>
-                <td colSpan="8" className="text-center">
-                  Không có hóa đơn nào
-                </td>
+                <th>Phòng</th>
+                <th>Khách hàng</th>
+                <th>Tổng tiền</th>
+                <th>Ngày lập</th>
+                <th>Hạn thanh toán</th>
+                <th>Phương thức</th>
+                <th>Thanh toán</th>
+                <th>Hành động</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {invoices.map((invoice) => (
+                <tr key={invoice._id}>
+                  <td>
+                    {invoice.booking_id?.room_id?.name || "(Chưa có tên)"}
+                  </td>
+                  <td>
+                    {invoice.user_id?.name || invoice.user_id?.email || "N/A"}
+                  </td>
+                  <td>{invoice.totalAmount.toLocaleString()} đ</td>
+                  <td>{new Date(invoice.issuedDate).toLocaleDateString()}</td>
+                  <td>{new Date(invoice.dueDate).toLocaleDateString()}</td>
+                  <td>
+                    {invoice.paymentMethod === "cash" ? "Tiền mặt" : "Momo"}
+                  </td>
+                  <td>
+                    <span
+                      className={
+                        "badge " +
+                        (invoice.paymentStatus === "paid"
+                          ? "bg-success"
+                          : invoice.paymentStatus === "cancelled"
+                          ? "bg-danger"
+                          : "bg-warning text-dark")
+                      }
+                    >
+                      {invoice.paymentStatus === "pending"
+                        ? "Chờ thanh toán"
+                        : invoice.paymentStatus === "paid"
+                        ? "Đã thanh toán"
+                        : "Đã hủy"}
+                    </span>
+                  </td>
+                  <td>
+                    <Button
+                      size="sm"
+                      variant="outline-primary"
+                      onClick={() => handleShowModal(invoice)}
+                    >
+                      Sửa
+                    </Button>{" "}
+                    <Button
+                      size="sm"
+                      variant="outline-danger"
+                      onClick={() => handleCancel(invoice._id)}
+                    >
+                      Hủy
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {invoices.length === 0 && (
+                <tr>
+                  <td colSpan="8" className="text-center">
+                    Không có hóa đơn nào
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <Pagination pages={pageIndex} />
+      <div className="bg-white py-3 ">
+        <div className="container d-flex justify-content-center">
+          <Pagination pages={pageIndex} />
+        </div>
+      </div>
 
       {/* Modal thêm/sửa */}
       <Modal show={showModal} onHide={handleCloseModal}>
