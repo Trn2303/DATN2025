@@ -29,29 +29,30 @@ const AdminLayout = () => {
 
   return (
     <div className="container-fluid">
-      <div className="row">
+      <div className="row min-vh-100">
         {/* Sidebar */}
-        <nav className="col-md-2 d-none d-md-block sidebar ">
-          <div className="sidebar-sticky pt-3 text-white">
-            <h4 className="text-center text-white mb-4">Binh Dan Hotel</h4>
-            <ul className="nav flex-column">
-              {menuItems.map((item) => (
-                <li className="nav-item" key={item.path}>
-                  <Link
-                    to={item.path}
-                    className={`nav-link ${
-                      location.pathname === item.path
-                        ? "active text-white bg-secondary"
-                        : "text-white"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="mt-auto p-3">
+        <nav
+          className="col-md-2 bg-dark text-white d-flex flex-column p-3 position-fixed min-vh-100"
+          style={{ left: 0, top: 0 }}
+        >
+          <h4 className="text-center mb-4">Binh Dan Hotel</h4>
+          <ul className="nav flex-column mb-auto">
+            {menuItems.map((item) => (
+              <li className="nav-item" key={item.path}>
+                <Link
+                  to={item.path}
+                  className={`nav-link mb-2 ${
+                    location.pathname === item.path
+                      ? "active text-white bg-secondary"
+                      : "text-white"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-auto">
             <button
               onClick={clickLogout}
               className="btn btn-outline-light w-100"
@@ -62,11 +63,12 @@ const AdminLayout = () => {
         </nav>
 
         {/* Main Content */}
-        <main className="col-md-10 ms-sm-auto col-lg-10 px-md-4 py-4">
+        <main className="offset-md-2 col-md-10 ms-sm-auto px-md-4 py-4">
           <Outlet />
         </main>
       </div>
     </div>
   );
 };
+
 export default AdminLayout;

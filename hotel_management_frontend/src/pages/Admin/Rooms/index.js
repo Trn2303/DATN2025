@@ -88,7 +88,7 @@ const RoomsAdmin = () => {
 
   const clickEdit = (room) => {
     setIsEditMode(true);
-    setCurrentRoom(room);
+    setCurrentRoom({ ...room, room_type: room.roomTypeId?._id || "" });
     setShowModal(true);
   };
 

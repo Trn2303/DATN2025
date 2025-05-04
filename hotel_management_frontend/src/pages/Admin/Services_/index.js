@@ -37,7 +37,6 @@ const AdminServiceManager = () => {
       })
       .catch((err) => console.log(err));
   }, [page]);
-  console.log(services);
 
   const handleShowModal = (service = null) => {
     setEditingService(service);

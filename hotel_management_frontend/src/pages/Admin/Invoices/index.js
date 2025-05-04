@@ -13,8 +13,8 @@ import Pagination from "../../../shared/components/_pagination";
 const InvoiceManagement = () => {
   const [invoices, setInvoices] = useState([]);
   const [formData, setFormData] = useState({
-    name: "",
     paymentMethod: "cash",
+    dueDate: "",
   });
   const [showModal, setShowModal] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState(null);
@@ -27,7 +27,10 @@ const InvoiceManagement = () => {
     try {
       const { data } = await getInvoices({ params: { page, limit } });
       setInvoices(data.data.docs);
-      setPageIndex(limit, ...data.data.pages);
+      setPageIndex({
+        limit,
+        ...data.data.pages,
+      });
     } catch (error) {
       toast.error("Lỗi khi tải hóa đơn");
     }
@@ -43,8 +46,8 @@ const InvoiceManagement = () => {
     if (!invoice) return;
     setEditingInvoice(invoice);
     setFormData({
-      name: invoice.roomName,
       paymentMethod: invoice.paymentMethod,
+      dueDate: invoice.dueDate?.slice(0, 10),
     });
     setShowModal(true);
   };
@@ -175,17 +178,6 @@ const InvoiceManagement = () => {
         <Modal.Body>
           <form onSubmit={handleSubmit} id="invoice-form">
             <div className="mb-3">
-              <label className="form-label">Tên phòng</label>
-              <input
-                type="text"
-                name="name"
-                className="form-control"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="mb-3">
               <label className="form-label">Phương thức thanh toán</label>
               <select
                 name="paymentMethod"
@@ -194,8 +186,19 @@ const InvoiceManagement = () => {
                 onChange={handleInputChange}
               >
                 <option value="cash">Tiền mặt</option>
-                <option value="bank">Chuyển khoản</option>
+                <option value="bank">MOMO</option>
               </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Hạn thanh toán</label>
+              <input
+                type="date"
+                name="dueDate"
+                className="form-control"
+                value={formData.dueDate}
+                onChange={handleInputChange}
+                required
+              />
             </div>
           </form>
         </Modal.Body>

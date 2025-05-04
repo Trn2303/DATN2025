@@ -7,6 +7,8 @@ import {
 } from "../../../services/Api";
 import { Button, Modal, Form } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
+import { useSearchParams } from "react-router-dom";
+import Pagination from "../../../shared/components/_pagination";
 
 const AmenityManagement = () => {
   const [amenities, setAmenities] = useState([]);
@@ -15,14 +17,26 @@ const AmenityManagement = () => {
   const [formData, setFormData] = useState({ name: "" });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [amenityToDelete, setAmenityToDelete] = useState(null);
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const limit = 10;
+  const [pageIndex, setPageIndex] = useState({ limit });
 
   useEffect(() => {
     loadAmenities();
-  }, []);
+  }, [page]);
 
   const loadAmenities = () => {
-    getAmenities()
-      .then(({ data }) => setAmenities(data.data.docs))
+    getAmenities({
+      params: {
+        page,
+        limit,
+      },
+    })
+      .then(({ data }) => {
+        setAmenities(data.data.docs);
+        setPageIndex({ limit, ...data.data.pages });
+      })
       .catch(() => toast.error("Lỗi khi tải danh sách tiện nghi"));
   };
 
@@ -109,7 +123,9 @@ const AmenityManagement = () => {
           <p className="text-muted text-center">Chưa có tiện nghi nào.</p>
         )}
       </ul>
-
+      <div className="d-flex justify-content-center mt-4">
+        <Pagination pages={pageIndex} />
+      </div>
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>
