@@ -76,7 +76,7 @@ const Login = () => {
         </form>
 
         <div className="text-center text-white mt-4 small">
-          <p className="text-muted">
+          <p className="text-white">
             Chưa có tài khoản?{" "}
             <span
               className="text-info fw-semibold"

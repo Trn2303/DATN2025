@@ -113,4 +113,4 @@ export const getDailyStatistics = (config) =>
 
 // payment
 export const createPayment = (data) => Http.post("/payment", data);
-export const momoReturn = (config) => Http.get("/payment-return", config);
+export const momoReturn = (config) => Http.post("/payment-return", config);

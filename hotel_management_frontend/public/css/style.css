@@ -74,7 +74,6 @@ ol {
   margin: 0;
 }
 
-
 /*---------------------
   Helper CSS
 -----------------------*/
@@ -176,7 +175,7 @@ ol {
 }
 
 .menu-item .logo {
-  padding: 25px 0;
+  padding: 5px 0;
 }
 
 .menu-item .logo a {
@@ -224,7 +223,6 @@ ol {
   transition: all 0.3s;
 }
 
-
 .mainmenu .navbar-nav > li > a::after {
   content: "";
   position: absolute;
@@ -241,7 +239,6 @@ ol {
 .mainmenu .navbar-nav > li.active > a::after {
   opacity: 1;
 }
-
 
 .mainmenu .navbar-nav > li.dropdown > a::after {
   display: none !important;
@@ -919,7 +916,6 @@ ol {
   color: #ffffff;
 }
 
-
 /*---------------------
   Room Section
 -----------------------*/
@@ -1005,7 +1001,6 @@ ol {
   border-color: #dfa974;
   color: #dfa974;
 }
-
 
 .breadcrumbs-wrapper {
   background: white;

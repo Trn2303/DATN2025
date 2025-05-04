@@ -122,7 +122,7 @@ const UserInvoices = () => {
                         </ul>
                       </div>
                     )}
-                    {invoice.status !== "paid" && (
+                    {invoice.paymentStatus !== "paid" && (
                       <div className="mt-3 text-end">
                         <button
                           className="btn btn-outline-danger btn-sm px-4 py-2"

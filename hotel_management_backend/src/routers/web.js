@@ -105,5 +105,5 @@ router.get(`/admin/statistics/daily`, StatisticsController.dailyReport);
 
 // Router payment
 router.post("/payment", PaymentController.createPayment);
-router.get("/payment-return", PaymentController.paymentCallback);
+router.post("/payment-return", PaymentController.paymentCallback);
 module.exports = router;

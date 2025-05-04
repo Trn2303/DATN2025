@@ -1,4 +1,3 @@
-const crypto = require("crypto");
 const axios = require("axios");
 const InvoiceModel = require("../../models/invoice");
 const PaymentModel = require("../../models/payment"); // Thêm dòng này
@@ -15,37 +14,56 @@ async function createPayment(req, res) {
   }
 
   const requestId = partnerCode + new Date().getTime();
-  const orderId = `${invoiceId}_${requestId}`;
-  const orderInfo = `Thanh toán hóa đơn ${invoiceId}`;
+  const orderId = `${requestId}`;
+  const orderInfo = `${invoiceId}`;
   const redirectUrl = "http://localhost:3000/payment-success";
-  const ipnUrl = "http://localhost:8000/api/v1/payment-return"; // Nhớ đổi lại HTTPS khi deploy
+  const ipnUrl =
+    "https://6eda-14-235-27-87.ngrok-free.app/api/v1/payment-return";
   const requestType = "captureWallet";
   const extraData = "";
 
-  const rawSignature =
-    `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}` +
-    `&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}` +
-    `&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
-
-  const signature = crypto
+  var rawSignature =
+    "accessKey=" +
+    accessKey +
+    "&amount=" +
+    amount +
+    "&extraData=" +
+    (extraData || "") +
+    "&ipnUrl=" +
+    ipnUrl +
+    "&orderId=" +
+    orderId +
+    "&orderInfo=" +
+    orderInfo +
+    "&partnerCode=" +
+    partnerCode +
+    "&redirectUrl=" +
+    redirectUrl +
+    "&requestId=" +
+    requestId +
+    "&requestType=" +
+    requestType;
+  //puts raw signature
+  const crypto = require("crypto");
+  var signature = crypto
     .createHmac("sha256", secretkey)
     .update(rawSignature)
     .digest("hex");
 
-  const requestBody = {
-    partnerCode,
-    accessKey,
-    requestId,
-    amount,
-    orderId,
-    orderInfo,
-    redirectUrl,
-    ipnUrl,
-    extraData,
-    requestType,
-    signature,
-    lang: "vi",
-  };
+  const requestBody = JSON.stringify({
+    partnerCode: partnerCode,
+    accessKey: accessKey,
+    requestId: requestId,
+    amount: amount,
+    orderId: orderId,
+    orderInfo: orderInfo,
+    redirectUrl: redirectUrl,
+    ipnUrl: ipnUrl,
+    extraData: extraData,
+    requestType: requestType,
+    signature: signature,
+    lang: "en",
+  });
 
   try {
     const response = await axios.post(
@@ -67,82 +85,95 @@ async function createPayment(req, res) {
   }
 }
 
-function generateSignatureFromObject(obj, secretKey) {
-  const sortedKeys = Object.keys(obj).sort();
-  const rawData = sortedKeys
-    .filter((key) => key !== "signature")
-    .map((key) => `${key}=${obj[key]}`)
-    .join("&");
-
-  return crypto.createHmac("sha256", secretKey).update(rawData).digest("hex");
-}
-
 async function paymentCallback(req, res) {
-  const data = req.body;
-
-  console.log("MoMo callback data:", data);
-
-  const generatedSignature = generateSignatureFromObject(data, secretkey);
-  if (generatedSignature !== data.signature) {
-    console.error("Invalid signature");
-    return res.status(400).json({ error: "Chữ ký không hợp lệ." });
-  }
-
-  const resultCode = data.resultCode;
-  const orderId = data.orderId;
-  const invoiceId = orderId.split("_")[0];
-
   try {
-    const invoice = await InvoiceModel.findById(invoiceId);
+    const {
+      partnerCode,
+      orderId,
+      requestId,
+      amount,
+      orderInfo,
+      orderType,
+      transId,
+      resultCode,
+      message,
+      payType,
+      responseTime,
+      extraData,
+      signature,
+    } = req.body;
+
+    const rawSignature =
+      "accessKey=" +
+      accessKey +
+      "&amount=" +
+      amount +
+      "&extraData=" +
+      extraData +
+      "&message=" +
+      message +
+      "&orderId=" +
+      orderId +
+      "&orderInfo=" +
+      orderInfo +
+      "&orderType=" +
+      orderType +
+      "&partnerCode=" +
+      partnerCode +
+      "&payType=" +
+      payType +
+      "&requestId=" +
+      requestId +
+      "&responseTime=" +
+      responseTime +
+      "&resultCode=" +
+      resultCode +
+      "&transId=" +
+      transId;
+
+    const expectedSignature = require("crypto")
+      .createHmac("sha256", secretkey)
+      .update(rawSignature)
+      .digest("hex");
+
+    if (signature !== expectedSignature) {
+      return res.status(400).json({ error: "Chữ ký không hợp lệ." });
+    }
+    const invoice = await InvoiceModel.findById(orderInfo);
+
     if (!invoice) {
-      return res.status(404).json({ error: "Không tìm thấy hóa đơn." });
+      return res.status(404).json({ error: "Hóa đơn không tồn tại." });
     }
-
-    // Check if payment with same transaction_id already exists
-    const existingPayment = await PaymentModel.findOne({
-      transaction_id: data.transId,
-    });
-    if (existingPayment) {
-      return res.status(200).json({ message: "Giao dịch đã được xử lý." });
-    }
-
-    const paymentData = {
-      invoice_id: invoice._id,
-      user_id: invoice.user_id,
-      amount: invoice.totalAmount,
-      paymentMethod: "momo",
-      transaction_id: data.transId,
-    };
-
-    if (resultCode === 0) {
-      invoice.paymentStatus = "paid";
-      invoice.paymentMethod = "momo";
-      await invoice.save();
-
-      const newPayment = new PaymentModel({
-        ...paymentData,
+    if (Number(resultCode) === 0) {
+      // Lưu thông tin thanh toán
+      const payment = new PaymentModel({
+        invoice_id: invoice._id,
+        user_id: invoice.user_id,
+        transaction_id: transId,
+        amount,
+        paymentMethod: "momo",
         status: "successful",
       });
-      await newPayment.save();
+      await payment.save();
+      // Cập nhật trạng thái hóa đơn
+      await InvoiceModel.updateOne(
+        { _id: invoice._id },
+        {
+          $set: {
+            paymentStatus: "paid",
+            paymentMethod: "momo",
+          },
+        }
+      );
 
       return res.status(200).json({ message: "Thanh toán thành công." });
     } else {
-      const failedPayment = new PaymentModel({
-        ...paymentData,
-        status: "cancelled",
-      });
-      await failedPayment.save();
-
-      invoice.paymentStatus = "cancelled";
-      await invoice.save();
-
       return res
         .status(200)
-        .json({ message: "Thanh toán thất bại hoặc bị hủy." });
+        .json({ message: "Thanh toán thất bại.", resultCode });
     }
-  } catch (err) {
-    console.error("Lỗi xử lý callback:", err);
-    return res.status(500).json({ error: "Lỗi máy chủ." });
+  } catch (error) {
+    return res.status(500).json(error);
   }
 }
 
