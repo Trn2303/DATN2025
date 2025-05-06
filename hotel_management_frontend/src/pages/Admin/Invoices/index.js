@@ -78,18 +78,23 @@ const InvoiceManagement = () => {
     const formatDate = (dateStr) =>
       dateStr ? new Date(dateStr).toLocaleDateString("vi-VN") : "-";
 
-    const itemsHtml = invoice.orders_id?.items
-      .map(
-        (item) => `
+    const itemsHtml =
+      invoice.orders_id
+        ?.flatMap((order) =>
+          order.items.map(
+            (item) => `
         <tr>
-          <td>${item.name}</td>
+          <td>${item.name || "Dịch vụ"}</td>
           <td style="text-align: center;">${item.quantity}</td>
           <td style="text-align: right;">${item.price.toLocaleString()}đ</td>
-          <td style="text-align: right;">${item.quantity * item.price}đ</td>
+          <td style="text-align: right;">${(
+            item.quantity * item.price
+          ).toLocaleString()}đ</td>
         </tr>
       `
-      )
-      .join("");
+          )
+        )
+        .join("") || "";
 
     const htmlContent = `
       <html>
@@ -168,7 +173,7 @@ const InvoiceManagement = () => {
             </thead>
             <tbody>
             <tr>
-          <td>${invoice.booking_id?.room_id?.name}{" - "}${
+          <td>${invoice.booking_id?.room_id?.name}${" - "}${
       invoice.booking_id?.room_id?.roomTypeId?.name
     }</td>
           <td style="text-align: center;">${
@@ -212,6 +217,9 @@ const InvoiceManagement = () => {
               <p><strong>Thông tin liên hệ:</strong></p>
               <p>Email: binhdanhotel@gmail.com</p>
               <p>Hotline: +84 382 025 369</p>
+            </div>
+            <div>
+              <img src="/img/logo.png" alt="Logo" />
             </div>
           </div>
   
