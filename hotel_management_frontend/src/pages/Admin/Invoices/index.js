@@ -72,6 +72,162 @@ const InvoiceManagement = () => {
       toast.error("Lỗi khi cập nhật hóa đơn!");
     }
   };
+  const printInvoice = (invoice) => {
+    const printWindow = window.open("", "_blank");
+
+    const formatDate = (dateStr) =>
+      dateStr ? new Date(dateStr).toLocaleDateString("vi-VN") : "-";
+
+    const itemsHtml = invoice.orders_id?.items
+      .map(
+        (item) => `
+        <tr>
+          <td>${item.name}</td>
+          <td style="text-align: center;">${item.quantity}</td>
+          <td style="text-align: right;">${item.price.toLocaleString()}đ</td>
+          <td style="text-align: right;">${item.quantity * item.price}đ</td>
+        </tr>
+      `
+      )
+      .join("");
+
+    const htmlContent = `
+      <html>
+        <head>
+          <title>Hóa đơn</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 40px;
+              color: #333;
+            }
+            h1 {
+              color: #b30000;
+              margin-bottom: 0;
+            }
+            .header, .footer {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .section {
+              margin-top: 20px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 15px;
+            }
+            th, td {
+              border-bottom: 1px solid #ddd;
+              padding: 8px;
+            }
+            th {
+              background-color: #eee;
+              text-align: left;
+            }
+            .total {
+              text-align: right;
+              font-weight: bold;
+              font-size: 16px;
+            }
+            .red {
+              color: #b30000;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <h1>HÓA ĐƠN</h1>
+              <p><strong class="red">Khách sạn Bình Dân</strong></p>
+              <p>SĐT: +84 382 025 369</p>
+              <p>Địa chỉ: 30A Trúc Lạc, Trúc Bạch, Ba Đình, Hà Nội, Việt Nam</p>
+            </div>
+            <div style="text-align: right;">
+              <p><strong>Hóa đơn #${invoice._id}</strong></p>
+              <p>Ngày lập: ${formatDate(invoice.issuedDate)}</p>
+            </div>
+          </div>
+  
+          <hr />
+  
+          <div class="section">
+            <p><strong>Khách hàng:</strong> ${invoice.user_id?.name}</p>
+            <p><strong>Phòng:</strong> ${invoice.booking_id?.room_id?.name}</p>
+          </div>
+  
+          <table>
+            <thead>
+              <tr>
+                <th>Mục</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody>
+            <tr>
+          <td>${invoice.booking_id?.room_id?.name}{" - "}${
+      invoice.booking_id?.room_id?.roomTypeId?.name
+    }</td>
+          <td style="text-align: center;">${
+            invoice.booking_id.totalPrice /
+            invoice.booking_id?.room_id?.roomTypeId?.base_price
+          }</td>
+          <td style="text-align: right;">${
+            invoice.booking_id?.room_id?.roomTypeId?.base_price
+          }đ</td>
+          <td style="text-align: right;">${invoice.booking_id.totalPrice}đ</td>
+        </tr>
+            ${itemsHtml}
+            </tbody>
+          </table>
+  
+          <div class="section total">
+            <span class="red">TỔNG TIỀN: ${invoice.totalAmount.toLocaleString()}đ</span>
+          </div>
+  
+          <div class="section">
+            <p><strong>Phương thức thanh toán:</strong> ${
+              invoice.paymentMethod === "cash"
+                ? "Tiền mặt"
+                : invoice.paymentMethod === "momo"
+                ? "Ví MoMo"
+                : invoice.paymentMethod || "-"
+            }</p>
+            <p><strong>Hạn thanh toán:</strong> ${formatDate(
+              invoice.dueDate
+            )}</p>
+            <p><strong>Ngày thanh toán:</strong> ${formatDate(
+              invoice.paymentDate
+            )}</p>            
+            <p><strong>Trạng thái:</strong> ${invoice.paymentStatus}</p>
+          </div>
+  
+          <hr />
+  
+          <div class="footer section">
+            <div>
+              <p><strong>Thông tin liên hệ:</strong></p>
+              <p>Email: binhdanhotel@gmail.com</p>
+              <p>Hotline: +84 382 025 369</p>
+            </div>
+          </div>
+  
+          <script>
+            window.onload = () => {
+              window.print();
+              window.onafterprint = () => window.close();
+            };
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -141,6 +297,14 @@ const InvoiceManagement = () => {
                       disabled={invoice.paymentStatus !== "pending"}
                     >
                       Sửa
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => printInvoice(invoice)}
+                      className="ms-2"
+                    >
+                      In
                     </Button>
                   </td>
                 </tr>

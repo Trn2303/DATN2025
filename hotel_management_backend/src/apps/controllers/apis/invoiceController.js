@@ -21,8 +21,14 @@ exports.index = async (req, res) => {
           path: "room_id",
           model: "Rooms",
           select: "name",
+          populate: {
+            path: "roomTypeId",
+            model: "RoomTypes",
+            select: "name base_price",
+          },
         },
       })
+      .populate("orders_id", "items")
       .exec();
     return res.status(200).json({
       status: "success",
