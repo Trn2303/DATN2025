@@ -682,6 +682,17 @@ ol {
   background: #ffffff;
 }
 
+.modal-body .btn-momo {
+  background-color: #800080;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.modal-body .btn-momo:hover {
+  background-color: #b102b1; 
+  color: white;
+}
+
 /*---------------------
   Testimonial Slider
 -----------------------*/

@@ -4,16 +4,19 @@ const BookingModel = require("../../models/booking");
 const pagination = require("../../../libs/pagination");
 const Amenity = require("../../models/amenity");
 const upload = require("../../middlewares/upload");
+const { create } = require("../../models/user");
 exports.index = async (req, res) => {
   try {
     const query = {};
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 4;
     // lấy danh sách phòng
-    const rooms = await RoomModel.find(query).populate([
-      { path: "roomTypeId", select: "name base_price" },
-      { path: "amenities", select: "name" },
-    ]);
+    const rooms = await RoomModel.find(query)
+      .sort({ updateAt: -1 })
+      .populate([
+        { path: "roomTypeId", select: "name base_price" },
+        { path: "amenities", select: "name" },
+      ]);
 
     // nhóm phòng theo status
     const groupedRooms = {

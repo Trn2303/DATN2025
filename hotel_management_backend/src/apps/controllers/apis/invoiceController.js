@@ -48,6 +48,14 @@ exports.getInvoicesByUser = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .populate({
+        path: "booking_id",
+        populate: {
+          path: "room_id",
+          model: "Rooms",
+          select: "name",
+        },
+      })
+      .populate({
         path: "orders_id",
         populate: {
           path: "items.service_id",
@@ -148,28 +156,6 @@ exports.update = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "Cập nhật thành công",
-    });
-  } catch (error) {
-    return res.status(500).json(error);
-  }
-};
-exports.cancelled = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const invoice = await InvoiceModel.findById(id);
-    if (!invoice) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Invoice not found",
-      });
-    }
-    await InvoiceModel.updateOne(
-      { _id: id },
-      { $set: { status: "cancelled" } }
-    );
-    return res.status(200).json({
-      status: "success",
-      message: "Hủy thành công",
     });
   } catch (error) {
     return res.status(500).json(error);

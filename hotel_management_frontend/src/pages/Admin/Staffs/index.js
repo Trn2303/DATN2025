@@ -309,18 +309,14 @@ const StaffManagement = () => {
                 </p>
                 <div className="mt-3 d-flex gap-2">
                   <Button
-                    variant="outline-primary"
+                    variant="warning"
                     size="sm"
                     onClick={() => handleEdit(staff._id)}
                   >
                     Sửa
                   </Button>
                   <Button
-                    variant={
-                      staff.status === "active"
-                        ? "outline-danger"
-                        : "outline-success"
-                    }
+                    variant={staff.status === "active" ? "danger" : "success"}
                     size="sm"
                     onClick={() => handleStatusChange(staff._id)}
                   >

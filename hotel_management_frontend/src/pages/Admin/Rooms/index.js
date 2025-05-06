@@ -27,13 +27,13 @@ const RoomsAdmin = () => {
               className="btn btn-xs btn-warning me-2"
               onClick={() => clickEdit(room)}
             >
-              Edit
+              Sửa
             </button>
             <button
               className="btn btn-xs btn-danger"
               onClick={() => clickDelete(room)}
             >
-              Delete
+              Xóa
             </button>
           </div>
         </div>
@@ -82,7 +82,6 @@ const RoomsAdmin = () => {
   const [roomTypes, setRoomTypes] = useState([]);
   const [allAmenities, setAllAmenities] = useState([]);
   const [selectedAmenity, setSelectedAmenity] = useState("");
-  const [isSelectingAmenity, setIsSelectingAmenity] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [roomToDelete, setRoomToDelete] = useState(null);
 
@@ -265,61 +264,48 @@ const RoomsAdmin = () => {
               <div className="mb-3">
                 <label className="form-label">Dịch vụ</label>
 
-                {!isSelectingAmenity && (
+                <div className="d-flex mb-2">
+                  <select
+                    className="form-select me-2"
+                    value={selectedAmenity}
+                    onChange={(e) => setSelectedAmenity(e.target.value)}
+                  >
+                    <option value="">-- Chọn dịch vụ --</option>
+                    {allAmenities
+                      .filter(
+                        (a) =>
+                          !currentRoom.amenities.some(
+                            (item) =>
+                              (typeof item === "string" ? item : item._id) ===
+                              a._id
+                          )
+                      )
+                      .map((a) => (
+                        <option key={a._id} value={a._id}>
+                          {a.name}
+                        </option>
+                      ))}
+                  </select>
                   <button
                     type="button"
-                    className="btn btn-outline-primary mb-2"
-                    onClick={() => setIsSelectingAmenity(true)}
+                    className="btn btn-success"
+                    disabled={!selectedAmenity}
+                    onClick={() => {
+                      const newAmenity = allAmenities.find(
+                        (a) => a._id === selectedAmenity
+                      );
+                      if (newAmenity) {
+                        setCurrentRoom({
+                          ...currentRoom,
+                          amenities: [...currentRoom.amenities, newAmenity],
+                        });
+                        setSelectedAmenity("");
+                      }
+                    }}
                   >
-                    + Thêm dịch vụ
+                    OK
                   </button>
-                )}
-
-                {isSelectingAmenity && (
-                  <div className="d-flex mb-2">
-                    <select
-                      className="form-select me-2"
-                      value={selectedAmenity}
-                      onChange={(e) => setSelectedAmenity(e.target.value)}
-                    >
-                      <option value="">-- Chọn dịch vụ --</option>
-                      {allAmenities
-                        .filter(
-                          (a) =>
-                            !currentRoom.amenities.some(
-                              (item) =>
-                                (typeof item === "string" ? item : item._id) ===
-                                a._id
-                            )
-                        )
-                        .map((a) => (
-                          <option key={a._id} value={a._id}>
-                            {a.name}
-                          </option>
-                        ))}
-                    </select>
-                    <button
-                      type="button"
-                      className="btn btn-success"
-                      disabled={!selectedAmenity}
-                      onClick={() => {
-                        const newAmenity = allAmenities.find(
-                          (a) => a._id === selectedAmenity
-                        );
-                        if (newAmenity) {
-                          setCurrentRoom({
-                            ...currentRoom,
-                            amenities: [...currentRoom.amenities, newAmenity],
-                          });
-                          setSelectedAmenity("");
-                          setIsSelectingAmenity(false);
-                        }
-                      }}
-                    >
-                      OK
-                    </button>
-                  </div>
-                )}
+                </div>
 
                 <div className="d-flex flex-wrap gap-2">
                   {currentRoom.amenities.map((a) => {

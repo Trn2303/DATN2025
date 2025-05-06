@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   getAmenities,
   createAmenity,
@@ -22,11 +22,7 @@ const AmenityManagement = () => {
   const limit = 10;
   const [pageIndex, setPageIndex] = useState({ limit });
 
-  useEffect(() => {
-    loadAmenities();
-  }, [page, limit]);
-
-  const loadAmenities = () => {
+  const loadAmenities = useCallback(() => {
     getAmenities({
       params: {
         page,
@@ -38,7 +34,11 @@ const AmenityManagement = () => {
         setPageIndex({ limit, ...data.data.pages });
       })
       .catch(() => toast.error("Lỗi khi tải danh sách tiện nghi"));
-  };
+  }, [page, limit]);
+
+  useEffect(() => {
+    loadAmenities();
+  }, [loadAmenities]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,7 +102,7 @@ const AmenityManagement = () => {
             {a.name}
             <div>
               <Button
-                variant="outline-primary"
+                variant="warning"
                 size="sm"
                 className="me-2"
                 onClick={() => handleEdit(a)}
@@ -110,7 +110,7 @@ const AmenityManagement = () => {
                 Sửa
               </Button>
               <Button
-                variant="outline-danger"
+                variant="danger"
                 size="sm"
                 onClick={() => handleDelete(a._id)}
               >

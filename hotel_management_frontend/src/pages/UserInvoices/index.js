@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import SidebarUser from "../../shared/components/Layout/SidebarUser";
-import { getInvoicesByUser, createPayment } from "../../services/Api";
+import { getInvoicesByUser, createPayment, payCash } from "../../services/Api";
 import { ToastContainer, toast } from "react-toastify";
 import Pagination from "../../shared/components/_pagination";
 
@@ -12,6 +12,8 @@ const UserInvoices = () => {
   const page = searchParams.get("page") || 1;
   const limit = 5;
   const [pageIndex, setPageIndex] = useState({ limit });
+  const [showModal, setShowModal] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   useEffect(() => {
     getInvoicesByUser(id, {
@@ -26,24 +28,38 @@ const UserInvoices = () => {
       .catch((error) => console.log(error));
   }, [id, page]);
 
-  const clickPay = async (invoiceId) => {
+  const openPaymentModal = (invoiceId) => {
+    const invoice = invoices.find((inv) => inv._id === invoiceId);
+    if (!invoice) return;
+    setSelectedInvoice(invoice);
+    setShowModal(true);
+  };
+
+  const handlePayment = async (method) => {
+    if (!selectedInvoice) return;
+
     try {
-      const invoice = invoices.find((inv) => inv._id === invoiceId);
-      if (!invoice) return;
+      if (method === "momo") {
+        const { data } = await createPayment({
+          amount: selectedInvoice.totalAmount.toString(),
+          invoiceId: selectedInvoice._id,
+        });
 
-      const { data } = await createPayment({
-        amount: invoice.totalAmount.toString(),
-        invoiceId: invoice._id,
-      });
-
-      if (data?.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        toast.error("Không thể tạo liên kết thanh toán.");
+        if (data?.paymentUrl) {
+          window.location.href = data.paymentUrl;
+        } else {
+          toast.error("Không thể tạo liên kết thanh toán.");
+        }
+      } else if (method === "cash") {
+        const { data } = await payCash({ invoiceId: selectedInvoice._id });
+        if (data.status === "success")
+          toast.success("Thanh toán tiền mặt thành công.");
+        setShowModal(false);
+        window.location.reload();
       }
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi tạo liên kết thanh toán.");
+      toast.error("Lỗi khi xử lý thanh toán.");
     }
   };
 
@@ -89,8 +105,7 @@ const UserInvoices = () => {
                         <i className={icon}></i>
                       </span>
                       <span>
-                        <strong>Phương thức:</strong>{" "}
-                        {invoice.paymentMethod.toUpperCase()}
+                        <strong>{invoice.booking_id.room_id?.name}</strong>
                       </span>
                     </div>
                     <p className="mb-1">
@@ -105,6 +120,12 @@ const UserInvoices = () => {
                       <strong>Tổng tiền:</strong>{" "}
                       {invoice.totalAmount.toLocaleString()} ₫
                     </p>
+                    {invoice.paymentStatus === "paid" && (
+                      <p className="mb-1">
+                        <strong>Ngày thanh toán:</strong>{" "}
+                        {new Date(invoice.paymentDate).toLocaleDateString()}
+                      </p>
+                    )}
 
                     {invoice.orders_id?.length > 0 && (
                       <div className="mt-3">
@@ -126,7 +147,7 @@ const UserInvoices = () => {
                       <div className="mt-3 text-end">
                         <button
                           className="btn btn-outline-danger btn-sm px-4 py-2"
-                          onClick={() => clickPay(invoice._id)}
+                          onClick={() => openPaymentModal(invoice._id)}
                         >
                           Thanh toán
                         </button>
@@ -149,6 +170,41 @@ const UserInvoices = () => {
           <ToastContainer position="bottom-right" />
         </div>
       </div>
+      {showModal && selectedInvoice && (
+        <div className="modal d-block" tabIndex="-1" role="dialog">
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content rounded-4 shadow">
+              <div className="modal-header">
+                <h5 className="modal-title">Chọn phương thức thanh toán</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>{selectedInvoice.booking_id.room_id?.name}</p>
+                <p>Hóa đơn: {selectedInvoice._id}</p>
+                <p>Số tiền: {selectedInvoice.totalAmount.toLocaleString()} ₫</p>
+                <div className="d-flex gap-3 justify-content-end mt-4">
+                  <button
+                    className="btn btn-warning"
+                    onClick={() => handlePayment("cash")}
+                  >
+                    Thanh toán tiền mặt
+                  </button>
+                  <button
+                    className="btn btn-momo"
+                    onClick={() => handlePayment("momo")}
+                  >
+                    Thanh toán MoMo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

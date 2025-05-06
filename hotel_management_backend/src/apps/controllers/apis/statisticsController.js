@@ -1,7 +1,6 @@
 const InvoiceModel = require("../../models/invoice");
 const BookingModel = require("../../models/booking");
 const RoomModel = require("../../models/room");
-const PaymentModel = require("../../models/payment");
 
 exports.dailyReport = async (req, res) => {
   try {
@@ -22,12 +21,12 @@ exports.dailyReport = async (req, res) => {
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + 1);
 
-      const payments = await PaymentModel.find({
-        createdAt: { $gte: startDate, $lt: endDate },
-        status: "successful",
+      const invoices = await InvoiceModel.find({
+        paymentDate: { $gte: startDate, $lt: endDate },
+        status: "paid",
       });
 
-      const total = payments.reduce((sum, p) => sum + p.amount, 0);
+      const total = invoices.reduce((sum, p) => sum + p.totalAmount, 0);
       return total;
     };
     // Khách đang lưu trú

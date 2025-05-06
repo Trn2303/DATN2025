@@ -106,13 +106,12 @@ export const getInvoiceById = (id, config) =>
 export const createInvoice = (data) => Http.post("/admin/invoices", data);
 export const updateInvoice = (id, data) =>
   Http.put(`/admin/invoices/${id}/update`, data);
-export const cancelInvoice = (id) =>
-  Http.patch(`/admin/invoices/${id}/cancelled`);
 
 // Statistics
 export const getDailyStatistics = (config) =>
   Http.get("/admin/statistics/daily", config);
 
 // payment
+export const payCash = (data) => Http.post("/paycash", data);
 export const createPayment = (data) => Http.post("/payment", data);
 export const momoReturn = (config) => Http.post("/payment-return", config);

@@ -1,6 +1,7 @@
 const axios = require("axios");
 const InvoiceModel = require("../../models/invoice");
-const PaymentModel = require("../../models/payment"); // Thêm dòng này
+const BookingModel = require("../../models/booking");
+const OrderModel = require("../../models/order");
 
 const partnerCode = "MOMO";
 const accessKey = "F8BBA842ECF85";
@@ -167,16 +168,6 @@ async function paymentCallback(req, res) {
       return res.status(404).json({ error: "Hóa đơn không tồn tại." });
     }
     if (Number(resultCode) === 0) {
-      // Lưu thông tin thanh toán
-      const payment = new PaymentModel({
-        invoice_id: invoice._id,
-        user_id: invoice.user_id,
-        transaction_id: transId,
-        amount,
-        paymentMethod: "momo",
-        status: "successful",
-      });
-      await payment.save();
       // Cập nhật trạng thái hóa đơn
       await InvoiceModel.updateOne(
         { _id: invoice._id },
@@ -184,10 +175,20 @@ async function paymentCallback(req, res) {
           $set: {
             paymentStatus: "paid",
             paymentMethod: "momo",
+            transaction_id: transId,
           },
         }
       );
-
+      await BookingModel.updateOne(
+        { _id: invoice.booking_id },
+        { $set: { status: "completed" } }
+      );
+      if (invoice.orders_id.length > 0) {
+        await OrderModel.updateMany(
+          { _id: { $in: invoice.orders_id } },
+          { $set: { status: "completed" } }
+        );
+      }
       return res.status(200).json({ message: "Thanh toán thành công." });
     } else {
       return res
@@ -198,8 +199,54 @@ async function paymentCallback(req, res) {
     return res.status(500).json(error);
   }
 }
+async function payCash(req, res) {
+  try {
+    const { invoiceId } = req.body;
+
+    if (!invoiceId) {
+      return res.status(400).json({ error: "Thiếu mã hóa đơn." });
+    }
+
+    const invoice = await InvoiceModel.findById(invoiceId);
+    if (!invoice) {
+      return res.status(404).json({ error: "Hóa đơn không tồn tại." });
+    }
+
+    await InvoiceModel.updateOne(
+      { _id: invoice._id },
+      {
+        $set: {
+          paymentStatus: "paid",
+          paymentMethod: "cash",
+          transaction_id: `CASH-${Date.now()}`,
+        },
+      }
+    );
+
+    await BookingModel.updateOne(
+      { _id: invoice.booking_id },
+      { $set: { status: "completed" } }
+    );
+
+    if (invoice.orders_id.length > 0) {
+      await OrderModel.updateMany(
+        { _id: { $in: invoice.orders_id } },
+        { $set: { status: "completed" } }
+      );
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Thanh toán tiền mặt thành công.",
+    });
+  } catch (error) {
+    console.error("Lỗi thanh toán tiền mặt:", error);
+    return res.status(500).json({ error: "Thanh toán thất bại." });
+  }
+}
 
 module.exports = {
   createPayment,
   paymentCallback,
+  payCash,
 };

@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  getInvoices,
-  updateInvoice,
-  cancelInvoice,
-} from "../../../services/Api";
+import { getInvoices, updateInvoice } from "../../../services/Api";
 import { toast, ToastContainer } from "react-toastify";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -76,18 +72,6 @@ const InvoiceManagement = () => {
     }
   };
 
-  const handleCancel = async (id) => {
-    if (window.confirm("Bạn có chắc muốn hủy hóa đơn này?")) {
-      try {
-        await cancelInvoice(id);
-        toast.success("Đã hủy hóa đơn");
-        loadInvoices();
-      } catch {
-        toast.error("Không thể hủy hóa đơn");
-      }
-    }
-  };
-
   return (
     <div className="d-flex flex-column min-vh-100">
       <div className="container py-4 flex-grow-1">
@@ -104,6 +88,7 @@ const InvoiceManagement = () => {
                 <th>Ngày lập</th>
                 <th>Hạn thanh toán</th>
                 <th>Phương thức</th>
+                <th>Ngày thanh toán</th>
                 <th>Thanh toán</th>
                 <th>Hành động</th>
               </tr>
@@ -123,6 +108,12 @@ const InvoiceManagement = () => {
                   <td>
                     {invoice.paymentMethod === "cash" ? "Tiền mặt" : "Momo"}
                   </td>
+                  <td>
+                    {invoice.paymentDate
+                      ? new Date(invoice.paymentDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+
                   <td>
                     <span
                       className={
@@ -144,17 +135,11 @@ const InvoiceManagement = () => {
                   <td>
                     <Button
                       size="sm"
-                      variant="outline-primary"
+                      variant="primary"
                       onClick={() => handleShowModal(invoice)}
+                      disabled={invoice.paymentStatus !== "pending"}
                     >
                       Sửa
-                    </Button>{" "}
-                    <Button
-                      size="sm"
-                      variant="outline-danger"
-                      onClick={() => handleCancel(invoice._id)}
-                    >
-                      Hủy
                     </Button>
                   </td>
                 </tr>

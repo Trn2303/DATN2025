@@ -99,7 +99,6 @@ router.get(`/users/:id/invoices`, InvoiceController.getInvoicesByUser);
 router.get(`/invoices/:id`, InvoiceController.show);
 router.post(`/admin/invoices`, InvoiceController.store);
 router.put(`/admin/invoices/:id/update`, InvoiceController.update);
-router.patch(`/admin/invoices/:id/cancelled`, InvoiceController.cancelled);
 
 // Router statistics
 router.get(`/admin/statistics/daily`, StatisticsController.dailyReport);
@@ -107,4 +106,5 @@ router.get(`/admin/statistics/daily`, StatisticsController.dailyReport);
 // Router payment
 router.post("/payment", PaymentController.createPayment);
 router.post("/payment-return", PaymentController.paymentCallback);
+router.post("/paycash", PaymentController.payCash);
 module.exports = router;
