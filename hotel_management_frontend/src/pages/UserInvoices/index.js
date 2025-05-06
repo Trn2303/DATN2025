@@ -104,17 +104,19 @@ const UserInvoices = () => {
                         {invoice.paymentStatus.toUpperCase()}{" "}
                         <i className={icon}></i>
                       </span>
-                      <span>
-                        <strong>{invoice.booking_id.room_id?.name}</strong>
-                      </span>
+                    </div>
+                    <div className="my-3">
+                      <strong className="fs-4">
+                        {invoice.booking_id.room_id?.name}
+                      </strong>
                     </div>
                     <p className="mb-1">
-                      <strong>Ngày xuất:</strong>{" "}
-                      {new Date(invoice.issuedDate).toLocaleDateString()}
-                    </p>
-                    <p className="mb-1">
-                      <strong>Hạn thanh toán:</strong>{" "}
-                      {new Date(invoice.dueDate).toLocaleDateString()}
+                      <div>
+                        <strong>Ngày xuất:</strong>{" "}
+                        {new Date(invoice.issuedDate).toLocaleDateString()}
+                        <strong className="ms-3">Hạn thanh toán:</strong>{" "}
+                        {new Date(invoice.dueDate).toLocaleDateString()}
+                      </div>
                     </p>
                     <p className="mb-1">
                       <strong>Tổng tiền:</strong>{" "}
@@ -183,7 +185,9 @@ const UserInvoices = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                <p>{selectedInvoice.booking_id.room_id?.name}</p>
+                <p className="fs-5">
+                  <strong>{selectedInvoice.booking_id.room_id?.name}</strong>
+                </p>
                 <p>Hóa đơn: {selectedInvoice._id}</p>
                 <p>Số tiền: {selectedInvoice.totalAmount.toLocaleString()} ₫</p>
                 <div className="d-flex gap-3 justify-content-end mt-4">

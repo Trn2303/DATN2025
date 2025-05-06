@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getInvoices, updateInvoice } from "../../../services/Api";
 import { toast, ToastContainer } from "react-toastify";
 import Button from "react-bootstrap/Button";
@@ -19,7 +19,7 @@ const InvoiceManagement = () => {
   const limit = 10;
   const [pageIndex, setPageIndex] = useState({ limit });
 
-  const loadInvoices = async () => {
+  const loadInvoices = useCallback(async () => {
     try {
       const { data } = await getInvoices({ params: { page, limit } });
       setInvoices(data.data.docs);
@@ -30,10 +30,11 @@ const InvoiceManagement = () => {
     } catch (error) {
       toast.error("Lỗi khi tải hóa đơn");
     }
-  };
+  }, [page, limit]);
+
   useEffect(() => {
     loadInvoices();
-  }, [page]);
+  }, [loadInvoices]);
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };

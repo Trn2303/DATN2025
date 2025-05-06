@@ -175,6 +175,7 @@ async function paymentCallback(req, res) {
           $set: {
             paymentStatus: "paid",
             paymentMethod: "momo",
+            paymentDate: new Date(),
             transaction_id: transId,
           },
         }
@@ -218,6 +219,7 @@ async function payCash(req, res) {
         $set: {
           paymentStatus: "paid",
           paymentMethod: "cash",
+          paymentDate: new Date(),
           transaction_id: `CASH-${Date.now()}`,
         },
       }
