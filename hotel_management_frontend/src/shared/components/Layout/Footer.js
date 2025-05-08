@@ -28,9 +28,9 @@ const Footer = () => {
                 <div className="ft-contact">
                   <h6>Liên hệ</h6>
                   <ul>
-                    <li>Hotline</li>
-                    <li>Email</li>
-                    <li>Giờ làm việc</li>
+                    <li>Hotline: +84 382 025 369</li>
+                    <li>Email: binhdanhotel@gmail.com</li>
+                    <li>Giờ làm việc: 08:00 - 22:00 hằng ngày</li>
                   </ul>
                 </div>
               </div>

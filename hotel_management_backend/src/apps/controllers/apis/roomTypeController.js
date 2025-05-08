@@ -41,7 +41,7 @@ exports.store = async (req, res) => {
     await room_type.save();
     return res.status(200).json({
       status: "success",
-      message: "Create room type successfully",
+      message: "Tạo loại phòng thành công",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -56,12 +56,12 @@ exports.update = async (req, res) => {
       {
         name,
         description,
-        base_price: Number(base_price), 
+        base_price: Number(base_price),
       }
     );
     return res.status(200).json({
       status: "success",
-      message: "Update room type successfully",
+      message: "Cập nhật thành công",
     });
   } catch (error) {
     return res.status(500).json(error);
@@ -73,7 +73,7 @@ exports.destroy = async (req, res) => {
     await RoomTypeModel.deleteOne({ _id: id });
     return res.status(200).json({
       status: "success",
-      message: "Delete room type successfully",
+      message: "Xóa thành công",
     });
   } catch (error) {
     return res.status(500).json(error);

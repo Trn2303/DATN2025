@@ -61,6 +61,8 @@ const Register = () => {
             name="phone"
             className="form-control mb-3 rounded-5 py-2"
             placeholder="Số điện thoại"
+            pattern="0[0-9]{9,10}"
+            title="Số điện thoại không hợp lệ"
             value={inputRegister.phone}
             onChange={changeInputRegister}
             required

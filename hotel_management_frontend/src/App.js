@@ -37,10 +37,12 @@ import AmenityManagement from "./pages/Admin/Amenities";
 import InvoiceManagement from "./pages/Admin/Invoices";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ForgotPassword from "./pages/ForgotPassword";
+import UserManagement from "./pages/Admin/Users";
 
 const LayoutWrapper = ({ children }) => {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  // eslint-disable-next-line no-unused-vars
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
@@ -77,6 +79,7 @@ const App = () => {
             <Route path="bookings" element={<BookingManagement />} />
             <Route path="amenities" element={<AmenityManagement />} />
             <Route path="invoices" element={<InvoiceManagement />} />
+            <Route path="users" element={<UserManagement />} />
           </Route>
 
           {/* User */}

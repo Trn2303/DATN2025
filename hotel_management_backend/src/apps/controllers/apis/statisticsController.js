@@ -10,9 +10,11 @@ exports.dailyReport = async (req, res) => {
     tomorrow.setDate(today.getDate() + 1);
     const countCheckIn = await BookingModel.countDocuments({
       checkInDate: { $gte: today, $lt: tomorrow },
+      status: "confirmed",
     });
     const countCheckOut = await BookingModel.countDocuments({
       checkOutDate: { $gte: today, $lt: tomorrow },
+      status: "completed",
     });
     // Tính doanh thu mỗi ngày
     const getIncomeForDay = async (day) => {
@@ -33,6 +35,7 @@ exports.dailyReport = async (req, res) => {
     const stayingGuests = await BookingModel.countDocuments({
       checkInDate: { $lte: today },
       checkOutDate: { $gt: today },
+      status: "confirmed",
     });
     // booking của ngày hôm nay
     const bookingsToday = await BookingModel.countDocuments({

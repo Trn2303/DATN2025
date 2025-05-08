@@ -4,6 +4,7 @@ const { jwtDecode } = require("jwt-decode");
 const { redisClient } = require("../../../common/init.redis");
 const config = require("config");
 const TokenModel = require("../../models/token");
+const bcrypt = require("bcrypt");
 
 const generateAccessToken = async (user) => {
   return jwt.sign(
@@ -51,10 +52,11 @@ exports.register = async (req, res) => {
         message: "Số điện thoại đã được sử dụng!",
       });
     }
+    const hashedPassword = await bcrypt.hash(password, 10);
     await UserModel({
       name,
       email,
-      password,
+      hashedPassword,
       phone,
     }).save();
     return res.status(200).json({
@@ -73,7 +75,7 @@ exports.login = async (req, res) => {
     if (!isEmail) {
       return res.status(400).json({ message: "Email không tồn tại!" });
     }
-    const isPassword = isEmail.password === password;
+    const isPassword = await bcrypt.compare(password, isEmail.password);
     if (!isPassword) {
       return res.status(400).json({ message: "Sai mật khẩu!" });
     }
@@ -163,7 +165,8 @@ exports.forgotPassword = async (req, res) => {
       return res.status(400).json({ message: "Email không tồn tại!" });
     }
 
-    user.password = newPassword;
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
     await user.save();
 
     return res.status(200).json({ message: "Đặt lại mật khẩu thành công!" });

@@ -230,6 +230,8 @@ const StaffManagement = () => {
                 name="phone"
                 className="form-control"
                 value={formData.phone}
+                pattern="0[0-9]{9,10}"
+                title="Số điện thoại không hợp lệ"
                 onChange={handleInputChange}
                 placeholder="Nhập số điện thoại"
                 required

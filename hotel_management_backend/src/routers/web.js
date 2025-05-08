@@ -34,6 +34,8 @@ router.post("/forgot-password", AuthController.forgotPassword);
 // Router user
 router.get(`/users/:id`, UserController.show);
 router.post(`/users/:id/update`, UserController.update);
+router.get(`/admin/users`, UserController.index);
+router.delete(`/admin/user/:id/delete`, UserController.destroy);
 
 // Router booking
 router.get(`/admin/bookings`, BookingController.index);

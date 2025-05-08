@@ -10,6 +10,7 @@ const menuItems = [
   { label: "Nhân viên", path: "/admin/staffs" },
   { label: "Tiện nghi", path: "/admin/amenities" },
   { label: "Hóa đơn", path: "/admin/invoices" },
+  { label: "Người dùng", path: "/admin/users" },
 ];
 
 const AdminLayout = () => {
