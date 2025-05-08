@@ -1,4 +1,5 @@
 const UserModel = require("../../models/user");
+const pagination = require("../../../libs/pagination");
 const bcrypt = require("bcrypt");
 exports.index = async (req, res) => {
   try {
@@ -21,7 +22,6 @@ exports.index = async (req, res) => {
       status: "success",
       filters: {
         role: req.query.role || null,
-        keyword: req.query.keyword || null,
       },
       data: {
         docs: users,

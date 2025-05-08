@@ -36,6 +36,7 @@ router.get(`/users/:id`, UserController.show);
 router.post(`/users/:id/update`, UserController.update);
 router.get(`/admin/users`, UserController.index);
 router.delete(`/admin/user/:id/delete`, UserController.destroy);
+router.post(`admin/users/:id/update`, UserController.updateByAdmin);
 
 // Router booking
 router.get(`/admin/bookings`, BookingController.index);
