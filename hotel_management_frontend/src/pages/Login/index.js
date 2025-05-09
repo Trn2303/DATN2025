@@ -12,9 +12,21 @@ const Login = () => {
     const { name, value } = e.target;
     setInputLogin({ ...inputLogin, [name]: value });
   };
-
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
   const clickLogin = async (e) => {
     e.preventDefault();
+    const { email, password } = inputLogin;
+
+    if (!email.trim() || !password.trim()) {
+      toast.error("Vui lòng nhập đầy đủ email và mật khẩu!");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      toast.error("Email không hợp lệ!");
+      return;
+    }
     setLoading(true);
     login(inputLogin)
       .then(({ data }) => {

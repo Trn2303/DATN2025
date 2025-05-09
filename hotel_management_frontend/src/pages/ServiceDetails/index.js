@@ -51,7 +51,7 @@ const ServiceDetails = () => {
       {service ? (
         <div>
           {/* Thông tin dịch vụ */}
-          <div className="row mb-5">
+          <div className="row mb-2">
             <div className="col">
               <h1 className="mb-4">{service?.name}</h1>
               <p>{service?.description}</p>

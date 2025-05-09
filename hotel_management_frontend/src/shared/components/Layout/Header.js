@@ -16,7 +16,6 @@ const Header = () => {
       .catch((error) => console.log(error));
   }, []);
   console.log(room_types);
-  
 
   return (
     <>
@@ -37,7 +36,7 @@ const Header = () => {
                     <ul className="navbar-nav flex-row">
                       <li className={`nav-item ${isActive("/")}`}>
                         <Link className="nav-link" to="/">
-                        Trang chủ
+                          Trang chủ
                         </Link>
                       </li>
                       <li className={`nav-item ${isActive("/Rooms")}`}>
@@ -48,6 +47,11 @@ const Header = () => {
                       <li className={`nav-item ${isActive("/Services")}`}>
                         <Link className="nav-link" to="/Services">
                           Dịch vụ
+                        </Link>
+                      </li>
+                      <li className={`nav-item ${isActive("/BookingService")}`}>
+                        <Link className="nav-link" to="/BookingService">
+                          Đặt dịch vụ
                         </Link>
                       </li>
                       <li className="nav-item dropdown">
@@ -75,14 +79,10 @@ const Header = () => {
                   </nav>
                   <div className="nav-right auth-buttons">
                     <Link to="/Login">
-                      <button className=" btn-login">
-                        Đăng nhập
-                      </button>
+                      <button className=" btn-login">Đăng nhập</button>
                     </Link>
                     <Link to="/Register">
-                      <button className=" btn-register">
-                        Đăng ký
-                      </button>
+                      <button className=" btn-register">Đăng ký</button>
                     </Link>
                   </div>
                 </div>

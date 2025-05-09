@@ -20,7 +20,29 @@ const Register = () => {
 
   const clickRegister = async (e) => {
     e.preventDefault();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!inputRegister.name.trim()) {
+      toast.error("Vui lòng nhập họ tên!");
+      return;
+    }
+    if (!inputRegister.phone.trim()) {
+      toast.error("Vui lòng nhập số điện thoại!");
+      return;
+    }
+    if (!inputRegister.email.trim()) {
+      toast.error("Vui lòng nhập email!");
+      return;
+    }
+    if (!emailRegex.test(inputRegister.email)) {
+      toast.error("Email không hợp lệ!");
+      return;
+    }
+    if (!inputRegister.password.trim()) {
+      toast.error("Vui lòng nhập mật khẩu!");
+      return;
+    }
     setLoading(true);
+    console.log(inputRegister);
     register(inputRegister)
       .then(({ data }) => {
         if (data.status === "success") {

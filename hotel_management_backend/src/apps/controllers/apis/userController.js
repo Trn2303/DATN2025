@@ -38,7 +38,7 @@ exports.update = async (req, res) => {
     const { name, phone } = req.body;
     const isPhone = await UserModel.findOne({ phone });
     if (isPhone && isPhone._id.toString() !== id) {
-      return res.status(400).json("Số điện thoại đã tồn tại");
+      return res.status(400).json({ message: "Số điện thoại đã tồn tại" });
     }
     const user = {
       name,

@@ -153,6 +153,14 @@ const RoomsAdmin = () => {
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
+                if (!currentRoom.name?.trim()) {
+                  toast.warning("Vui lòng nhập tên phòng");
+                  return;
+                }
+                if (!currentRoom.floor?.trim()) {
+                  toast.warning("Vui lòng nhập tầng");
+                  return;
+                }
                 try {
                   const formData = new FormData();
                   formData.append("name", currentRoom.name);

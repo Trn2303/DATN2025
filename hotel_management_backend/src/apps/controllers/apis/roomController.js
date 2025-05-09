@@ -3,8 +3,6 @@ const RoomTypeModel = require("../../models/room_type");
 const BookingModel = require("../../models/booking");
 const pagination = require("../../../libs/pagination");
 const Amenity = require("../../models/amenity");
-const upload = require("../../middlewares/upload");
-const { create } = require("../../models/user");
 exports.index = async (req, res) => {
   try {
     const query = {};
@@ -12,7 +10,7 @@ exports.index = async (req, res) => {
     const limit = Number(req.query.limit) || 4;
     // lấy danh sách phòng
     const rooms = await RoomModel.find(query)
-      .sort({ updateAt: -1 })
+      .sort({ updatedAt: -1 })
       .populate([
         { path: "roomTypeId", select: "name base_price" },
         { path: "amenities", select: "name" },
@@ -308,7 +306,14 @@ exports.update = async (req, res) => {
 exports.destroy = async (req, res) => {
   try {
     const { id } = req.params;
-    const room = await RoomModel.deleteOne({ _id: id });
+    const room = await RoomModel.findById(id);
+    if (room.status === "occupied") {
+      return res.status(400).json({
+        status: "fail",
+        message: "Phòng đang có khách!",
+      });
+    }
+    await RoomModel.deleteOne({ _id: id });
     return res.status(200).json({
       status: "success",
       message: "Xóa phòng thành công!",

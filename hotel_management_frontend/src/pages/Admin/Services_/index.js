@@ -7,6 +7,7 @@ import {
 } from "../../../services/Api";
 import { useSearchParams } from "react-router-dom";
 import Pagination from "../../../shared/components/_pagination";
+import { toast, ToastContainer } from "react-toastify";
 
 const AdminServiceManager = () => {
   const [services, setServices] = useState([]);
@@ -69,11 +70,26 @@ const AdminServiceManager = () => {
   };
 
   const handleSubmit = async () => {
+    const { name, price, unit } = formData;
+    if (!name.trim()) {
+      toast.error("Tên dịch vụ không được để trống!");
+      return;
+    }
+    if (!price) {
+      toast.error("Giá không được để trống!");
+      return;
+    }
+    if (!unit.trim()) {
+      toast.error("Đơn vị không được để trống!");
+      return;
+    }
     try {
       if (editingService) {
-        await updateService(editingService._id, formData);
+        const res = await updateService(editingService._id, formData);
+        if (res.data.status === "success") toast.success(res.data.message);
       } else {
-        await createService(formData);
+        const res = await createService(formData);
+        if (res.data.status === "success") toast.success(res.data.message);
       }
       getAdminServices({
         params: {
@@ -85,10 +101,14 @@ const AdminServiceManager = () => {
           setServices(data.data.docs);
           setPageIndex({ limit, ...data.data.pages });
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          toast.error("Lỗi khi tải lại danh sách dịch vụ!");
+        });
       handleCloseModal();
     } catch (err) {
       console.error("Lỗi khi lưu dịch vụ:", err);
+      toast.error("Lỗi khi lưu dịch vụ!");
     }
   };
 
@@ -170,6 +190,7 @@ const AdminServiceManager = () => {
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
+                min={1}
                 placeholder="Nhập giá"
               />
             </Form.Group>
@@ -205,6 +226,7 @@ const AdminServiceManager = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 };

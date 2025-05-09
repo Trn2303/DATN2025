@@ -42,8 +42,27 @@ const UserProfile = () => {
     const { name, value } = e.target;
     setUserInfo({ ...userInfo, [name]: value });
   };
+  const validateForm = () => {
+    if (!userInfo.name.trim()) {
+      toast.error("Vui lòng nhập họ và tên");
+      return false;
+    }
+    if (!userInfo.phone.trim()) {
+      toast.error("Vui lòng nhập số điện thoại");
+      return false;
+    }
+    const phoneRegex = /^[0-9]{9,11}$/;
+    if (!phoneRegex.test(userInfo.phone)) {
+      toast.error("Số điện thoại không hợp lệ");
+      return false;
+    }
+
+    return true;
+  };
 
   const clickUpdate = () => {
+    if (!validateForm()) return;
+
     updateUser(id, { name: userInfo.name, phone: userInfo.phone })
       .then(({ data }) => {
         if (data.status === "success") {
@@ -51,22 +70,21 @@ const UserProfile = () => {
             ...data.data,
             updatedAt: new Date().toISOString(),
           };
-
-          try {
-            localStorage.setItem("user", JSON.stringify(updatedUser));
-            setUserInfo(updatedUser);
-            setInitialUserInfo(updatedUser); // Cập nhật giá trị ban đầu mới
-            toast.success("Cập nhật thông tin thành công!");
-          } catch (err) {
-            console.log("Failed to update localStorage:", err);
-          }
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          setUserInfo(updatedUser);
+          setInitialUserInfo(updatedUser);
+          toast.success("Cập nhật thông tin thành công!");
         } else {
-          toast.error("Không thể cập nhật thông tin: " + data.message);
+          toast.error(
+            "Không thể cập nhật: " + (data.message || "Lỗi không xác định")
+          );
         }
       })
       .catch((error) => {
-        console.error("Error updating user:", error);
-        toast.error("Có lỗi xảy ra khi cập nhật thông tin");
+        const message =
+          error.response?.data?.message ||
+          "Có lỗi xảy ra khi cập nhật thông tin";
+        toast.error(message);
       });
   };
 

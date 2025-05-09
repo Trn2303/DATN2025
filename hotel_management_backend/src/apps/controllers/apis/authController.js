@@ -56,7 +56,7 @@ exports.register = async (req, res) => {
     await UserModel({
       name,
       email,
-      hashedPassword,
+      password: hashedPassword,
       phone,
     }).save();
     return res.status(200).json({

@@ -13,7 +13,7 @@ import {
 const UserManagement = () => {
   const [searchParams] = useSearchParams();
   const page = parseInt(searchParams.get("page")) || 1;
-  const limit = 6;
+  const limit = 10;
 
   const [pageIndex, setPageIndex] = useState({ limit });
   const [users, setUsers] = useState([]);

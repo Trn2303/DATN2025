@@ -33,8 +33,27 @@ const Booking = () => {
       })
       .catch((error) => console.log(error));
   }, [id]);
+  const validateBooking = () => {
+    const { checkInDate, checkOutDate, email } = inputBooking;
 
-  console.log(inputBooking);
+    if (!checkInDate || !checkOutDate) {
+      toast.error("Vui lòng chọn ngày nhận và ngày trả phòng.");
+      return false;
+    }
+
+    if (new Date(checkOutDate) <= new Date(checkInDate)) {
+      toast.error("Ngày trả phòng phải sau ngày nhận phòng.");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Email không hợp lệ");
+      return false;
+    }
+
+    return true;
+  };
 
   const changeInputBooking = (e) => {
     const { name, value } = e.target;
@@ -43,6 +62,7 @@ const Booking = () => {
 
   const clickBooking = async (e) => {
     e.preventDefault();
+    if (!validateBooking()) return;
     const bookingData = {
       user_id: inputBooking.user_id,
       room_id: inputBooking.room_id,
@@ -70,7 +90,7 @@ const Booking = () => {
   return (
     <div className="booking-section">
       <div className="container">
-        <div className="breadcrumbs-wrapper mb-4">
+        <div className="breadcrumbs-wrapper mt-4">
           <ol className="breadcrumb mb-0">
             <li className="breadcrumb-item d-flex align-items-center gap-2">
               <Link to="/" className="text-muted text-decoration-none">
@@ -92,95 +112,108 @@ const Booking = () => {
         </div>
         <div className="row">
           <div className="col-lg-12">
-            <div className="section-title">
+            <div className="section-title m-0">
               <h2>Đặt phòng</h2>
             </div>
           </div>
         </div>
-        <div className="row mt-4">
+        <div className="row mb-5 g-4">
+          {/* thông tin phòng */}
           <div className="col-lg-6">
-            <img
-              src={getImageRoom(room.image)}
-              alt={room.name}
-              className="img-fluid"
-            />
-            <h3 className="mt-3">{room.name}</h3>
-            <p>{room?.room_type?.description}</p>
-            <p>Tiện nghi: {room.amenities.map((a) => a.name).join(", ")}</p>
-            <p>Giá: {room?.room_type?.base_price.toLocaleString()}₫ / đêm</p>
+            <div className="card border-0 shadow-sm p-4">
+              <div className="row">
+                <h4 className="card-title">{room.name}</h4>
+                <p className="text-muted">{room?.room_type?.description}</p>
+                <p className="mb-1">
+                  <strong>Tiện nghi:</strong>{" "}
+                  {room.amenities.map((a) => a.name).join(", ")}
+                </p>
+                <p>
+                  <strong>Giá:</strong>{" "}
+                  {room?.room_type?.base_price.toLocaleString()}₫ / đêm
+                </p>
+              </div>
+              <div className="row">
+                <img
+                  src={getImageRoom(room.image)}
+                  alt={room.name}
+                  className="img-fluid rounded-start object-fit-cover w-100"
+                />
+              </div>
+            </div>
           </div>
+
+          {/* form đặt phòng */}
           <div className="col-lg-6">
-            <h4>Thông tin đặt phòng</h4>
-            <form method="post" className="my-4">
-              {/* User Name */}
-              <div className="form-group">
-                <label>Họ và tên:</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={inputBooking.name}
-                  onChange={changeInputBooking}
-                  className="form-control"
-                  required
-                />
-              </div>
-              {/* User Email */}
-              <div className="form-group">
-                <label>Email:</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={inputBooking.email}
-                  onChange={changeInputBooking}
-                  className="form-control"
-                  required
-                />
-              </div>
-              {/* User Phone */}
-              <div className="form-group">
-                <label>Số điện thoại:</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={inputBooking.phone}
-                  onChange={changeInputBooking}
-                  className="form-control"
-                  required
-                />
-              </div>
-              {/* Check-In Date */}
-              <div className="form-group">
-                <label>Ngày nhận phòng:</label>
-                <input
-                  type="date"
-                  name="checkInDate"
-                  value={inputBooking.checkInDate}
-                  onChange={changeInputBooking}
-                  className="form-control"
-                  required
-                />
-              </div>
-              {/* Check-Out Date */}
-              <div className="form-group">
-                <label>Ngày trả phòng:</label>
-                <input
-                  type="date"
-                  name="checkOutDate"
-                  value={inputBooking.checkOutDate}
-                  onChange={changeInputBooking}
-                  className="form-control"
-                  required
-                />
-              </div>
-              {/* Submit Button */}
-              <button
-                onClick={clickBooking}
-                type="button"
-                className="btn btn-primary mt-3"
-              >
-                Xác nhận đặt phòng
-              </button>
-            </form>
+            <div className="card border-0 shadow-sm p-4">
+              <h4 className="mb-3">Thông tin đặt phòng</h4>
+              <form method="post">
+                <div className="mb-3">
+                  <label className="form-label">Họ và tên:</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={inputBooking.name}
+                    onChange={changeInputBooking}
+                    className="form-control"
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Email:</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={inputBooking.email}
+                    onChange={changeInputBooking}
+                    className="form-control"
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Số điện thoại:</label>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={inputBooking.phone}
+                    onChange={changeInputBooking}
+                    className="form-control"
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Ngày nhận phòng:</label>
+                  <input
+                    type="date"
+                    name="checkInDate"
+                    value={inputBooking.checkInDate}
+                    min={new Date().toISOString().split("T")[0]}
+                    onChange={changeInputBooking}
+                    className="form-control"
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Ngày trả phòng:</label>
+                  <input
+                    type="date"
+                    name="checkOutDate"
+                    value={inputBooking.checkOutDate}
+                    min={new Date().toISOString().split("T")[0]}
+                    onChange={changeInputBooking}
+                    className="form-control"
+                    required
+                  />
+                </div>
+                <button
+                  onClick={clickBooking}
+                  type="button"
+                  className="btn btn-primary w-100 mt-2"
+                >
+                  Xác nhận đặt phòng
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>

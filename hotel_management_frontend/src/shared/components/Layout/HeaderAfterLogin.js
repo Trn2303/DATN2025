@@ -59,6 +59,11 @@ const HeaderLogin = () => {
                           Dịch vụ
                         </Link>
                       </li>
+                      <li className={`nav-item ${isActive("/BookingService")}`}>
+                        <Link className="nav-link" to="/BookingService">
+                          Đặt dịch vụ
+                        </Link>
+                      </li>
                       <li className="nav-item dropdown">
                         <Link
                           className="nav-link dropdown-toggle"
@@ -108,8 +113,7 @@ const HeaderLogin = () => {
                           className="dropdown-item"
                           to={`/Users-${user?._id}/BookingHistory`}
                         >
-                          <i className="bi bi-buildings me-2"></i>Đơn đặt
-                          phòng
+                          <i className="bi bi-buildings me-2"></i>Đơn đặt phòng
                         </Link>
                       </li>
                       <li>

@@ -89,7 +89,6 @@ const BookingService = () => {
   );
 
   const clickOrder = () => {
-    if (!orderItems.length) return toast.error("Chưa chọn dịch vụ nào");
     const user = JSON.parse(localStorage.getItem("user"));
     const payload = {
       items: orderItems.map(({ service_id, name, quantity, price }) => ({
@@ -109,7 +108,7 @@ const BookingService = () => {
         }, 2000);
       })
       .catch((error) => {
-        toast.error(error);
+        toast.error(error.response?.data?.message);
       });
   };
 
@@ -142,22 +141,22 @@ const BookingService = () => {
         </div>
       </div>
 
-      {orderItems.length > 0 && (
-        <div className="mt-5">
-          <h4>Dịch vụ đã chọn</h4>
-          <table className="table table-borderless align-middle mt-3">
-            <thead className="table-light">
-              <tr>
-                <th style={{ width: "30%" }}>Thông tin dịch vụ</th>
-                <th style={{ width: "10%" }}>Tùy chọn</th>
-                <th style={{ width: "10%" }} className="text-end">
-                  Giá
-                </th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {orderItems.map((item) => (
+      <div className="mt-5">
+        <h4>Dịch vụ đã chọn</h4>
+        <table className="table table-borderless align-middle mt-3">
+          <thead className="table-light">
+            <tr>
+              <th style={{ width: "30%" }}>Thông tin dịch vụ</th>
+              <th style={{ width: "10%" }}>Tùy chọn</th>
+              <th style={{ width: "10%" }} className="text-end">
+                Giá
+              </th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {orderItems.length > 0 ? (
+              orderItems.map((item) => (
                 <tr key={item.service_id}>
                   <td>{item.name}</td>
                   <td style={{ width: "100px" }}>
@@ -184,19 +183,30 @@ const BookingService = () => {
                     </button>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="text-center text-muted">
+                  Chưa có dịch vụ nào được chọn.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
 
-          <div className="text-end mb-3">
-            <strong>Tổng cộng: {totalPrice.toLocaleString()} ₫</strong>
-          </div>
-
-          <button className="btn btn-success" onClick={clickOrder}>
-            Xác nhận đặt dịch vụ
-          </button>
+        <div className="text-end mb-3">
+          <strong>Tổng cộng: {totalPrice.toLocaleString()} ₫</strong>
         </div>
-      )}
+
+        <button
+          className="btn btn-success"
+          onClick={clickOrder}
+          disabled={orderItems.length === 0}
+        >
+          Xác nhận đặt dịch vụ
+        </button>
+      </div>
+
       <ToastContainer position="bottom-right" />
     </div>
   );
