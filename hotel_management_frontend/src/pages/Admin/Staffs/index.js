@@ -65,9 +65,23 @@ const StaffManagement = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  const isValidForm = () => {
+    if (!formData.name || !formData.email) {
+      toast.error("Vui lòng điền đầy đủ tên và email.");
+      return false;
+    }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Email không hợp lệ.");
+      return false;
+    }
+
+    return true;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isValidForm()) return;
     try {
       let response;
       if (staff) {

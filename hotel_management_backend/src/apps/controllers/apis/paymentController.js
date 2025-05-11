@@ -17,9 +17,9 @@ async function createPayment(req, res) {
   const requestId = partnerCode + new Date().getTime();
   const orderId = `${requestId}`;
   const orderInfo = `${invoiceId}`;
-  const redirectUrl = "http://localhost:3000/payment-success";
-  const ipnUrl =
-    "https://ce2c-14-235-27-87.ngrok-free.app/api/v1/payment-return";
+  const redirectUrl =
+    "https://hotel-management-olive-iota.vercel.app/payment-success";
+  const ipnUrl = "https://datn-2025.onrender.com/api/v1/payment-return";
   const requestType = "captureWallet";
   const extraData = "";
 
