@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
     <>
@@ -19,7 +21,9 @@ const Footer = () => {
                 <div className="ft-about">
                   <h6>Giới thiệu</h6>
                   <ul>
-                    <li>Về chúng tôi</li>
+                    <Link to="/About" style={{ textDecoration: "none" }}>
+                      <li>Về chúng tôi</li>
+                    </Link>
                     <li>Quy định chung và lưu ý</li>
                   </ul>
                 </div>

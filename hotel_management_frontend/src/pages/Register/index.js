@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 
 const Register = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   const [inputRegister, setInputRegister] = useState({
     email: "",
     password: "",
@@ -98,15 +99,27 @@ const Register = () => {
             onChange={changeInputRegister}
             required
           />
-          <input
-            type="password"
-            name="password"
-            className="form-control mb-3 rounded-5 py-2"
-            placeholder="Mật khẩu"
-            value={inputRegister.password}
-            onChange={changeInputRegister}
-            required
-          />
+          <div className="input-group mb-3">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              className="form-control rounded-start-5"
+              placeholder="Mật khẩu"
+              value={inputRegister.password}
+              onChange={changeInputRegister}
+              required
+            />
+            <button
+              type="button"
+              className="btn btn-secondary rounded-end-5"
+              onClick={() => setShowPassword((prev) => !prev)}
+              tabIndex={-1}
+            >
+              <i
+                className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
+              ></i>
+            </button>
+          </div>
           <button
             type="button"
             onClick={clickRegister}

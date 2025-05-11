@@ -445,7 +445,7 @@ const RoomsAdmin = () => {
                 }));
               } catch (error) {
                 console.error(error);
-                toast.error("Đã xảy ra lỗi khi xóa phòng.");
+                toast.error(error.response?.data?.message);
               } finally {
                 setShowDeleteModal(false);
                 setRoomToDelete(null);
