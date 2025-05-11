@@ -16,7 +16,7 @@ const InvoiceManagement = () => {
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [searchParams] = useSearchParams();
   const page = searchParams.get("page") || 1;
-  const limit = 10;
+  const limit = 9;
   const [pageIndex, setPageIndex] = useState({ limit });
 
   const loadInvoices = useCallback(async () => {
@@ -129,7 +129,7 @@ const InvoiceManagement = () => {
             }
             th {
               background-color: #eee;
-              text-align: left;
+              text-align: center;
             }
             .total {
               text-align: right;
@@ -329,8 +329,8 @@ const InvoiceManagement = () => {
         </div>
       </div>
 
-      <div className="bg-white py-3 ">
-        <div className="container d-flex justify-content-center">
+      <div className="bg-white ">
+        <div className="d-flex justify-content-center">
           <Pagination pages={pageIndex} />
         </div>
       </div>

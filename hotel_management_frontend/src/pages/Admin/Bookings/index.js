@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   getBookings,
   checkInBooking,
@@ -8,6 +8,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
 import Pagination from "../../../shared/components/_pagination";
+import { useNavigate } from "react-router-dom";
 
 const BookingManagement = () => {
   const [bookings, setBookings] = useState([]);
@@ -17,16 +18,33 @@ const BookingManagement = () => {
   const limit = 6;
   const [pageIndex, setPageIndex] = useState({ limit });
   const [searchText, setSearchText] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
+  const [status, setStatus] = useState("");
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    getBookings({ params: { page, limit } })
+  const fetchBookings = useCallback(async () => {
+    const config = {
+      params: {
+        page,
+        limit,
+        status,
+        search: searchText.trim(),
+      },
+    };
+    getBookings(config)
       .then(({ data }) => {
         setBookings(data.data.docs);
         setPageIndex({ limit, ...data.data.pages });
       })
       .catch(() => toast.error("Lỗi tải danh sách đặt phòng"));
-  }, [page]);
+  }, [page, limit, status, searchText]);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
+
+  useEffect(() => {
+    navigate(`?page=1`);
+  }, [status, searchText, navigate]);
 
   const handleCheckIn = async (id) => {
     setLoadingIds((prev) => [...prev, id]);
@@ -76,17 +94,9 @@ const BookingManagement = () => {
     }
   };
 
-  const filteredBookings = bookings.filter((booking) => {
-    const matchSearch =
-      booking.room?.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-      booking.room?.floor?.toString().includes(searchText);
-    const matchStatus = filterStatus ? booking.status === filterStatus : true;
-    return matchSearch && matchStatus;
-  });
-
   return (
     <div className="d-flex flex-column min-vh-100">
-      <div className="container py-4 flex-grow-1">
+      <div className="container my-4 flex-grow-1 d-flex flex-column">
         <h3 className="text-center mb-4">Quản lý đặt phòng</h3>
         <div className="mb-3 d-flex justify-content-between align-items-center">
           <input
@@ -98,8 +108,8 @@ const BookingManagement = () => {
           />
           <select
             className="form-select w-25 ms-3"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
           >
             <option value="">Tất cả trạng thái</option>
             <option value="pending">Chờ check-in</option>
@@ -109,7 +119,7 @@ const BookingManagement = () => {
         </div>
 
         <div className="row g-3">
-          {filteredBookings.map((booking) => {
+          {bookings.map((booking) => {
             const checkInDate = new Date(booking.checkInDate);
             const checkOutDate = new Date(booking.checkOutDate);
             const today = new Date();
@@ -173,7 +183,7 @@ const BookingManagement = () => {
             );
           })}
 
-          {filteredBookings.length === 0 && (
+          {bookings.length === 0 && (
             <p className="text-center text-muted mt-4">
               Không có dữ liệu đặt phòng.
             </p>
@@ -181,7 +191,7 @@ const BookingManagement = () => {
         </div>
         <ToastContainer position="bottom-right" />
       </div>
-      <div className="container d-flex justify-content-center mt-4">
+      <div className="mt-auto d-flex justify-content-center py-3">
         <Pagination pages={pageIndex} />
       </div>
     </div>

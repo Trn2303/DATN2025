@@ -27,6 +27,12 @@ const AdminLayout = () => {
     localStorage.removeItem("user");
     navigate("/");
   };
+  const allowedMenuItems =
+    user?.role === "staff"
+      ? menuItems.filter((item) =>
+          ["/admin", "/admin/bookings", "/admin/invoices"].includes(item.path)
+        )
+      : menuItems;
 
   return (
     <div className="container-fluid">
@@ -38,7 +44,7 @@ const AdminLayout = () => {
         >
           <h4 className="text-center mb-4">Binh Dan Hotel</h4>
           <ul className="nav flex-column mb-auto">
-            {menuItems.map((item) => (
+            {allowedMenuItems.map((item) => (
               <li className="nav-item" key={item.path}>
                 <Link
                   to={item.path}

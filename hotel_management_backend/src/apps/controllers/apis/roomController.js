@@ -41,12 +41,23 @@ exports.index = async (req, res) => {
       ),
     };
 
+    const totalRooms = Math.max(...Object.values(totalCounts));
+    const totalPages = Math.ceil(totalRooms / limit);
+
     return res.status(200).json({
       status: "success",
       data: {
         docs: paginatedRooms,
         totalCounts,
-        pages: await pagination(page, RoomModel, query, limit),
+        pages: {
+          totalRows: totalRooms,
+          totalPages,
+          page,
+          next: page + 1,
+          prev: page - 1,
+          hasNext: page < totalPages ? true : false,
+          hasPrev: page > 1 ? true : false,
+        },
       },
     });
   } catch (error) {

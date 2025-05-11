@@ -79,6 +79,15 @@ const Register = () => {
             required
           />
           <input
+            type="email"
+            name="email"
+            className="form-control mb-3 rounded-5 py-2"
+            placeholder="Email"
+            value={inputRegister.email}
+            onChange={changeInputRegister}
+            required
+          />
+          <input
             type="text"
             name="phone"
             className="form-control mb-3 rounded-5 py-2"
@@ -86,15 +95,6 @@ const Register = () => {
             pattern="0[0-9]{9,10}"
             title="Số điện thoại không hợp lệ"
             value={inputRegister.phone}
-            onChange={changeInputRegister}
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            className="form-control mb-3 rounded-5 py-2"
-            placeholder="Email"
-            value={inputRegister.email}
             onChange={changeInputRegister}
             required
           />

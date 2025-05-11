@@ -13,6 +13,17 @@ exports.index = async (req, res) => {
     const limit = Number(req.query.limit) || 9;
     const skip = (page - 1) * limit;
 
+    if (req.query.status) {
+      query.status = req.query.status;
+    }
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, "i"); // không phân biệt hoa thường
+      query.$or = [
+        { "room_id.name": searchRegex },
+        { "room_id.floor": searchRegex },
+      ];
+    }
+
     const bookings = await BookingModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -36,13 +47,14 @@ exports.index = async (req, res) => {
       };
     });
 
-    const totalPages = await pagination(page, BookingModel, query, limit);
-
     res.status(200).json({
       status: "success",
+      filters: {
+        status: req.query.status || null,
+      },
       data: {
         docs: formattedBookings,
-        pages: totalPages,
+        pages: await pagination(page, BookingModel, query, limit),
       },
     });
   } catch (error) {

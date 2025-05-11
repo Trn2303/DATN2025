@@ -7,6 +7,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [inputLogin, setInputLogin] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const changeInputLogin = (e) => {
     const { name, value } = e.target;
@@ -35,7 +36,7 @@ const Login = () => {
           localStorage.setItem("token", data.accessToken);
           localStorage.setItem("user", JSON.stringify(data.user));
           toast.success(data.message || "Đăng nhập thành công!");
-          if (user.role === "admin") {
+          if (user.role === "admin" || user.role === "staff") {
             navigate("/admin");
           } else {
             navigate("/");
@@ -68,15 +69,28 @@ const Login = () => {
             onChange={changeInputLogin}
             required
           />
-          <input
-            type="password"
-            name="password"
-            className="form-control mb-3 rounded-5 py-2"
-            placeholder="Mật khẩu"
-            value={inputLogin.password}
-            onChange={changeInputLogin}
-            required
-          />
+          <div className="input-group mb-3">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              className="form-control rounded-start-5 py-2"
+              placeholder="Mật khẩu"
+              value={inputLogin.password}
+              onChange={changeInputLogin}
+              required
+            />
+            <button
+              type="button"
+              className="btn btn-secondary rounded-end-5"
+              onClick={() => setShowPassword((prev) => !prev)}
+              tabIndex={-1}
+            >
+              <i
+                className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
+              ></i>
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={clickLogin}

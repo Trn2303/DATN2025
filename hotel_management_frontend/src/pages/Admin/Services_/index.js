@@ -113,120 +113,123 @@ const AdminServiceManager = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <h3 className="mb-4 text-center">Quản lý Dịch vụ</h3>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <Button variant="success" onClick={() => handleShowModal()}>
-          <i className="bi bi-plus"></i> Thêm
-        </Button>
-      </div>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Tên dịch vụ</th>
-            <th>Mô tả</th>
-            <th>Giá</th>
-            <th>Đơn vị</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {services.map((service, index) => (
-            <tr key={service._id}>
-              <td>{index + 1}</td>
-              <td>{service.name}</td>
-              <td>{service.description}</td>
-              <td>{service.price}</td>
-              <td>{service.unit}</td>
-              <td>{service.status === "available" ? "Hiển thị" : "Ẩn"}</td>
-              <td>
-                <Button
-                  variant="warning"
-                  size="sm"
-                  onClick={() => handleShowModal(service)}
-                >
-                  Sửa
-                </Button>
-              </td>
+    <div className="d-flex flex-column min-vh-100">
+      <div className="container my-4 flex-grow-1 d-flex flex-column">
+        <h3 className="mb-4 text-center">Quản lý Dịch vụ</h3>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <Button variant="success" onClick={() => handleShowModal()}>
+            <i className="bi bi-plus"></i> Thêm
+          </Button>
+        </div>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tên dịch vụ</th>
+              <th>Mô tả</th>
+              <th>Giá</th>
+              <th>Đơn vị</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
-      <div className="d-flex justify-content-center mt-4">
-        <Pagination pages={pageIndex} />
+          </thead>
+          <tbody>
+            {services.map((service, index) => (
+              <tr key={service._id}>
+                <td>{index + 1}</td>
+                <td>{service.name}</td>
+                <td>{service.description}</td>
+                <td>{service.price}</td>
+                <td>{service.unit}</td>
+                <td>{service.status === "available" ? "Hiển thị" : "Ẩn"}</td>
+                <td>
+                  <Button
+                    variant="warning"
+                    size="sm"
+                    onClick={() => handleShowModal(service)}
+                  >
+                    Sửa
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+        <div className="mt-auto pt-3 d-flex justify-content-center">
+          <Pagination pages={pageIndex} />
+        </div>
+
+        <Modal show={showModal} onHide={handleCloseModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>{editingService ? "Sửa" : "Thêm"} Dịch vụ</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label>Tên dịch vụ</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Nhập tên dịch vụ"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Mô tả</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Nhập mô tả dịch vụ"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Giá</Form.Label>
+                <Form.Control
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  min={1}
+                  placeholder="Nhập giá"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Đơn vị</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="unit"
+                  value={formData.unit}
+                  onChange={handleChange}
+                  placeholder="Nhập đơn vị (lần, suất...)"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Trạng thái</Form.Label>
+                <Form.Select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                >
+                  <option value="available">Hiển thị</option>
+                  <option value="unavailable">Ẩn</option>
+                </Form.Select>
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Hủy
+            </Button>
+            <Button variant="primary" onClick={handleSubmit}>
+              {editingService ? "Cập nhật" : "Tạo"}
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        <ToastContainer position="bottom-right" autoClose={3000} />
       </div>
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>{editingService ? "Sửa" : "Thêm"} Dịch vụ</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Tên dịch vụ</Form.Label>
-              <Form.Control
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Nhập tên dịch vụ"
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Mô tả</Form.Label>
-              <Form.Control
-                as="textarea"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Nhập mô tả dịch vụ"
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Giá</Form.Label>
-              <Form.Control
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                min={1}
-                placeholder="Nhập giá"
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Đơn vị</Form.Label>
-              <Form.Control
-                type="text"
-                name="unit"
-                value={formData.unit}
-                onChange={handleChange}
-                placeholder="Nhập đơn vị (lần, suất...)"
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Trạng thái</Form.Label>
-              <Form.Select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value="available">Hiển thị</option>
-                <option value="unavailable">Ẩn</option>
-              </Form.Select>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Hủy
-          </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            {editingService ? "Cập nhật" : "Tạo"}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 };
