@@ -51,10 +51,10 @@ router.get(`/users/:id/bookings`, BookingController.getBookingsByUser);
 router.get(`/admin/rooms`, RoomController.index);
 router.get(`/rooms`, RoomController.customerIndex); // get all rooms for customer
 router.get(`/rooms/:id`, RoomController.show);
-router.post("/admin/rooms", upload.single("imageFile"), RoomController.store);
+router.post("/admin/rooms", upload.single("image"), RoomController.store);
 router.put(
   "/admin/rooms/:id/update",
-  upload.single("imageFile"),
+  upload.single("image"),
   RoomController.update
 );
 router.delete(`/admin/rooms/:id/delete`, RoomController.destroy);

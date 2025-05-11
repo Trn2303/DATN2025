@@ -251,7 +251,7 @@ exports.update = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, floor, room_type, status } = req.body;
-    const image = req.file?.filename || req.body.imageFile || null;
+    const image = req.file?.filename || req.body.image || null;
 
     let amenities = req.body.amenities;
     if (typeof amenities === "string") {

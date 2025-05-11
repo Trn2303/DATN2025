@@ -176,12 +176,10 @@ const RoomsAdmin = () => {
                       )
                     )
                   );
-                  if (!currentRoom.imageFile && isEditMode) {
-                    formData.append("image", currentRoom.image);
-                  }
-
                   if (currentRoom.imageFile) {
-                    formData.append("imageFile", currentRoom.imageFile);
+                    formData.append("image", currentRoom.imageFile);
+                  } else if (isEditMode && currentRoom.image) {
+                    formData.append("image", currentRoom.image);
                   }
                   for (let [key, value] of formData.entries()) {
                     console.log(key, value);
