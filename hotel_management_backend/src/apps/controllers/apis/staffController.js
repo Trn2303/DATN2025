@@ -1,6 +1,7 @@
 const StaffModel = require("../../models/staff");
 const UserModel = require("../../models/user");
 const pagination = require("../../../libs/pagination");
+const bcrypt = require("bcrypt");
 
 exports.index = async (req, res) => {
   try {
@@ -99,7 +100,7 @@ exports.update = async (req, res) => {
 
     const userUpdateData = { name, email, phone };
     if (password) {
-      userUpdateData.password = password;
+      userUpdateData.password = await bcrypt.hash(password, 10);
     }
     await UserModel.updateOne({ _id: staff.user_id }, { $set: userUpdateData });
 

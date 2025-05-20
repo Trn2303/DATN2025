@@ -26,19 +26,18 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadReport = async () => {
-      try {
-        const response = await getDailyStatistics();
-        console.log("🧾 Response:", response.data);
-        setReport(response.data.data);
-      } catch (error) {
-        console.error("Failed to load report", error);
-      } finally {
+    getDailyStatistics()
+      .then(({ data }) => {
+        setReport(data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-    loadReport();
+      });
   }, []);
+
   const incomeLast7Days = report?.incomeLast7Days || [];
   const last7DaysLabels = report?.last7DaysLabels || [];
 
@@ -56,7 +55,7 @@ const Dashboard = () => {
         <h4 className="mb-4">Thống kê hôm nay</h4>
         <div className="row">
           <div className="col-md-3 mb-3">
-            <div className="card text-white bg-primary">
+            <div className="card text-white bg-primary bg-opacity-75">
               <div className="card-body">
                 <h5 className="card-title">Lượt Check-in</h5>
                 <p className="card-text fs-4">{report.countCheckIn || 0}</p>
@@ -83,7 +82,7 @@ const Dashboard = () => {
           </div>
 
           <div className="col-md-3 mb-3">
-            <div className="card text-white bg-dark">
+            <div className="card text-white bg-black bg-opacity-75">
               <div className="card-body">
                 <h5 className="card-title">Doanh thu hôm nay</h5>
                 <p className="card-text fs-4">

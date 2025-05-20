@@ -19,18 +19,20 @@ const InvoiceManagement = () => {
   const limit = 9;
   const [pageIndex, setPageIndex] = useState({ limit });
 
-  const loadInvoices = useCallback(async () => {
-    try {
-      const { data } = await getInvoices({ params: { page, limit } });
-      setInvoices(data.data.docs);
-      setPageIndex({
-        limit,
-        ...data.data.pages,
+  const loadInvoices = useCallback(() => {
+    getInvoices({ params: { page, limit } })
+      .then(({ data }) => {
+        setInvoices(data.data.docs);
+        setPageIndex({
+          limit,
+          ...data.data.pages,
+        });
+      })
+      .catch(() => {
+        toast.error("Lỗi khi tải hóa đơn");
       });
-    } catch (error) {
-      toast.error("Lỗi khi tải hóa đơn");
-    }
   }, [page, limit]);
+
 
   useEffect(() => {
     loadInvoices();
@@ -52,26 +54,23 @@ const InvoiceManagement = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingInvoice(null);
-    setFormData({ name: "", paymentMethod: "cash" });
+    setFormData({ paymentMethod: "cash", dueDate: "" });
   };
 
-  const handleSubmit = async (e) => {
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!editingInvoice) {
-      toast.error("Không thể tạo hóa đơn mới!");
-      return;
-    }
-
-    try {
-      await updateInvoice(editingInvoice._id, formData);
-      toast.success("Cập nhật hóa đơn thành công!");
-      loadInvoices();
-      handleCloseModal();
-    } catch {
-      toast.error("Lỗi khi cập nhật hóa đơn!");
-    }
+    updateInvoice(editingInvoice._id, formData)
+      .then(({ data }) => {
+        toast.success(data.message);
+        loadInvoices();
+        handleCloseModal();
+      })
+      .catch(() => {
+        toast.error("Lỗi khi cập nhật hóa đơn!");
+      });
   };
+
   const printInvoice = (invoice) => {
     const printWindow = window.open("", "_blank");
 
@@ -88,8 +87,8 @@ const InvoiceManagement = () => {
           <td style="text-align: center;">${item.quantity}</td>
           <td style="text-align: right;">${item.price.toLocaleString()}đ</td>
           <td style="text-align: right;">${(
-            item.quantity * item.price
-          ).toLocaleString()}đ</td>
+                item.quantity * item.price
+              ).toLocaleString()}đ</td>
         </tr>
       `
           )
@@ -173,16 +172,13 @@ const InvoiceManagement = () => {
             </thead>
             <tbody>
             <tr>
-          <td>${invoice.booking_id?.room_id?.name}${" - "}${
-      invoice.booking_id?.room_id?.roomTypeId?.name
-    }</td>
-          <td style="text-align: center;">${
-            invoice.booking_id.totalPrice /
-            invoice.booking_id?.room_id?.roomTypeId?.base_price
-          }</td>
-          <td style="text-align: right;">${
-            invoice.booking_id?.room_id?.roomTypeId?.base_price
-          }đ</td>
+          <td>${invoice.booking_id?.room_id?.name}${" - "}${invoice.booking_id?.room_id?.roomTypeId?.name
+      }</td>
+          <td style="text-align: center;">${invoice.booking_id.totalPrice /
+      invoice.booking_id?.room_id?.roomTypeId?.base_price
+      }</td>
+          <td style="text-align: right;">${invoice.booking_id?.room_id?.roomTypeId?.base_price
+      }đ</td>
           <td style="text-align: right;">${invoice.booking_id.totalPrice}đ</td>
         </tr>
             ${itemsHtml}
@@ -194,19 +190,18 @@ const InvoiceManagement = () => {
           </div>
   
           <div class="section">
-            <p><strong>Phương thức thanh toán:</strong> ${
-              invoice.paymentMethod === "cash"
-                ? "Tiền mặt"
-                : invoice.paymentMethod === "momo"
-                ? "Ví MoMo"
-                : invoice.paymentMethod || "-"
-            }</p>
+            <p><strong>Phương thức thanh toán:</strong> ${invoice.paymentMethod === "cash"
+        ? "Tiền mặt"
+        : invoice.paymentMethod === "momo"
+          ? "Ví MoMo"
+          : invoice.paymentMethod || "-"
+      }</p>
             <p><strong>Hạn thanh toán:</strong> ${formatDate(
-              invoice.dueDate
-            )}</p>
+        invoice.dueDate
+      )}</p>
             <p><strong>Ngày thanh toán:</strong> ${formatDate(
-              invoice.paymentDate
-            )}</p>            
+        invoice.paymentDate
+      )}</p>            
             <p><strong>Trạng thái:</strong> ${invoice.paymentStatus}</p>
           </div>
   
@@ -240,7 +235,7 @@ const InvoiceManagement = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
       <div className="container py-4 flex-grow-1">
-        <h2 className="mb-4 text-center">Quản lý hóa đơn</h2>
+        <h3 className="mb-4 text-center">Quản lý hóa đơn</h3>
 
         {/* Danh sách hóa đơn */}
         <div className="table-responsive">
@@ -286,15 +281,15 @@ const InvoiceManagement = () => {
                         (invoice.paymentStatus === "paid"
                           ? "bg-success"
                           : invoice.paymentStatus === "cancelled"
-                          ? "bg-danger"
-                          : "bg-warning text-dark")
+                            ? "bg-danger"
+                            : "bg-warning text-dark")
                       }
                     >
                       {invoice.paymentStatus === "pending"
                         ? "Chờ thanh toán"
                         : invoice.paymentStatus === "paid"
-                        ? "Đã thanh toán"
-                        : "Đã hủy"}
+                          ? "Đã thanh toán"
+                          : "Đã hủy"}
                     </span>
                   </td>
                   <td>
@@ -377,7 +372,7 @@ const InvoiceManagement = () => {
         </Modal.Footer>
       </Modal>
 
-      <ToastContainer position="bottom-right" />
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 };

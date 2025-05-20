@@ -46,53 +46,60 @@ const BookingManagement = () => {
     navigate(`?page=1`);
   }, [status, searchText, navigate]);
 
-  const handleCheckIn = async (id) => {
+  const handleCheckIn = (id) => {
     setLoadingIds((prev) => [...prev, id]);
-    try {
-      const { data } = await checkInBooking(id, {});
-      if (data.status === "success") {
-        toast.success(data.message);
-        setBookings((prev) =>
-          prev.map((b) => (b._id === id ? { ...b, status: "confirmed" } : b))
-        );
-      }
-    } catch {
-      toast.error("Check-in thất bại");
-    } finally {
-      setLoadingIds((prev) => prev.filter((x) => x !== id));
-    }
-  };
 
-  const handleCheckOut = async (id) => {
-    setLoadingIds((prev) => [...prev, id]);
-    try {
-      const { data } = await checkOutBooking(id, {});
-      if (data.status === "success") {
-        toast.success(data.message);
-
-        setBookings((prev) =>
-          prev.map((b) => (b._id === id ? { ...b, status: "completed" } : b))
-        );
-        console.log(id);
-        try {
-          const invoiceRes = await createInvoice({
-            booking_id: id,
-          });
-          if (invoiceRes.data.status === "success") {
-            toast.success("Đã tạo hóa đơn thành công");
-          } else {
-            toast.warn("Check-out thành công, nhưng không tạo được hóa đơn");
-          }
-        } catch (invoiceErr) {
-          toast.error("Tạo hóa đơn thất bại");
+    checkInBooking(id, {})
+      .then(({ data }) => {
+        if (data.status === "success") {
+          toast.success(data.message);
+          setBookings((prev) =>
+            prev.map((b) => (b._id === id ? { ...b, status: "confirmed" } : b))
+          );
         }
-      }
-    } catch {
-      toast.error("Check-out thất bại");
-    } finally {
-      setLoadingIds((prev) => prev.filter((x) => x !== id));
-    }
+      })
+      .catch(() => {
+        toast.error("Check-in thất bại");
+      })
+      .finally(() => {
+        setLoadingIds((prev) => prev.filter((x) => x !== id));
+      });
   };
+
+
+  const handleCheckOut = (id) => {
+    setLoadingIds((prev) => [...prev, id]);
+
+    checkOutBooking(id, {})
+      .then(({ data }) => {
+        if (data.status === "success") {
+          toast.success(data.message);
+          setBookings((prev) =>
+            prev.map((b) => (b._id === id ? { ...b, status: "completed" } : b))
+          );
+
+          // Tạo hóa đơn
+          createInvoice({ booking_id: id })
+            .then(({ data }) => {
+              if (data.status === "success") {
+                toast.success("Đã tạo hóa đơn thành công");
+              } else {
+                toast.warn("Check-out thành công, nhưng không tạo được hóa đơn");
+              }
+            })
+            .catch(() => {
+              toast.error("Tạo hóa đơn thất bại");
+            });
+        }
+      })
+      .catch(() => {
+        toast.error("Check-out thất bại");
+      })
+      .finally(() => {
+        setLoadingIds((prev) => prev.filter((x) => x !== id));
+      });
+  };
+
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -124,6 +131,7 @@ const BookingManagement = () => {
             const checkOutDate = new Date(booking.checkOutDate);
             const today = new Date();
             today.setHours(0, 0, 0, 0); // So sánh theo ngày, bỏ phần giờ
+            checkInDate.setHours(0, 0, 0, 0)
 
             return (
               <div className="col-md-4" key={booking._id}>
@@ -189,7 +197,7 @@ const BookingManagement = () => {
             </p>
           )}
         </div>
-        <ToastContainer position="bottom-right" />
+        <ToastContainer position="bottom-right" autoClose={3000} />
       </div>
       <div className="mt-auto d-flex justify-content-center py-3">
         <Pagination pages={pageIndex} />

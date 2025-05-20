@@ -9,23 +9,25 @@ import { useEffect, useState } from "react";
 import Footer from "./shared/components/Layout/Footer";
 import Header from "./shared/components/Layout/Header";
 import HeaderAfterLogin from "./shared/components/Layout/HeaderAfterLogin";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import About from "./pages/About";
+import Home from "./pages/Customer/Home";
+import Login from "./pages/Customer/Login";
+import Register from "./pages/Customer/Register";
+import About from "./pages/Customer/About";
 import NotFound from "./pages/NotFound";
-import RoomDetails from "./pages/RoomDetails";
-import Services from "./pages/ListService";
-import Rooms from "./pages/Rooms";
-import RoomType from "./pages/RoomType";
-import BookingService from "./pages/BookingService";
-import Search from "./pages/Search/index";
-import ServiceDetails from "./pages/ServiceDetails";
-import BookingHistory from "./pages/BookingHistory";
-import OrderHistory from "./pages/OrderHistory";
-import UserInvoices from "./pages/UserInvoices";
-import UserProfile from "./pages/Profile";
-import Booking from "./pages/Booking";
+import RoomDetails from "./pages/Customer/RoomDetails";
+import Services from "./pages/Customer/ListService";
+import Rooms from "./pages/Customer/Rooms";
+import RoomType from "./pages/Customer/RoomType";
+import BookingService from "./pages/Customer/BookingService";
+import Search from "./pages/Customer/Search/index";
+import ServiceDetails from "./pages/Customer/ServiceDetails";
+import BookingHistory from "./pages/Customer/BookingHistory";
+import OrderHistory from "./pages/Customer/OrderHistory";
+import UserInvoices from "./pages/Customer/UserInvoices";
+import UserProfile from "./pages/Customer/Profile";
+import Booking from "./pages/Customer/Booking";
+import PaymentReturn from "./pages/Customer/PaymentReturn";
+import ForgotPassword from "./pages/Customer/ForgotPassword";
 import AdminLayout from "./shared/components/Layout/AdminLayout";
 import Dashboard from "./pages/Admin/Dashboard";
 import RoomsAdmin from "./pages/Admin/Rooms";
@@ -35,8 +37,6 @@ import ServiceAdmin from "./pages/Admin/Services_";
 import BookingManagement from "./pages/Admin/Bookings";
 import AmenityManagement from "./pages/Admin/Amenities";
 import InvoiceManagement from "./pages/Admin/Invoices";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import ForgotPassword from "./pages/ForgotPassword";
 import UserManagement from "./pages/Admin/Users";
 
 const LayoutWrapper = ({ children }) => {
@@ -104,7 +104,7 @@ const App = () => {
           <Route path="/Users-:id/OrderHistory" element={<OrderHistory />} />
           <Route path="/Users-:id/Invoices" element={<UserInvoices />} />
           <Route path="/Users-:id/Profile" element={<UserProfile />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-return" element={<PaymentReturn />} />
 
           <Route path="/forgot-password" element={<ForgotPassword />} />
           {/* Redirects */}

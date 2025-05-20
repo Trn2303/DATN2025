@@ -83,33 +83,32 @@ const AdminServiceManager = () => {
       toast.error("Đơn vị không được để trống!");
       return;
     }
-    try {
-      if (editingService) {
-        const res = await updateService(editingService._id, formData);
-        if (res.data.status === "success") toast.success(res.data.message);
-      } else {
-        const res = await createService(formData);
-        if (res.data.status === "success") toast.success(res.data.message);
-      }
-      getAdminServices({
-        params: {
-          page,
-          limit,
-        },
+    const submitAction = editingService
+      ? updateService(editingService._id, formData)
+      : createService(formData);
+    submitAction
+      .then(({ data }) => {
+        if (data.status === "success") {
+          toast.success(data.message);
+
+          // reload danh sách
+          return getAdminServices({
+            params: {
+              page,
+              limit,
+            },
+          });
+        }
       })
-        .then(({ data }) => {
-          setServices(data.data.docs);
-          setPageIndex({ limit, ...data.data.pages });
-        })
-        .catch((err) => {
-          console.log(err);
-          toast.error("Lỗi khi tải lại danh sách dịch vụ!");
-        });
-      handleCloseModal();
-    } catch (err) {
-      console.error("Lỗi khi lưu dịch vụ:", err);
-      toast.error("Lỗi khi lưu dịch vụ!");
-    }
+      .then(({ data }) => {
+        setServices(data.data.docs);
+        setPageIndex({ limit, ...data.data.pages });
+        handleCloseModal();
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Lỗi khi lưu dịch vụ!");
+      });
   };
 
   return (

@@ -62,7 +62,7 @@ exports.register = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message:
-        "Đăng ký tài khoản thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập sau 5 giây",
+        "Đăng ký tài khoản thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập",
     });
   } catch (error) {
     return res.status(500).json(error);

@@ -103,13 +103,14 @@ exports.create = async (req, res) => {
       });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    await UserModel({
+    const user = new UserModel({
       name,
       email,
-      hashedPassword,
+      password: hashedPassword,
       phone,
       role,
-    }).save();
+    });
+    await user.save();
     return res.status(201).json({
       status: "success",
       message: "Tạo người dùng thành công",
@@ -121,14 +122,18 @@ exports.create = async (req, res) => {
 exports.updateByAdmin = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, phone, role } = req.body;
+    const { name, password, phone, role } = req.body;
 
     const isPhone = await UserModel.findOne({ phone });
     if (isPhone && isPhone._id.toString() !== id) {
       return res.status(400).json("Số điện thoại đã tồn tại");
     }
-
     const user = { name, phone, role };
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
+
     await UserModel.updateOne({ _id: id }, { $set: user });
 
     return res.status(200).json({

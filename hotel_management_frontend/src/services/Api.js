@@ -11,8 +11,8 @@ export const getUser = (id, config) => Http.get(`/users/${id}`, config);
 export const updateUser = (id, data) => Http.post(`/users/${id}/update`, data);
 export const getAdminUser = (config) => Http.get(`/admin/users`, config);
 export const deleteUser = (id) => Http.delete(`/admin/users/${id}/delete`, id);
-export const updateAdminUser = (id, data) =>
-  Http.post(`/admin/users/${id}/update]`, id, data);
+export const updateAdminUser = (id, data) => Http.post(`/admin/users/${id}/update`, data);
+export const createAdminUser = (data) => Http.post(`/admin/users/create`, data);
 
 export const forgotPassword = (data) => Http.post(`/forgot-password`, data);
 

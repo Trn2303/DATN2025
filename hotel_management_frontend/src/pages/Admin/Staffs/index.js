@@ -79,60 +79,63 @@ const StaffManagement = () => {
 
     return true;
   };
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!isValidForm()) return;
-    try {
-      let response;
-      if (staff) {
-        response = await updateStaff(staff._id, formData);
-        toast.success(response.data.message);
-      } else {
-        response = await createStaff(formData);
-        toast.success(response.data.message);
-      }
-      reloadStaffs();
-      handleCloseModal();
-    } catch (e) {
-      const message =
-        e?.response?.data?.message || e?.message || "Có lỗi xảy ra!";
-      toast.error(message);
-    }
-  };
 
-  const handleEdit = async (id) => {
-    try {
-      const { data: staffRes } = await getStaffById(id);
-      const staffData = staffRes.data;
+    const submitAction = staff
+      ? updateStaff(staff._id, formData)
+      : createStaff(formData);
 
-      const { data: userRes } = await getUser(staffData.user_id);
-      const user = userRes.data;
-
-      setStaff(staffData);
-      setFormData({
-        name: user.name || "",
-        email: user.email || "",
-        password: "",
-        phone: user.phone || "",
-        position: staffData.position || "",
-        address: staffData.address || "",
-        salary: staffData.salary || "",
+    submitAction
+      .then(({ data }) => {
+        toast.success(data.message);
+        reloadStaffs();
+        handleCloseModal();
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error("Có lỗi xảy ra!");
       });
+  };
 
-      setShowModal(true);
-    } catch (err) {
-      toast.error("Không thể lấy thông tin nhân viên!");
-    }
+
+  const handleEdit = (id) => {
+    getStaffById(id)
+      .then(({ data }) => {
+        const staffData = data.data;
+        return getUser(staffData.user_id).then(({ data }) => {
+          const user = data.data;
+          setStaff(staffData);
+          setFormData({
+            name: user.name || "",
+            email: user.email || "",
+            password: "",
+            phone: user.phone || "",
+            position: staffData.position || "",
+            address: staffData.address || "",
+            salary: staffData.salary || "",
+          });
+          setShowModal(true);
+        });
+      })
+      .catch(() => {
+        toast.error("Không thể lấy thông tin nhân viên!");
+      });
   };
-  const handleStatusChange = async (id) => {
-    try {
-      await updateStaffStatus(id, {});
-      reloadStaffs();
-      toast.success("Thay đổi trạng thái thành công!");
-    } catch {
-      toast.error("Không thể thay đổi trạng thái!");
-    }
+
+  const handleStatusChange = (id) => {
+    updateStaffStatus(id, {})
+      .then(({ data }) => {
+        reloadStaffs();
+        toast.success(data.message);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Không thể thay đổi trạng thái!");
+      });
   };
+
 
   const handleShowModal = () => {
     setStaff(null);
@@ -363,7 +366,7 @@ const StaffManagement = () => {
           <Pagination pages={pageIndex} />
         </div>
 
-        <ToastContainer position="bottom-right" />
+        <ToastContainer position="bottom-right" autoClose={3000} />
       </div>
     </div>
   );

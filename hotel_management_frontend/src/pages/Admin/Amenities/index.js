@@ -42,20 +42,30 @@ const AmenityManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (editingAmenity) {
-        await updateAmenity(editingAmenity._id, formData);
-        toast.success("Cập nhật tiện nghi thành công!");
-      } else {
-        await createAmenity(formData);
-        toast.success("Thêm tiện nghi thành công!");
-      }
-      setShowModal(false);
-      setFormData({ name: "" });
-      setEditingAmenity(null);
-      loadAmenities();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Đã xảy ra lỗi");
+    if (editingAmenity) {
+      updateAmenity(editingAmenity._id, formData)
+        .then(({ data }) => {
+          toast.success(data.message);
+          setShowModal(false);
+          setFormData({ name: "" });
+          setEditingAmenity(null);
+          loadAmenities();
+        })
+        .catch((err) => {
+          toast.error(err.response?.data?.message || "Đã xảy ra lỗi");
+        });
+    } else {
+      createAmenity(formData)
+        .then(({ data }) => {
+          toast.success(data.message);
+          setShowModal(false);
+          setFormData({ name: "" });
+          setEditingAmenity(null);
+          loadAmenities();
+        })
+        .catch((err) => {
+          toast.error(err.response?.data?.message || "Đã xảy ra lỗi");
+        });
     }
   };
 
@@ -72,21 +82,28 @@ const AmenityManagement = () => {
 
   const confirmDelete = async () => {
     if (!amenityToDelete) return;
-    try {
-      await deleteAmenity(amenityToDelete);
-      toast.success("Xoá thành công!");
-      loadAmenities();
-    } catch {
-      toast.error("Không thể xoá tiện nghi");
-    } finally {
-      setShowDeleteModal(false);
-      setAmenityToDelete(null);
-    }
+    deleteAmenity(amenityToDelete)
+      .then(({ data }) => {
+        toast.success(data.message);
+        loadAmenities();
+      })
+      .catch((err) => {
+        toast.error(err.response?.data?.message || "Đã xảy ra lỗi");
+      })
+      .finally(() => {
+        setShowDeleteModal(false);
+        setAmenityToDelete(null);
+      });
+  };
+  const closeModal = () => {
+    setShowModal(false);
+    setFormData({ name: "" });
+    setEditingAmenity(null);
   };
 
   return (
     <div className="container py-4">
-      <h2 className="mb-4 text-center">Quản lý tiện nghi</h2>
+      <h3 className="mb-4 text-center">Quản lý tiện nghi</h3>
       <div className="mb-3 d-flex justify-content-end">
         <Button variant="success" onClick={() => setShowModal(true)}>
           <i className="bi bi-plus"></i> Thêm tiện nghi
@@ -126,7 +143,7 @@ const AmenityManagement = () => {
       <div className="d-flex justify-content-center mt-4">
         <Pagination pages={pageIndex} />
       </div>
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+      <Modal show={showModal} onHide={closeModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>
             {editingAmenity ? "Cập nhật tiện nghi" : "Thêm tiện nghi"}
@@ -147,7 +164,7 @@ const AmenityManagement = () => {
             <div className="text-end">
               <Button
                 variant="secondary"
-                onClick={() => setShowModal(false)}
+                onClick={closeModal}
                 className="me-2"
               >
                 Huỷ
@@ -179,7 +196,7 @@ const AmenityManagement = () => {
         </Modal.Footer>
       </Modal>
 
-      <ToastContainer position="bottom-right" />
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 };

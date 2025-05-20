@@ -33,8 +33,6 @@ exports.dailyReport = async (req, res) => {
     };
     // Khách đang lưu trú
     const stayingGuests = await BookingModel.countDocuments({
-      checkInDate: { $lte: today },
-      checkOutDate: { $gt: today },
       status: "confirmed",
     });
     // booking của ngày hôm nay

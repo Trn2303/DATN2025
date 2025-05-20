@@ -8,6 +8,10 @@ exports.index = async (req, res) => {
     const query = {};
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 4;
+    const search = req.query.search?.trim() || "";
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
+    }
     // lấy danh sách phòng
     const rooms = await RoomModel.find(query)
       .sort({ updatedAt: -1 })
@@ -74,17 +78,19 @@ exports.customerIndex = async (req, res) => {
     let bookedRoomIds = [];
 
     if (checkIn && checkOut) {
-      const checkInDate = new Date(checkIn);
-      const checkOutDate = new Date(checkOut);
+      const checkin = new Date(checkIn);
+      const checkout = new Date(checkOut);
+      checkin.setHours(14, 0, 0, 0);
+      checkout.setHours(12, 0, 0, 0);
 
       bookedRoomIds = await BookingModel.find({
         status: { $in: ["pending", "confirmed"] },
-        checkInDate: { $lt: checkOutDate },
-        checkOutDate: { $gt: checkInDate },
+        checkInDate: { $lt: checkout },
+        checkOutDate: { $gt: checkin },
       }).distinct("room_id");
 
       query.$and = [
-        { status: "clean" },
+        { status: { $in: ["clean", "occupied"] } },
         { _id: { $nin: bookedRoomIds } }, // loại trừ phòng đã đặt
       ];
     } else {
@@ -115,9 +121,9 @@ exports.customerIndex = async (req, res) => {
           floor: room.floor,
           room_type: room.roomTypeId
             ? {
-                name: room.roomTypeId.name,
-                base_price: room.roomTypeId.base_price,
-              }
+              name: room.roomTypeId.name,
+              base_price: room.roomTypeId.base_price,
+            }
             : null,
           image: room.image,
           status: room.status,
@@ -148,10 +154,10 @@ exports.show = async (req, res) => {
         floor: room.floor,
         room_type: room.roomTypeId
           ? {
-              name: room.roomTypeId.name,
-              base_price: room.roomTypeId.base_price,
-              description: room.roomTypeId.description,
-            }
+            name: room.roomTypeId.name,
+            base_price: room.roomTypeId.base_price,
+            description: room.roomTypeId.description,
+          }
           : null,
         image: room.image,
         status: room.status,

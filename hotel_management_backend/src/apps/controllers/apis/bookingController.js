@@ -25,7 +25,9 @@ exports.index = async (req, res) => {
     }
 
     const bookings = await BookingModel.find(query)
-      .sort({ createdAt: -1 })
+      .sort({
+        checkInDate: -1
+      })
       .skip(skip)
       .limit(limit)
       .populate({
@@ -36,9 +38,9 @@ exports.index = async (req, res) => {
     const formattedBookings = bookings.map((booking) => {
       const room = booking.room_id
         ? {
-            name: booking.room_id.name,
-            floor: booking.room_id.floor,
-          }
+          name: booking.room_id.name,
+          floor: booking.room_id.floor,
+        }
         : null;
       return {
         ...booking,
@@ -94,9 +96,9 @@ exports.getBookingsByUser = async (req, res) => {
           updatedAt: booking.updatedAt,
           room: booking.room_id
             ? {
-                name: booking.room_id.name,
-                floor: booking.room_id.floor,
-              }
+              name: booking.room_id.name,
+              floor: booking.room_id.floor,
+            }
             : null,
         })),
         pages: await pagination(page, BookingModel, query, limit),
@@ -129,11 +131,12 @@ exports.booking = async (req, res) => {
     });
 
     const checkin = new Date(bookingData.checkInDate);
-    checkin.setHours(0, 0, 0, 0);
+    checkin.setHours(14, 0, 0, 0);
     const checkout = new Date(bookingData.checkOutDate);
-    checkout.setHours(0, 0, 0, 0);
+    checkout.setHours(12, 0, 0, 0);
+    const numberOfNight = Math.round(((checkout - checkin) / (1000 * 60 * 60 * 24)));
     const totalPrice =
-      room_type.base_price * ((checkout - checkin) / (1000 * 60 * 60 * 24));
+      room_type.base_price * numberOfNight;
     bookingData.totalPrice = totalPrice;
     await new BookingModel(bookingData).save();
     await RoomModel.updateOne(
@@ -186,9 +189,9 @@ exports.show = async (req, res) => {
         ...booking,
         room: booking.room_id
           ? {
-              name: booking.room_id.name,
-              floor: booking.room_id.floor,
-            }
+            name: booking.room_id.name,
+            floor: booking.room_id.floor,
+          }
           : null,
       },
     });
@@ -214,9 +217,10 @@ exports.checkIn = async (req, res) => {
 exports.checkOut = async (req, res) => {
   try {
     const { id } = req.params;
+    const date = new Date();
     await BookingModel.updateOne(
       { _id: id },
-      { $set: { status: "completed" } }
+      { $set: { status: "completed", checkOutDate: date } }
     );
     return res.status(200).json({
       status: "success",

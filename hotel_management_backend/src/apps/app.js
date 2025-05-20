@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const cookieParser = require("cookie-parser");
 const { connectionRedis } = require("../common/init.redis");
 const cors = require("cors");
@@ -15,7 +16,7 @@ app.use(
     credentials: true,
   })
 );
-app.use("/assets/uploads", express.static(config.get("app.baseImangeUrl")));
+app.use("/assets/uploads", express.static(path.resolve(config.get("app.baseImageUrl"))));
 
 // config router
 app.use(config.get("app.prefixApiVersion"), require(config.get("app.router")));

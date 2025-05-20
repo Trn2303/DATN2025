@@ -22,14 +22,15 @@ const RoomTypeAdmin = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-  const fetchRoomTypes = async () => {
-    try {
-      const res = await getRoomTypes();
-      setRoomTypes(res.data.data.docs);
-    } catch (error) {
-      console.error("Không thể tải danh sách loại phòng:", error);
-      toast.error("Không thể tải danh sách loại phòng");
-    }
+  const fetchRoomTypes = () => {
+    getRoomTypes()
+      .then(({ data }) => {
+        setRoomTypes(data.data.docs);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Không thể tải danh sách loại phòng");
+      });
   };
 
   useEffect(() => {
@@ -43,27 +44,35 @@ const RoomTypeAdmin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (editingId) {
-        await updateRoomType(editingId, {
-          ...formData,
-          base_price: Number(formData.base_price),
+    const dataToSubmit = {
+      ...formData,
+      base_price: Number(formData.base_price),
+    };
+    if (editingId) {
+      updateRoomType(editingId, dataToSubmit)
+        .then(({ data }) => {
+          toast.success(data.message);
+          setEditingId(null);
+          setFormData({ name: "", description: "", base_price: "" });
+          setShowModal(false);
+          fetchRoomTypes();
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Đã xảy ra lỗi khi cập nhật dữ liệu");
         });
-        toast.success("Cập nhật loại phòng thành công");
-        setEditingId(null);
-      } else {
-        await createRoomType({
-          ...formData,
-          base_price: Number(formData.base_price),
+    } else {
+      createRoomType(dataToSubmit)
+        .then(({ data }) => {
+          toast.success(data.message);
+          setFormData({ name: "", description: "", base_price: "" });
+          setShowModal(false);
+          fetchRoomTypes();
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Đã xảy ra lỗi khi thêm dữ liệu");
         });
-        toast.success("Thêm loại phòng thành công");
-      }
-      setFormData({ name: "", description: "", base_price: "" });
-      setShowModal(false);
-      fetchRoomTypes();
-    } catch (error) {
-      console.error("Lưu thất bại:", error);
-      toast.error("Đã xảy ra lỗi khi lưu dữ liệu");
     }
   };
 
@@ -82,22 +91,24 @@ const RoomTypeAdmin = () => {
     setShowDeleteModal(true);
   };
   const handleDelete = async () => {
-    try {
-      await deleteRoomType(deletingId);
-      toast.success("Xóa loại phòng thành công");
-      fetchRoomTypes();
-    } catch (error) {
-      console.error("Xóa thất bại:", error);
-      toast.error("Đã xảy ra lỗi khi xóa");
-    } finally {
-      setShowDeleteModal(false);
-      setDeletingId(null);
-    }
+    deleteRoomType(deletingId)
+      .then(({ data }) => {
+        toast.success(data.message);
+        fetchRoomTypes();
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Đã xảy ra lỗi khi xóa");
+      })
+      .finally(() => {
+        setShowDeleteModal(false);
+        setDeletingId(null);
+      });
   };
 
   return (
     <div className="container mt-4">
-      <ToastContainer position="bottom-right" />
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <h3 className="mb-4 text-center">Quản lý loại phòng</h3>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Button

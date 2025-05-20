@@ -24,7 +24,7 @@ exports.store = async (req, res) => {
   try {
     const amenity = req.body;
     // Kiểm tra nếu đã có tiện nghi cùng tên
-    const existingAmenity = await AmenityModel.findOne({ name: amenity.name });
+    const existingAmenity = await AmenityModel.findOne({ name: { $regex: amenity.name, $options: "i" } });
     if (existingAmenity) {
       return res
         .status(400)
@@ -61,6 +61,6 @@ exports.destroy = async (req, res) => {
       message: "Xóa thành công",
     });
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ message: error.message });
   }
 };

@@ -8,6 +8,7 @@ import {
   getAdminUser,
   deleteUser,
   updateAdminUser,
+  createAdminUser,
 } from "../../../services/Api";
 
 const UserManagement = () => {
@@ -54,7 +55,7 @@ const UserManagement = () => {
       .catch(() => {
         toast.error("Lỗi tải danh sách người dùng");
       });
-  }, [page, limit, role]);
+  }, [page, role]);
 
   useEffect(() => {
     fetchUsers();
@@ -68,42 +69,50 @@ const UserManagement = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = () => {
     if (!userToDelete) return;
-    try {
-      await deleteUser(userToDelete._id);
-      toast.success("Xoá người dùng thành công");
-      fetchUsers();
-    } catch (err) {
-      toast.error("Lỗi khi xoá người dùng");
-    } finally {
-      setShowConfirmModal(false);
-      setUserToDelete(null);
-    }
+
+    deleteUser(userToDelete._id)
+      .then(({ data }) => {
+        toast.success(data.message);
+        fetchUsers();
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Lỗi khi xoá người dùng");
+      })
+      .finally(() => {
+        setShowConfirmModal(false);
+        setUserToDelete(null);
+      });
   };
+
 
   const handleDeleteUser = (user) => {
     setUserToDelete(user);
     setShowConfirmModal(true);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      if (isEditing) {
-        await updateAdminUser(editingUserId, formData);
-        toast.success("Cập nhật người dùng thành công");
-      } else {
-        await updateAdminUser(null, formData);
-        toast.success("Tạo người dùng thành công");
-      }
-      fetchUsers();
-      setShowModal(false);
-      resetForm();
-    } catch (err) {
-      toast.error("Lỗi khi xử lý người dùng");
-    }
+
+    const action = isEditing
+      ? updateAdminUser(editingUserId, formData)
+      : createAdminUser(formData);
+
+    action
+      .then(({ data }) => {
+        toast.success(data.message);
+        fetchUsers();
+        setShowModal(false);
+        resetForm();
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Lỗi khi xử lý người dùng");
+      });
   };
+
 
   const resetForm = () => {
     setFormData({
@@ -132,6 +141,10 @@ const UserManagement = () => {
     setEditingUserId(user._id);
     setIsEditing(true);
     setShowModal(true);
+  };
+  const closeModal = () => {
+    setShowModal(false);
+    resetForm();
   };
 
   return (
@@ -210,7 +223,7 @@ const UserManagement = () => {
           <Pagination pages={pageIndex} />
         </div>
 
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal show={showModal} onHide={closeModal}>
           <form onSubmit={handleSubmit}>
             <Modal.Header closeButton>
               <Modal.Title>
@@ -236,20 +249,21 @@ const UserManagement = () => {
                   name="email"
                   className="form-control"
                   required
+                  disabled={isEditing}
                   value={formData.email}
                   onChange={handleFormChange}
                 />
               </div>
               <div className="mb-3">
                 <label className="form-label">
-                  Mật khẩu {isEditing && "(để trống nếu không đổi)"}
+                  Mật khẩu
                 </label>
                 <div className="input-group">
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     className="form-control"
-                    placeholder={isEditing ? "•••••••••••" : ""}
+                    placeholder={isEditing ? "(Để trống nếu không đổi mật khẩu)" : "Nhập mật khẩu"}
                     value={formData.password}
                     onChange={handleFormChange}
                     required={!isEditing} // bắt buộc nhập nếu là tạo mới
@@ -292,57 +306,6 @@ const UserManagement = () => {
                   <option value="staff">Staff</option>
                 </select>
               </div>
-              {formData.role === "staff" && (
-                <>
-                  <div className="mb-3">
-                    <label className="form-label">Vị trí</label>
-                    <input
-                      type="text"
-                      name="position"
-                      className="form-control"
-                      required
-                      value={formData.position}
-                      onChange={handleFormChange}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Địa chỉ</label>
-                    <input
-                      type="text"
-                      name="address"
-                      className="form-control"
-                      required
-                      value={formData.address}
-                      onChange={handleFormChange}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Lương</label>
-                    <input
-                      type="number"
-                      name="salary"
-                      className="form-control"
-                      required
-                      value={formData.salary}
-                      onChange={handleFormChange}
-                      min={5000000}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Trạng thái</label>
-                    <select
-                      name="status"
-                      className="form-select"
-                      required
-                      value={formData.status}
-                      onChange={handleFormChange}
-                    >
-                      <option value="active">Đang hoạt động</option>
-                      <option value="inactive">Ngưng hoạt động</option>
-                    </select>
-                  </div>
-                </>
-              )}
             </Modal.Body>
             <Modal.Footer>
               <button type="submit" className="btn btn-success">

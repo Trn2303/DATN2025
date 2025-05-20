@@ -17,9 +17,12 @@ async function createPayment(req, res) {
   const requestId = partnerCode + new Date().getTime();
   const orderId = `${requestId}`;
   const orderInfo = `${invoiceId}`;
+  // const redirectUrl =
+  //   "https://hotel-management-olive-iota.vercel.app/payment-success";
+  // const ipnUrl = "https://datn-2025.onrender.com/api/v1/payment-return";
   const redirectUrl =
-    "https://hotel-management-olive-iota.vercel.app/payment-success";
-  const ipnUrl = "https://datn-2025.onrender.com/api/v1/payment-return";
+    `http://localhost:3000/payment-return?invoiceId=${invoiceId}`;
+  const ipnUrl = "http://localhost:8000/api/v1/payment-return";
   const requestType = "captureWallet";
   const extraData = "";
 

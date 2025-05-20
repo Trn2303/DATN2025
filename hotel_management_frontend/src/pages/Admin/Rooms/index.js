@@ -14,6 +14,86 @@ import Pagination from "../../../shared/components/_pagination";
 import Modal from "react-bootstrap/Modal";
 
 const RoomsAdmin = () => {
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const limit = 4;
+  const [pageIndex, setPageIndex] = useState({ limit });
+  const [rooms, setRooms] = useState({
+    clean: [],
+    occupied: [],
+    dirty: [],
+    maintenance: [],
+    totalCounts: {},
+  });
+  const [currentRoom, setCurrentRoom] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [allAmenities, setAllAmenities] = useState([]);
+  const [selectedAmenity, setSelectedAmenity] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [roomToDelete, setRoomToDelete] = useState(null);
+
+  const clickEdit = (room) => {
+    setIsEditMode(true);
+    setCurrentRoom({ ...room, room_type: room.roomTypeId?._id || "" });
+    setShowModal(true);
+  };
+
+  const clickAdd = () => {
+    setIsEditMode(false);
+    setCurrentRoom({
+      name: "",
+      floor: "",
+      room_type: roomTypes[0]?._id || "",
+      status: "clean",
+      amenities: [],
+      imageFile: null,
+    });
+    setShowModal(true);
+  };
+
+  const clickDelete = (room) => {
+    setRoomToDelete(room);
+    setShowDeleteModal(true);
+  };
+
+  useEffect(() => {
+    getAdminRooms({
+      params: {
+        page,
+        limit,
+        search: searchTerm,
+      },
+    })
+      .then(({ data }) => {
+        setRooms({
+          clean: data.data.docs.clean || [],
+          occupied: data.data.docs.occupied || [],
+          dirty: data.data.docs.dirty || [],
+          maintenance: data.data.docs.maintenance || [],
+          totalCounts: data.data.totalCounts,
+        });
+        setPageIndex({ limit, ...data.data.pages });
+      })
+      .catch((error) => console.log(error));
+  }, [page, searchTerm]);
+
+  useEffect(() => {
+    getRoomTypes({})
+      .then(({ data }) => setRoomTypes(data.data.docs))
+      .catch((error) => console.log(error));
+    getAmenities({})
+      .then(({ data }) => setAllAmenities(data.data.docs))
+      .catch((error) => console.log(error));
+  }, []);
+
+  const filterRoomsByName = (roomList) =>
+    roomList.filter((room) =>
+      room.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   const RoomCard = ({ room }) => (
     <div className="card mb-3 shadow-sm">
       <div className="card-body d-flex justify-content-between align-items-center">
@@ -65,81 +145,50 @@ const RoomsAdmin = () => {
       </div>
     </div>
   );
-  const [searchParams] = useSearchParams();
-  const page = searchParams.get("page") || 1;
-  const limit = 4;
-  const [pageIndex, setPageIndex] = useState({ limit });
-  const [rooms, setRooms] = useState({
-    clean: [],
-    occupied: [],
-    dirty: [],
-    maintenance: [],
-    totalCounts: {},
-  });
-  const [currentRoom, setCurrentRoom] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [roomTypes, setRoomTypes] = useState([]);
-  const [allAmenities, setAllAmenities] = useState([]);
-  const [selectedAmenity, setSelectedAmenity] = useState("");
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [roomToDelete, setRoomToDelete] = useState(null);
-
-  const clickEdit = (room) => {
-    setIsEditMode(true);
-    setCurrentRoom({ ...room, room_type: room.roomTypeId?._id || "" });
-    setShowModal(true);
-  };
-
-  const clickAdd = () => {
-    setIsEditMode(false);
-    setCurrentRoom({
-      name: "",
-      floor: "",
-      room_type: roomTypes[0]?._id || "",
-      status: "clean",
-      amenities: [],
-      imageFile: null,
-    });
-    setShowModal(true);
-  };
-
-  const clickDelete = (room) => {
-    setRoomToDelete(room);
-    setShowDeleteModal(true);
-  };
-
-  useEffect(() => {
-    getAdminRooms({
-      params: {
-        page,
-        limit,
-      },
-    })
-      .then(({ data }) => {
-        setRooms({
-          clean: data.data.docs.clean || [],
-          occupied: data.data.docs.occupied || [],
-          dirty: data.data.docs.dirty || [],
-          maintenance: data.data.docs.maintenance || [],
-          totalCounts: data.data.totalCounts,
-        });
-        setPageIndex({ limit, ...data.data.pages });
-      })
-      .catch((error) => console.log(error));
-  }, [page]);
-
-  useEffect(() => {
-    getRoomTypes({})
-      .then(({ data }) => setRoomTypes(data.data.docs))
-      .catch((error) => console.log(error));
-    getAmenities({})
-      .then(({ data }) => setAllAmenities(data.data.docs))
-      .catch((error) => console.log(error));
-  }, []);
 
   return (
     <div className="container my-4">
+      <h3 className="mb-4 text-center">Quản lý Phòng</h3>
+
+
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <button className="btn btn-success" onClick={clickAdd}>
+          <i className="bi bi-plus"></i> Thêm
+        </button>
+        <input
+          type="text"
+          className="form-control w-25"
+          placeholder="Tìm theo tên phòng..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+      <div className="row g-3 min-vh-100">
+        <RoomColumn
+          title="Clean"
+          rooms={filterRoomsByName(rooms.clean)}
+          count={rooms.totalCounts.clean}
+        />
+        <RoomColumn
+          title="Occupied"
+          rooms={filterRoomsByName(rooms.occupied)}
+          count={rooms.totalCounts.occupied}
+        />
+        <RoomColumn
+          title="Dirty"
+          rooms={filterRoomsByName(rooms.dirty)}
+          count={rooms.totalCounts.dirty}
+        />
+        <RoomColumn
+          title="Maintenance Block"
+          rooms={filterRoomsByName(rooms.maintenance)}
+          count={rooms.totalCounts.maintenance}
+        />
+      </div>
+      <div className="col-lg-12">
+        <Pagination pages={pageIndex} />
+      </div>
+      <ToastContainer position="bottom-right" autoClose={3000} />
       {currentRoom && (
         <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
           <Modal.Header closeButton>
@@ -384,39 +433,6 @@ const RoomsAdmin = () => {
           </Modal.Body>
         </Modal>
       )}
-
-      <h2 className="mb-4 text-center">Quản lý Phòng</h2>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <button className="btn btn-success" onClick={clickAdd}>
-          <i className="bi bi-plus"></i> Thêm
-        </button>
-      </div>
-      <div className="row g-3">
-        <RoomColumn
-          title="Clean"
-          rooms={rooms.clean}
-          count={rooms.totalCounts.clean}
-        />
-        <RoomColumn
-          title="Occupied"
-          rooms={rooms.occupied}
-          count={rooms.totalCounts.occupied}
-        />
-        <RoomColumn
-          title="Dirty"
-          rooms={rooms.dirty}
-          count={rooms.totalCounts.dirty}
-        />
-        <RoomColumn
-          title="Maintenance Block"
-          rooms={rooms.maintenance}
-          count={rooms.totalCounts.maintenance}
-        />
-      </div>
-      <div className="col-lg-12">
-        <Pagination pages={pageIndex} />
-      </div>
-      <ToastContainer position="bottom-right" />
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Xác nhận</Modal.Title>
